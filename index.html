@@ -51,6 +51,7 @@ th{font-size:13px;color:var(--mut)}
 .trow textarea{min-height:52px}
 .trow .orig{white-space:pre-wrap;word-break:break-word;font-size:14px}
 .trow .src{font-size:12px;color:var(--mut);word-break:break-word}
+#listBody{max-height:70vh;overflow-y:auto}
 .pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;background:#eef1f4;border:1px solid var(--line)}
 .pill.ok{background:#e3f2e8;color:var(--ok);border-color:#bcdcc4}
 .pill.tm{background:#e8eefc;color:#23408f;border-color:#c3d2f5}
@@ -117,21 +118,9 @@ body.simple .adv{display:none!important}
       <li><b>Tinjau Teks Variabel dihapus (v3.2):</b> fitur v3 dihapus atas permintaan Ilham — string di <code>(set:)</code> / <code>&lt;&lt;set&gt;&gt;</code> kembali dilindungi utuh seperti sebelum v3 (tidak diterjemahkan).</li>
       <li><b>Simpanan proyek di IndexedDB (v3.3):</b> proyek tersimpan lengkap termasuk teks asli file-nya — setelah reload, klik <b>Lanjutkan proyek</b> dan pekerjaanmu kembali tanpa perlu upload ulang file yang sama.</li>
       <li><b>Pemulihan placeholder (v3.4):</b> placeholder glossary (<code>{{{GL0}}}</code>) dan variabel (<code>{{{GT0}}}</code>) dipulihkan tanpa peduli huruf besar/kecil — mesin yang mengecilkan hurufnya tidak lagi membuat placeholder bocor ke file hasil. Sisa placeholder ditolak saat validasi dan dibersihkan dari simpanan lama.</li>
+      <li><b>Statistik di atas Daftar Teks &amp; ETA dari batch terakhir (v3.4.1):</b> kotak Statistik pindah ke atas Daftar Teks supaya selalu terlihat saat proses berjalan; perkiraan waktu dihitung dari kecepatan 10 batch terakhir, bukan rata-rata sejak awal — fase mesin mati tidak lagi membuat ETA membengkak. Daftar Teks tetap 100 baris per halaman, tapi kotaknya lebih besar dan bisa di-scroll sendiri.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
-  </section>
-
-  <section id="secStats">
-    <h2>Statistik</h2>
-    <div class="stats">
-      <div class="stat"><b id="statTotal">0</b><span>Total teks</span></div>
-      <div class="stat"><b id="statDone">0</b><span>Sudah diterjemahkan</span></div>
-      <div class="stat"><b id="statLeft">0</b><span>Sisa</span></div>
-      <div class="stat"><b id="statPct">0%</b><span>Selesai</span></div>
-      <div class="stat"><b id="statEta">-</b><span>Perkiraan waktu</span></div>
-    </div>
-    <div class="bar"><i id="progressBar"></i></div>
-    <p id="statNote" class="mut">Belum ada file. Upload file game HTML untuk mulai.</p>
   </section>
 
   <section id="secOptions" class="adv">
@@ -161,6 +150,19 @@ body.simple .adv{display:none!important}
     <p class="mut">Upload terjemahan lama (.po / .tmx / .json pasangan EN→ID). Teks yang sama persis dipakai ulang otomatis — hanya teks baru yang dikirim ke mesin terjemah.</p>
     <input type="file" id="tmFile" accept=".po,.tmx,.json">
     <p id="tmInfo" class="mut"></p>
+  </section>
+
+  <section id="secStats">
+    <h2>Statistik</h2>
+    <div class="stats">
+      <div class="stat"><b id="statTotal">0</b><span>Total teks</span></div>
+      <div class="stat"><b id="statDone">0</b><span>Sudah diterjemahkan</span></div>
+      <div class="stat"><b id="statLeft">0</b><span>Sisa</span></div>
+      <div class="stat"><b id="statPct">0%</b><span>Selesai</span></div>
+      <div class="stat"><b id="statEta">-</b><span>Perkiraan waktu</span></div>
+    </div>
+    <div class="bar"><i id="progressBar"></i></div>
+    <p id="statNote" class="mut">Belum ada file. Upload file game HTML untuk mulai.</p>
   </section>
 
   <section id="secList">
@@ -237,7 +239,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.1 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6417,7 +6419,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.1 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4) Pemulihan placeholder tidak peduli huruf besar/kecil: mesin
@@ -6702,7 +6704,7 @@ const S = {
   encodeStyle: { quote: false, apos: false, nbsp: false },
   running: false, cancelled: false,
   page: 0, perPage: 100, selected: new Set(),
-  stats: { totalMs: 0, doneCount: 0 },
+  stats: { totalMs: 0, doneCount: 0, recent: [] },
   origDownloaded: false, needsReupload: false,
 };
 let segCounter = 0;
@@ -7612,7 +7614,7 @@ async function translateSegments(queue) {
   const BATCH = 10; // v3.1: 10 teks/batch (aturan FASE 23 app lama) — batch 20 lebih gampang membuat Google mengembalikan balasan kosong
   resetCircuitBreaker();
   let done = 0;
-  const t0 = Date.now();
+  let bt0 = Date.now(); // (v3.4.1) awal batch berjalan — durasi batch dicatat untuk ETA
   for (let i = 0; i < queue.length; i += BATCH) {
     if (S.cancelled) { log('Terjemahan dihentikan oleh pengguna.', 'w'); break; }
     const chunk = queue.slice(i, i + BATCH);
@@ -7631,12 +7633,19 @@ async function translateSegments(queue) {
       }
     }
     done += chunk.length;
-    S.stats.totalMs += Date.now() - t0;
+    /* (v3.4.1) Catat durasi batch ini (waktu terjemah + jeda antar batch)
+       untuk ETA: hanya kecepatan batch terakhir yang dipakai. */
+    const bms = Date.now() - bt0 + (i + BATCH < queue.length ? 1200 : 0);
+    S.stats.totalMs += bms;
+    if (!Array.isArray(S.stats.recent)) S.stats.recent = [];
+    S.stats.recent.push({ ms: bms, n: chunk.length });
+    if (S.stats.recent.length > 10) S.stats.recent.shift();
     S.stats.doneCount = done;
     updateStats(); renderList(); saveProject();
     $('transStatus').textContent = 'Menerjemahkan ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
     $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
     if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
+    bt0 = Date.now();
   }
   /* v3.1: sisa yang gagal di semua mesin online -> Translator bawaan Chrome
      (di perangkat, tanpa kuota). Bila API tidak tersedia, teks tetap gagal
@@ -7958,6 +7967,8 @@ window.__GTHTML_V31__ = { translateBatch, translateSegments, googleDictBatch, pa
 window.__GTHTML_V33__ = { saveProject, loadSavedProject, restoreProject, idbSave, idbLoad, idbDelete, idbAvailable, migrateFromLocalStorage, readLocalStorageProject, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V34__ (v3.4) */
 window.__GTHTML_V34__ = { cleanPlaceholderTranslations, hasLeftoverPlaceholder, LEFTOVER_PLACEHOLDER_RE, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V341__ (v3.4.1) */
+window.__GTHTML_V341__ = { recentAvgSeconds, updateStats, renderList, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8142,7 +8153,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.1\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8253,6 +8264,20 @@ function doneCount() {
   }
   return n;
 }
+/* (v3.4.1) Kecepatan rata-rata (detik/teks) dari 10 batch terakhir saja.
+   Fase mesin mati di awal proses tidak lagi membuat ETA ngaco (pernah
+   13.472 mnt di file 17.699 teks karena rata-rata kumulatif sejak awal).
+   Kurang dari 2 batch -> rata-rata kumulatif; belum ada batch -> 0,8 dtk/teks. */
+function recentAvgSeconds() {
+  const rec = S.stats.recent || [];
+  if (rec.length >= 2) {
+    let ms = 0, n = 0;
+    for (const b of rec) { ms += b.ms; n += b.n; }
+    if (n > 0) return ms / n / 1000;
+  }
+  if (S.stats.doneCount > 0 && S.stats.totalMs > 0) return S.stats.totalMs / S.stats.doneCount / 1000;
+  return 0.8;
+}
 function updateStats() {
   const segs = translatableSegs().filter((s) => !s.skipped);
   const total = segs.length, done = doneCount(), left = total - done;
@@ -8263,8 +8288,7 @@ function updateStats() {
   $('progressBar').style.width = total ? Math.round((done / total) * 100) + '%' : '0%';
   let eta = '-';
   if (left > 0) {
-    const avg = S.stats.doneCount > 0 ? (S.stats.totalMs / S.stats.doneCount / 1000) : 0.8;
-    eta = fmtEta(left * avg);
+    eta = fmtEta(left * recentAvgSeconds());
   } else if (total > 0) eta = 'selesai';
   $('statEta').textContent = eta;
   $('statNote').textContent = S.fileName
@@ -8282,12 +8306,13 @@ function statusPill(seg) {
 }
 function renderList() {
   const body = $('listBody');
+  const keepScroll = body.scrollTop; // (v3.4.1) daftar di-scroll di kotaknya sendiri — render ulang jangan lompat ke atas
   const segs = translatableSegs();
   const pages = Math.max(1, Math.ceil(segs.length / S.perPage));
   if (S.page >= pages) S.page = pages - 1;
   if (S.page < 0) S.page = 0;
   $('pageInfo').textContent = segs.length ? ('Halaman ' + (S.page + 1) + '/' + pages + ' — ' + segs.length + ' teks') : '';
-  if (!segs.length) { body.innerHTML = '<p class="mut">Belum ada teks. Upload file dulu.</p>'; return; }
+  if (!segs.length) { body.innerHTML = '<p class="mut">Belum ada teks. Upload file dulu.</p>'; body.scrollTop = keepScroll; return; }
   const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
   const html = [];
   slice.forEach((seg, i) => {
@@ -8304,6 +8329,7 @@ function renderList() {
       + '</div>');
   });
   body.innerHTML = html.join('');
+  body.scrollTop = keepScroll;
   body.querySelectorAll('textarea').forEach((ta) => {
     ta.addEventListener('input', () => {
       const id = ta.dataset.id;
@@ -8579,7 +8605,7 @@ async function loadFile(file) {
   S.fileHash = djb2(text);
   S.translations = new Map(); S.tm = new Map(); S.skipPassages = new Set();
   S.outputText = ''; S.page = 0; S.selected.clear();
-  S.stats = { totalMs: 0, doneCount: 0 };
+  S.stats = { totalMs: 0, doneCount: 0, recent: [] };
   segCounter = 0;
   doScan();
   showFileInfo();
@@ -8771,8 +8797,8 @@ function init() {
     for (const seg of S.segments) seg.skipped = S.skipPassages.has(seg.passage);
     updateStats(); renderSkipList(); renderList(); saveProject();
   });
-  $('btnPrevPage').addEventListener('click', () => { if (S.page > 0) { S.page--; renderList(); } });
-  $('btnNextPage').addEventListener('click', () => { S.page++; renderList(); });
+  $('btnPrevPage').addEventListener('click', () => { if (S.page > 0) { S.page--; renderList(); $('listBody').scrollTop = 0; } });
+  $('btnNextPage').addEventListener('click', () => { S.page++; renderList(); $('listBody').scrollTop = 0; });
   // Aksi file
   $('btnBuild').addEventListener('click', () => doBuild(true));
   $('btnPreview').addEventListener('click', () => {
