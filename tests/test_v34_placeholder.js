@@ -13,6 +13,7 @@ const html = fs.readFileSync(htmlPath, 'utf8');
 const gamePath = '/home/hatch/workspace/afterimage/Afterimage-Prologue.html';
 const game = fs.readFileSync(gamePath, 'utf8');
 let pass = 0, fail = 0;
+let e2Promise = Promise.resolve(); // (v3.4.2) blok E2 async — ringkasan menunggu ini
 function check(name, cond, extra) {
   if (cond) { pass++; console.log('PASS ' + name); }
   else { fail++; console.log('FAIL ' + name + (extra ? ' — ' + extra : '')); }
@@ -31,7 +32,7 @@ G._setState({ glossary: GLOSSARY });
 const ev = (code) => w.eval(code);
 
 check('A0 hook v3.4 tersedia', !!w.__GTHTML_V34__ && typeof w.__GTHTML_V34__.cleanPlaceholderTranslations === 'function' && typeof w.__GTHTML_V34__.hasLeftoverPlaceholder === 'function');
-check('A0 label versi v3.4.1', html.includes('Game Translate HTML v3.4.1') && !html.includes('Game Translate HTML v3.4 '));
+check('A0 label versi v3.4.2', html.includes('Game Translate HTML v3.4.2') && !html.includes('Game Translate HTML v3.4.1'));
 check('A0 Cara pakai menyebut pemulihan placeholder v3.4', html.includes('Pemulihan placeholder (v3.4)'));
 check('A0 GTHTML tersedia', !!G && typeof G.prepareForTranslate === 'function' && typeof G.restoreTranslated === 'function' && typeof G.buildOutput === 'function' && typeof G.verifyOutput === 'function');
 
@@ -150,9 +151,11 @@ check('A0 GTHTML tersedia', !!G && typeof G.prepareForTranslate === 'function' &
   check('E1 restoreProject: terjemahan bersih tidak tersentuh', !!goodAfter && goodAfter.text === 'Terjemahan bersih.' && !goodAfter.failed, JSON.stringify(goodAfter));
   // Jalur doBuild: entri bocor yang dimasukkan belakangan ikut dibersihkan
   // sebelum file hasil dibangun — segmennya kembali Inggris.
+  // (v3.4.2) doBuild kini async — tunggu build selesai sebelum memeriksa.
+  e2Promise = (async () => {
   const badSeg2 = scan.segments.filter((s) => s.text === 'Continue')[1];
   G._state.translations.set(badSeg2.id, { text: '{{{GL0}}}', via: 'Google' });
-  const built2 = ev('doBuild(false)');
+  const built2 = await ev('doBuild(false)');
   check('E2 doBuild jalan (tidak null)', !!built2);
   const bad2After = G._state.translations.get(badSeg2.id);
   check('E2 doBuild: entri {{{GL0}}} ditandai gagal sebelum build', !!bad2After && bad2After.failed === true && bad2After.text === '', JSON.stringify(bad2After));
@@ -161,7 +164,10 @@ check('A0 GTHTML tersedia', !!G && typeof G.prepareForTranslate === 'function' &
   const checks2 = G.verifyOutput(built2.text);
   const ph2 = checks2.find((c) => c.label.indexOf('placeholder') !== -1);
   check('E2 doBuild: verifyOutput cek placeholder lolos', !!ph2 && ph2.ok === true);
+  })();
 }
 
-console.log('\nV34_PLACEHOLDER: ' + pass + ' PASS, ' + fail + ' FAIL');
-process.exit(fail ? 1 : 0);
+e2Promise.then(() => {
+  console.log('\nV34_PLACEHOLDER: ' + pass + ' PASS, ' + fail + ' FAIL');
+  process.exit(fail ? 1 : 0);
+});

@@ -127,7 +127,8 @@ const HTML_DMG_STR = HTML_ORIG.replace('"Hello"', '"Halo"');
 }
 
 /* ---------- guard doBuild (integrasi) ---------- */
-{
+/* (v3.4.2) doBuild kini async — blok ini menunggu build selesai. */
+const f1Promise = (async () => {
   // Skenario: scan fixture Twine2, terjemahkan dialog, Timpa -> script utuh.
   w.eval('S.fileName = "test.html"; S.originalText = ' + JSON.stringify(TW2_ORIG) + '; S.translations = new Map(); S.tm = new Map(); S.skipPassages = new Set(); S.outputText = ""; S.page = 0; S.selected = new Set(); S.stats = { totalMs: 0, doneCount: 0 }; S.translateNames = false; S.includeScript = false;');
   w.eval('doScan();');
@@ -135,14 +136,14 @@ const HTML_DMG_STR = HTML_ORIG.replace('"Hello"', '"Halo"');
   check('F1 doBuild: scan fixture menemukan segmen dialog', nSegs > 0, 'segs=' + nSegs);
   const dlgId = w.eval('S.segments.find(function(s){ return s.text.indexOf("Hello world") >= 0; }) && S.segments.find(function(s){ return s.text.indexOf("Hello world") >= 0; }).id');
   if (dlgId) w.eval('S.translations.set(' + JSON.stringify(dlgId) + ', { text: "Halo dunia.", via: "test" });');
-  const built = w.eval('doBuild(false) && S.outputText');
+  const built = await w.eval('(async () => { await doBuild(false); return S.outputText; })()');
   check('F1 doBuild: output berisi terjemahan dialog', typeof built === 'string' && built.includes('Halo dunia.'));
   check('F1 doBuild: script asli utuh di output', typeof built === 'string' && built.includes('if (x) { a(); } else { b(); }'));
   // Penjaga: rusak output secara manual, guard harus memulihkan.
   const corrupted = built.replace('if (x) { a(); } else { b(); }', 'jika (x) { a(); } kalau tidak { b(); }');
   const g = V2.guardScriptsInOutput(corrupted, TW2_ORIG);
   check('F2 guard: script rusak di output dipulihkan', g.restored === 1 && g.text.includes('if (x) { a(); } else { b(); }') && g.text.includes('Halo dunia.'));
-}
+})();
 
 /* ---------- perbaikan nyata: Seedship-ID vs aslinya ---------- */
 {
@@ -189,5 +190,8 @@ const HTML_DMG_STR = HTML_ORIG.replace('"Hello"', '"Halo"');
   check('H1 regresi: dialog Seedship tetap ketemu', scan.segments.some((s) => s.text.indexOf("seedship's course") >= 0 || s.text.indexOf('The seedship') >= 0));
 }
 
-console.log('\nPERBAIKI_KODE: ' + pass + ' PASS, ' + fail + ' FAIL');
-process.exit(fail ? 1 : 0);
+/* (v3.4.2) Tunggu blok F1 async selesai sebelum menutup (doBuild async). */
+f1Promise.then(() => {
+  console.log('\nPERBAIKI_KODE: ' + pass + ' PASS, ' + fail + ' FAIL');
+  process.exit(fail ? 1 : 0);
+});

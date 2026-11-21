@@ -119,6 +119,7 @@ body.simple .adv{display:none!important}
       <li><b>Simpanan proyek di IndexedDB (v3.3):</b> proyek tersimpan lengkap termasuk teks asli file-nya — setelah reload, klik <b>Lanjutkan proyek</b> dan pekerjaanmu kembali tanpa perlu upload ulang file yang sama.</li>
       <li><b>Pemulihan placeholder (v3.4):</b> placeholder glossary (<code>{{{GL0}}}</code>) dan variabel (<code>{{{GT0}}}</code>) dipulihkan tanpa peduli huruf besar/kecil — mesin yang mengecilkan hurufnya tidak lagi membuat placeholder bocor ke file hasil. Sisa placeholder ditolak saat validasi dan dibersihkan dari simpanan lama.</li>
       <li><b>Statistik di atas Daftar Teks &amp; ETA dari batch terakhir (v3.4.1):</b> kotak Statistik pindah ke atas Daftar Teks supaya selalu terlihat saat proses berjalan; perkiraan waktu dihitung dari kecepatan 10 batch terakhir, bukan rata-rata sejak awal — fase mesin mati tidak lagi membuat ETA membengkak. Daftar Teks tetap 100 baris per halaman, tapi kotaknya lebih besar dan bisa di-scroll sendiri.</li>
+      <li><b>Bangun file tanpa macet (v3.4.2):</b> Timpa &amp; Unduh / Pratinjau kini dikerjakan bertahap dengan jeda, jadi tab tidak lagi "Page Unresponsive" di file besar (17.699 teks) — progres tiap langkah terlihat di info build, dan tombol Timpa/Pratinjau nonaktif selama build berjalan. Hasil file-nya identik dengan sebelumnya.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -239,7 +240,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.1 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.2 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6419,9 +6420,15 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.1 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.2 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
+   - (v3.4.2) Build bertahap tanpa macet: doBuild() kini async dan
+     memberi jeda antar fase (plus per potongan 1000 segmen di fase
+     repair/QA), jadi tab tidak lagi "Page Unresponsive" di file besar.
+     Write-back juga tidak lagi menyalin ulang seluruh file per ganti
+     (satu lintasan join — hasil byte-identik). Tombol Timpa/Pratinjau
+     nonaktif selama build berjalan.
    - (v3.4) Pemulihan placeholder tidak peduli huruf besar/kecil: mesin
      (khususnya Google gratis) sering mengecilkan {{{GL0}}} jadi {{{gl0}}}
      saat menerjemahkan — pemulihan case-sensitive lama tidak mengenalinya
@@ -7969,6 +7976,8 @@ window.__GTHTML_V33__ = { saveProject, loadSavedProject, restoreProject, idbSave
 window.__GTHTML_V34__ = { cleanPlaceholderTranslations, hasLeftoverPlaceholder, LEFTOVER_PLACEHOLDER_RE, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V341__ (v3.4.1) */
 window.__GTHTML_V341__ = { recentAvgSeconds, updateStats, renderList, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V342__ (v3.4.2) */
+window.__GTHTML_V342__ = { doBuild, buildOutput, verifyOutput, qaAll, qaAllChunked, repairTranslations, setBuildButtonsDisabled, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8038,11 +8047,18 @@ function buildOutput() {
   for (let i = 1; i < reps.length; i++) {
     if (reps[i].start < reps[i - 1].end) { log('Peringatan: penggantian tumpang tindih di offset ' + reps[i].start + ' — dilewati.', 'w'); reps.splice(i, 1); i--; }
   }
-  let out = S.originalText;
-  for (let i = reps.length - 1; i >= 0; i--) {
-    out = out.slice(0, reps[i].start) + reps[i].replacement + out.slice(reps[i].end);
+  // (v3.4.2) Satu lintasan dengan join — hasil byte-identik dengan loop
+  // slice mundur lama, tapi tanpa menyalin ulang seluruh file per ganti.
+  // Loop lama itu O(n x ukuran file): di file 17.699 teks / ~1 MB, ia
+  // menyalin ~17 GB dan membuat tab membeku ("Page Unresponsive").
+  const parts = [];
+  let pos = 0;
+  for (const r of reps) {
+    parts.push(S.originalText.slice(pos, r.start), r.replacement);
+    pos = r.end;
   }
-  return { text: out, replaced: reps.length };
+  parts.push(S.originalText.slice(pos));
+  return { text: parts.join(''), replaced: reps.length };
 }
 /* ---------------- verifikasi file hasil (ide 5) ---------------- */
 function verifyOutput(outText) {
@@ -8114,32 +8130,59 @@ function qaAll() {
   }
   return rows;
 }
+/* (v3.4.2) QA per potongan 1000 segmen dengan jeda — hasil identik
+   dengan qaAll() (urutan sama), tapi tab tidak membeku di file besar.
+   Dipakai doBuild(); qaAll() sync tetap dipakai renderReport. */
+async function qaAllChunked() {
+  const rows = [];
+  const segs = S.segments;
+  for (let i = 0; i < segs.length; i += 1000) {
+    const end = Math.min(i + 1000, segs.length);
+    for (let j = i; j < end; j++) {
+      const seg = segs[j];
+      if (!seg.translatable || seg.skipped) continue;
+      const issues = qaSegment(seg);
+      if (issues.length) rows.push({ seg, issues });
+    }
+    await sleep(0);
+  }
+  return rows;
+}
 /* ---------------- repair (ide 15) ----------------
    Perbaiki yang rusak: variabel yang hilang disisipkan kembali di posisi
    yang sama seperti di teks asli; kalau masih gagal, kembalikan ke teks
    asli (aman — game tidak rusak, teks itu tetap Inggris). */
-function repairTranslations() {
+/* (v3.4.2) Async + per potongan 1000 segmen dengan jeda — hasil identik
+   dengan versi sync lama, tapi tab tetap responsif di file besar.
+   Hanya dipanggil dari doBuild(). */
+async function repairTranslations() {
   const repaired = [], reverted = [];
-  for (const seg of S.segments) {
-    if (!seg.translatable || seg.skipped) continue;
-    const tr = S.translations.get(seg.id);
-    if (!tr || !tr.text || tr.failed) continue;
-    const missing = getMissingVars(seg.text, tr.text);
-    if (!missing.length) continue;
-    let fixed = tr.text;
-    for (const v of missing) {
-      const idx = seg.text.indexOf(v);
-      const at = Math.min(idx, fixed.length);
-      fixed = fixed.slice(0, at) + v + fixed.slice(at);
+  const segs = S.segments;
+  for (let i = 0; i < segs.length; i += 1000) {
+    const end = Math.min(i + 1000, segs.length);
+    for (let j = i; j < end; j++) {
+      const seg = segs[j];
+      if (!seg.translatable || seg.skipped) continue;
+      const tr = S.translations.get(seg.id);
+      if (!tr || !tr.text || tr.failed) continue;
+      const missing = getMissingVars(seg.text, tr.text);
+      if (!missing.length) continue;
+      let fixed = tr.text;
+      for (const v of missing) {
+        const idx = seg.text.indexOf(v);
+        const at = Math.min(idx, fixed.length);
+        fixed = fixed.slice(0, at) + v + fixed.slice(at);
+      }
+      const stillMissing = getMissingVars(seg.text, fixed);
+      if (!stillMissing.length && fixed !== tr.text) {
+        S.translations.set(seg.id, { text: fixed, via: tr.via + '+repair' });
+        repaired.push(seg);
+      } else {
+        S.translations.set(seg.id, { text: '', via: 'gagal:repair', failed: true });
+        reverted.push(seg);
+      }
     }
-    const stillMissing = getMissingVars(seg.text, fixed);
-    if (!stillMissing.length && fixed !== tr.text) {
-      S.translations.set(seg.id, { text: fixed, via: tr.via + '+repair' });
-      repaired.push(seg);
-    } else {
-      S.translations.set(seg.id, { text: '', via: 'gagal:repair', failed: true });
-      reverted.push(seg);
-    }
+    await sleep(0);
   }
   return { repaired, reverted };
 }
@@ -8153,7 +8196,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.1\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.2\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8642,46 +8685,77 @@ async function runTranslate(which) {
   $('transStatus').textContent = '';
   updateStats(); renderList(); renderReport(null, null); saveProject();
 }
-function doBuild(downloadFiles) {
+/* (v3.4.2) Build bertahap tanpa macet: doBuild kini async — tiap fase
+   memberi jeda (await sleep(0)) supaya browser bisa repaint dan tab
+   tetap responsif di file besar. Progres tiap fase tampil di #buildInfo.
+   Tombol Timpa/Pratinjau nonaktif selama build berjalan (cegah klik
+   ganda). Hasil file, cek verifikasi, QA, dan baris log akhir identik
+   dengan versi sync lama. */
+let buildRunning = false; // (v3.4.2) cegah build ganda bersamaan
+function setBuildButtonsDisabled(disabled) {
+  $('btnBuild').disabled = disabled;
+  $('btnPreview').disabled = disabled;
+}
+async function doBuild(downloadFiles) {
   if (!S.fileName) { log('Upload file dulu.', 'w'); return null; }
   if (S.needsReupload || !S.originalText) { log('Teks asli tidak tersimpan di proyek ini — upload ulang file yang sama dulu, baru Timpa.', 'e'); return null; }
-  // (v3.4) Bersihkan terjemahan yang masih mengandung placeholder bocor
-  // sebelum membangun file hasil.
-  cleanPlaceholderTranslations();
-  if (S.translateNames) {
-    if (!window.confirm('Mode nama passage AKTIF: nama passage (name= di tw-storydata) akan diubah mengikuti terjemahan, dan semua link ke passage itu ikut berubah. Ini mengubah identitas save game. Lanjutkan?')) return null;
-  }
-  const repaired = repairTranslations();
-  if (repaired.repaired.length) log('Repair: ' + repaired.repaired.length + ' teks diperbaiki (variabel disisipkan kembali).', 'g');
-  if (repaired.reverted.length) log('Repair: ' + repaired.reverted.length + ' teks dikembalikan ke Inggris karena tidak bisa diperbaiki.', 'w');
-  const built = buildOutput();
-  // (v2) Penjaga kode: pulihkan diam-diam blok <<script>>/<script> yang
-  // rusak di file hasil dari aslinya — jangan pernah memblokir Timpa.
-  const guard = guardScriptsInOutput(built.text, S.originalText);
-  let guardMsg = '';
-  if (guard.restored) {
-    built.text = guard.text;
-    const names = [...new Set(guard.rows.filter((r) => r.status === 'Dipulihkan').map((r) => r.passage))];
-    guardMsg = ' Penjaga kode: ' + guard.restored + ' blok script dipulihkan otomatis dari aslinya (' + names.slice(0, 5).join(', ') + (names.length > 5 ? ', …' : '') + ').';
-    log(guardMsg.trim(), 'w');
-  }
-  S.outputText = built.text;
-  const checks = verifyOutput(built.text);
-  const qaRows = qaAll();
-  renderReport(checks, qaRows);
-  renderList(); updateStats(); saveProject();
-  const okCount = checks.filter((c) => c.ok).length;
-  $('buildInfo').textContent = 'Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi: ' + okCount + '/' + checks.length + ' cek lolos. ' + qaRows.length + ' teks bermasalah (lihat Laporan).' + guardMsg;
-  log('Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi ' + okCount + '/' + checks.length + ' lolos.');
-  if (downloadFiles) {
-    if (!S.origDownloaded) {
-      download(origFileName(), S.originalText, 'text/html;charset=utf-8');
-      S.origDownloaded = true;
-      log('Salinan asli diunduh sebagai ' + origFileName() + ' — simpan baik-baik, ini cadanganmu.');
+  if (buildRunning) { log('Build sedang berjalan — tunggu selesai dulu.', 'w'); return null; }
+  buildRunning = true;
+  setBuildButtonsDisabled(true);
+  try {
+    // (v3.4) Bersihkan terjemahan yang masih mengandung placeholder bocor
+    // sebelum membangun file hasil.
+    cleanPlaceholderTranslations();
+    await sleep(0);
+    if (S.translateNames) {
+      if (!window.confirm('Mode nama passage AKTIF: nama passage (name= di tw-storydata) akan diubah mengikuti terjemahan, dan semua link ke passage itu ikut berubah. Ini mengubah identitas save game. Lanjutkan?')) return null;
     }
-    setTimeout(() => download(outFileName(), built.text, 'text/html;charset=utf-8'), 600);
+    $('buildInfo').textContent = 'Membangun file hasil... (1/5: mengganti teks)';
+    const repaired = await repairTranslations();
+    if (repaired.repaired.length) log('Repair: ' + repaired.repaired.length + ' teks diperbaiki (variabel disisipkan kembali).', 'g');
+    if (repaired.reverted.length) log('Repair: ' + repaired.reverted.length + ' teks dikembalikan ke Inggris karena tidak bisa diperbaiki.', 'w');
+    const built = buildOutput();
+    await sleep(0);
+    // (v2) Penjaga kode: pulihkan diam-diam blok <<script>>/<script> yang
+    // rusak di file hasil dari aslinya — jangan pernah memblokir Timpa.
+    $('buildInfo').textContent = 'Membangun file hasil... (2/5: menjaga kode script)';
+    const guard = guardScriptsInOutput(built.text, S.originalText);
+    let guardMsg = '';
+    if (guard.restored) {
+      built.text = guard.text;
+      const names = [...new Set(guard.rows.filter((r) => r.status === 'Dipulihkan').map((r) => r.passage))];
+      guardMsg = ' Penjaga kode: ' + guard.restored + ' blok script dipulihkan otomatis dari aslinya (' + names.slice(0, 5).join(', ') + (names.length > 5 ? ', …' : '') + ').';
+      log(guardMsg.trim(), 'w');
+    }
+    S.outputText = built.text;
+    await sleep(0);
+    $('buildInfo').textContent = 'Membangun file hasil... (3/5: memeriksa file hasil)';
+    const checks = verifyOutput(built.text);
+    await sleep(0);
+    $('buildInfo').textContent = 'Membangun file hasil... (4/5: QA)';
+    const qaRows = await qaAllChunked();
+    $('buildInfo').textContent = 'Membangun file hasil... (5/5: menyimpan)';
+    renderReport(checks, qaRows);
+    renderList(); updateStats(); saveProject();
+    const okCount = checks.filter((c) => c.ok).length;
+    $('buildInfo').textContent = 'Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi: ' + okCount + '/' + checks.length + ' cek lolos. ' + qaRows.length + ' teks bermasalah (lihat Laporan).' + guardMsg;
+    log('Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi ' + okCount + '/' + checks.length + ' lolos.');
+    if (downloadFiles) {
+      if (!S.origDownloaded) {
+        download(origFileName(), S.originalText, 'text/html;charset=utf-8');
+        S.origDownloaded = true;
+        log('Salinan asli diunduh sebagai ' + origFileName() + ' — simpan baik-baik, ini cadanganmu.');
+      }
+      setTimeout(() => download(outFileName(), built.text, 'text/html;charset=utf-8'), 600);
+    }
+    return built;
+  } catch (e) {
+    log('Timpa gagal: ' + (e && e.message ? e.message : e), 'e');
+    return null;
+  } finally {
+    buildRunning = false;
+    setBuildButtonsDisabled(false);
   }
-  return built;
 }
 /* ---------------- provider custom ---------------- */
 function loadCustomProvider() {
@@ -8799,10 +8873,10 @@ function init() {
   });
   $('btnPrevPage').addEventListener('click', () => { if (S.page > 0) { S.page--; renderList(); $('listBody').scrollTop = 0; } });
   $('btnNextPage').addEventListener('click', () => { S.page++; renderList(); $('listBody').scrollTop = 0; });
-  // Aksi file
-  $('btnBuild').addEventListener('click', () => doBuild(true));
-  $('btnPreview').addEventListener('click', () => {
-    if (!S.outputText) { if (!doBuild(false)) return; }
+  // Aksi file (v3.4.2: doBuild async — handler menunggu build selesai)
+  $('btnBuild').addEventListener('click', async () => { await doBuild(true); });
+  $('btnPreview').addEventListener('click', async () => {
+    if (!S.outputText) { if (!await doBuild(false)) return; }
     const blob = new Blob([S.outputText], { type: 'text/html;charset=utf-8' });
     window.open(URL.createObjectURL(blob), '_blank');
     log('Pratinjau dibuka di tab baru. (Simpanan di pratinjau mungkin tidak bertahan — itu normal untuk file blob.)');
