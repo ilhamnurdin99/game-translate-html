@@ -17,7 +17,7 @@ function check(name, cond, extra) {
 const V3 = w.__GTHTML_V3__;
 check('A0 hook v3 tersedia', !!V3 && typeof V3.analyzeVarUsage === 'function' && typeof V3.processVarCandidates === 'function' && typeof V3.extractVarAssignments === 'function');
 check('A0 acorn tersedia', !!w.acorn && typeof w.acorn.parse === 'function');
-check('A0 label versi v3', html.includes('Game Translate HTML v3.0') && !html.includes('Game Translate HTML v2.0'));
+check('A0 label versi v3.1', html.includes('Game Translate HTML v3.1') && !html.includes('Game Translate HTML v3.0'));
 check('A0 seksi Tinjau Teks Variabel ada', html.includes('id="secVarReview"') && html.includes('id="varSummary"') && html.includes('id="varReviewBody"'));
 check('A0 seksi Cara pakai ada', html.includes('id="secHow"') && html.includes('Tinjau Teks Variabel (v3)'));
 

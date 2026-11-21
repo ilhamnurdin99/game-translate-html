@@ -113,6 +113,7 @@ body.simple .adv{display:none!important}
       <li>Upload file game HTML (Twine / SugarCube / Harlowe) — file dibaca di browser, tidak dikirim ke mana-mana.</li>
       <li>Periksa Daftar Teks, lalu <b>Terjemahkan semua</b>.</li>
       <li><b>Tinjau Teks Variabel (v3):</b> string yang disimpan di variabel (<code>(set: $pesan to "...")</code> / <code>&lt;&lt;set $pesan to "..."&gt;&gt;</code>) diterjemahkan otomatis bila variabel itu hanya ditampilkan; yang meragukan (dipakai juga sebagai pembanding/kunci, pendek, atau tidak pernah dipakai) muncul di seksi "Tinjau Teks Variabel" — putuskan per baris.</li>
+      <li><b>Pemutus sirkuit &amp; mesin cadangan (v3.1):</b> bila satu mesin gagal 3 batch berturut-turut, mesin itu dimatikan untuk sisa proses dan app otomatis pindah ke mesin berikutnya (Google → Google Dict → Edge → Translator Chrome di perangkat → MyMemory). Mesin yang sedang dipakai terlihat di status terjemahan.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -137,6 +138,7 @@ body.simple .adv{display:none!important}
     <p class="mut">Teks dari &lt;script&gt; mati secara default karena berisiko — nyalakan hanya bila perlu, dan uji dulu di game yang sudah dikenal. Pada file Twine, &lt;script&gt; juga berisi kode mesin SugarCube/Harlowe sendiri.</p>
     <h3>Passage yang dilewati (skip-passage)</h3>
     <p class="mut">Centang passage yang JANGAN diterjemahkan (misalnya kode, credit, atau teks yang memang harus Inggris).</p>
+    <label class="inline"><input type="checkbox" id="skipAll" disabled> Pilih semua <span class="mut" id="skipAllCount"></span></label>
     <div id="skipList" class="skipgrid"><span class="mut">Belum ada file.</span></div>
   </section>
 
@@ -239,7 +241,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.0 — khusus game HTML. Mesin terjemah: provider custom → Google (gratis) → Microsoft Edge (gratis) → MyMemory. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.1 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6419,7 +6421,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.0 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.1 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3) Tinjau Teks Variabel: string di (set: $var to "...") /
@@ -7651,35 +7653,132 @@ async function customBatch(texts, src, tgt) {
   if (!out) throw new Error('Custom: format balasan tidak dikenal');
   return out;
 }
-/* Rantai fallback per batch: custom → Google → Google (marker) → Edge →
-   MyMemory (satu per satu). Kembalikan array string|null. */
+/* ---------------- mesin terjemah: pemutus sirkuit (v3.1) ----------------
+   Port pola aplikasi Gabungan (FASE 50): tiap mesin punya penghitung
+   kegagalan beruntun; 3 batch gagal total berturut-turut -> mesin
+   dimatikan untuk sisa proses, supaya proses tidak mengulang-ulang
+   mesin yang sudah mati (kasus nyata v3: 17.716 teks, Google saja,
+   17.193 gagal karena tiap batch mulai lagi dari Google). */
+function isRetryable(e) {
+  const code = (e && typeof e.status === 'number') ? e.status : null;
+  if (code !== null) return code === 429 || code >= 500;
+  const m = (e && e.message) || '';
+  const mm = /HTTP (\d+)/.exec(m);
+  if (mm) { const c = parseInt(mm[1], 10); return c === 429 || c >= 500; }
+  return true; // gangguan jaringan (tanpa kode HTTP) boleh dicoba ulang
+}
+const CB = {
+  custom: { down: false, streak: 0 },
+  google: { down: false, streak: 0 },
+  dict: { down: false, streak: 0 },
+  edge: { down: false, streak: 0 },
+};
+const CB_LABEL = { custom: 'Provider custom', google: 'Google', dict: 'Google Dict', edge: 'Edge' };
+const CB_NEXT = { custom: 'Google', google: 'Google Dict', dict: 'Edge', edge: 'Translator Chrome' };
+let curEngine = '';
+let retrySleep = sleep;
+function setRetrySleep(fn) { retrySleep = fn; }
+function resetCircuitBreaker() {
+  for (const k of Object.keys(CB)) { CB[k].down = false; CB[k].streak = 0; }
+  curEngine = '';
+}
+function noteEngineOk(name) { CB[name].streak = 0; }
+function noteEngineFail(name, e) {
+  const m = (e && e.message) || '';
+  const code = (e && typeof e.status === 'number') ? e.status : (/HTTP (\d+)/.exec(m) || [])[1];
+  // Kunci/akses ditolak (401/403) pada provider custom tidak akan pulih
+  // dengan sendirinya — matikan langsung, jangan tunggu 3 batch.
+  if (name === 'custom' && (code === 401 || code === '401' || code === 403 || code === '403')) {
+    if (!CB[name].down) {
+      CB[name].down = true;
+      log('[Pemutus sirkuit] Provider custom dimatikan (akses ditolak ' + code + ' — periksa kunci/URL) — pindah ke Google.', 'w');
+    }
+    return;
+  }
+  CB[name].streak++;
+  if (CB[name].streak >= 3 && !CB[name].down) {
+    CB[name].down = true;
+    log('[Pemutus sirkuit] ' + CB_LABEL[name] + ' dimatikan untuk sisa proses (3 gagal beruntun) — pindah ke ' + CB_NEXT[name] + '.', 'w');
+  }
+}
+function setEngine(name) {
+  if (name === curEngine) return;
+  curEngine = name;
+  log('Mesin: ' + name + '.');
+  const el = $('transStatus'); if (el) el.textContent = 'Mesin: ' + name + '…';
+}
+async function tryWithRetry(fn, attempts, baseMs) {
+  let lastErr = null;
+  for (let a = 0; a < attempts; a++) {
+    try { return await fn(); }
+    catch (e) {
+      lastErr = e;
+      if (!isRetryable(e) || a === attempts - 1) break;
+      await retrySleep(baseMs * (a + 1));
+    }
+  }
+  throw lastErr;
+}
+/* Google Dict (v3.1, port dari Gabungan): endpoint clients5.google.com —
+   jalur Google kedua yang terpisah dari endpoint gtx utama, dipakai bila
+   Google utama mati. Format balasan: array string polos sepanjang n. */
+function parseDictResponse(data, n) {
+  if (!Array.isArray(data) || data.length !== n) return null;
+  for (const s of data) if (typeof s !== 'string' || !s) return null;
+  return data;
+}
+async function googleDictBatch(texts, src, tgt) {
+  const params = new URLSearchParams();
+  params.append('client', 'dict-chrome-ex'); params.append('sl', src); params.append('tl', tgt);
+  for (const t of texts) params.append('q', t);
+  const res = await fetch('https://clients5.google.com/translate_a/t?' + params.toString());
+  if (!res.ok) { const e = new Error('GoogleDict HTTP ' + res.status); e.status = res.status; throw e; }
+  const out = parseDictResponse(await res.json(), texts.length);
+  if (!out) throw new Error('GoogleDict: format balasan tidak dikenal');
+  return out;
+}
+/* Rantai fallback per batch (v3.1): custom → Google (+marker bila semua
+   null) → Google Dict → Edge → MyMemory (satu per satu). Tiap mesin
+   dijaga pemutus sirkuit (lihat di atas). Kembalikan array {text, via}|null. */
 async function translateBatch(texts, src, tgt) {
   const n = texts.length;
-  const fail = () => Array(n).fill(null);
-  if (customCfg.enabled) {
-    try { const r = await customBatch(texts, src, tgt); if (r) return r.map((x) => ({ text: x, via: 'Custom' })); }
-    catch (e) { log('Provider custom gagal (' + e.message + ') — lanjut ke Google.', 'w'); }
+  const mapOk = (r, via) => r.map((x) => (x ? { text: x, via } : null));
+  if (customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model && !CB.custom.down) {
+    setEngine('Custom');
+    try {
+      const r = await tryWithRetry(() => customBatch(texts, src, tgt), 2, 1000);
+      if (r) { noteEngineOk('custom'); return mapOk(r, 'Custom'); }
+    } catch (e) { log('Provider custom gagal (' + e.message + ') — lanjut ke Google.', 'w'); noteEngineFail('custom', e); }
   }
-  try {
-    const r = await googleBatch(texts, src, tgt);
-    if (r.some((x) => x)) return r.map((x) => (x ? { text: x, via: 'Google' } : null));
-    log('Google mengembalikan kosong semua — coba mode marker.', 'w');
-    try { const r2 = await googleBatchMarkers(texts, src, tgt); return r2.map((x) => (x ? { text: x, via: 'Google' } : null)); }
-    catch (e2) { log('Google marker gagal: ' + e2.message, 'w'); }
-  } catch (e) {
-    if (e.status === 429) {
-      log('Google 429 (batas sementara) — tunggu 10 detik lalu coba sekali lagi.', 'w');
-      await sleep(10000);
+  if (!CB.google.down) {
+    setEngine('Google');
+    try {
+      const r = await tryWithRetry(() => googleBatch(texts, src, tgt), 3, 1000);
+      if (r && r.some((x) => x)) { noteEngineOk('google'); return mapOk(r, 'Google'); }
+      log('Google mengembalikan kosong semua — coba mode marker.', 'w');
       try {
-        const r = await googleBatch(texts, src, tgt);
-        if (r.some((x) => x)) return r.map((x) => (x ? { text: x, via: 'Google' } : null));
-      } catch (e2) { log('Google tetap gagal: ' + e2.message, 'w'); }
-    } else log('Google gagal: ' + e.message, 'w');
+        const r2 = await googleBatchMarkers(texts, src, tgt);
+        if (r2 && r2.some((x) => x)) { noteEngineOk('google'); return mapOk(r2, 'Google'); }
+        log('Google marker mengembalikan kosong semua.', 'w');
+      } catch (e2) { log('Google marker gagal: ' + e2.message, 'w'); }
+      noteEngineFail('google');
+    } catch (e) { log('Google gagal: ' + e.message, 'w'); noteEngineFail('google', e); }
   }
-  try {
-    const r = await edgeBatch(texts, src, tgt);
-    return r.map((x) => (x ? { text: x, via: 'Edge' } : null));
-  } catch (e) { log('Edge gagal: ' + e.message, 'w'); }
+  if (!CB.dict.down) {
+    setEngine('Google Dict');
+    try {
+      const r = await tryWithRetry(() => googleDictBatch(texts, src, tgt), 2, 1200);
+      if (r) { noteEngineOk('dict'); return mapOk(r, 'Google Dict'); }
+    } catch (e) { log('Google Dict gagal: ' + e.message, 'w'); noteEngineFail('dict', e); }
+  }
+  if (!CB.edge.down) {
+    setEngine('Edge');
+    try {
+      const r = await tryWithRetry(() => edgeBatch(texts, src, tgt), 2, 1200);
+      if (r) { noteEngineOk('edge'); return mapOk(r, 'Edge'); }
+    } catch (e) { log('Edge gagal: ' + e.message, 'w'); noteEngineFail('edge', e); }
+  }
+  setEngine('MyMemory');
   const out = [];
   for (const t of texts) {
     try { out.push({ text: await mymemoryOne(t, src, tgt), via: 'MyMemory' }); }
@@ -7687,6 +7786,27 @@ async function translateBatch(texts, src, tgt) {
     await sleep(400);
   }
   return out;
+}
+/* Translator bawaan Chrome (v3.1, port dari Gabungan FASE 18): penyelamat
+   akhir untuk sisa yang gagal di semua mesin online. Hanya Chrome 138+
+   (dan Edge 148+); bila API tidak tersedia, kembalikan null — dilewati,
+   bukan error. Menerjemahkan satu per satu seperti di Gabungan. */
+async function builtinBatch(texts, src, tgt) {
+  if (typeof Translator === 'undefined') return null;
+  try {
+    const avail = await Translator.availability({ sourceLanguage: src, targetLanguage: tgt });
+    if (avail === 'unavailable') return null;
+    const tr = await Translator.create({ sourceLanguage: src, targetLanguage: tgt });
+    const out = [];
+    for (let i = 0; i < texts.length; i++) {
+      if (S.cancelled) return null;
+      out.push(await tr.translate(texts[i]));
+      if ((i + 1) % 25 === 0 || i === texts.length - 1) {
+        const el = $('transStatus'); if (el) el.textContent = 'Translator Chrome: ' + (i + 1) + '/' + texts.length + '…';
+      }
+    }
+    return out;
+  } catch (e) { return null; }
 }
 /* Siapkan satu teks untuk dikirim: lindungi placeholder + glossary. */
 function prepareForTranslate(text) {
@@ -7708,7 +7828,8 @@ function validateOne(clean, original) {
 }
 /* Terjemahkan daftar segmen (queue). Menghormati tombol Berhenti. */
 async function translateSegments(queue) {
-  const BATCH = 20;
+  const BATCH = 10; // v3.1: 10 teks/batch (aturan FASE 23 app lama) — batch 20 lebih gampang membuat Google mengembalikan balasan kosong
+  resetCircuitBreaker();
   let done = 0;
   const t0 = Date.now();
   for (let i = 0; i < queue.length; i += BATCH) {
@@ -7732,9 +7853,29 @@ async function translateSegments(queue) {
     S.stats.totalMs += Date.now() - t0;
     S.stats.doneCount = done;
     updateStats(); renderList(); saveProject();
-    $('transStatus').textContent = 'Menerjemahkan ' + Math.min(done, queue.length) + '/' + queue.length + '…';
+    $('transStatus').textContent = 'Menerjemahkan ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
     $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
     if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
+  }
+  /* v3.1: sisa yang gagal di semua mesin online -> Translator bawaan Chrome
+     (di perangkat, tanpa kuota). Bila API tidak tersedia, teks tetap gagal
+     — tidak error, bisa "Ulangi yang gagal" nanti. */
+  const failedSegs = queue.filter((seg) => { const t = S.translations.get(seg.id); return t && t.failed; });
+  if (failedSegs.length && !S.cancelled) {
+    setEngine('Chrome');
+    const bPreps = failedSegs.map((seg) => prepareForTranslate(seg.text));
+    const bOut = await builtinBatch(bPreps.map((p) => p.send), SRC, TGT);
+    if (bOut) {
+      let rescued = 0;
+      for (let j = 0; j < failedSegs.length; j++) {
+        const seg = failedSegs[j];
+        const clean = restoreTranslated(bOut[j], bPreps[j], seg.text);
+        if (!validateOne(clean, seg.text)) { S.translations.set(seg.id, { text: clean, via: 'Chrome' }); rescued++; }
+      }
+      if (rescued) { log('Translator Chrome menyelamatkan ' + rescued + ' dari ' + failedSegs.length + ' teks yang gagal di mesin online.'); updateStats(); renderList(); saveProject(); }
+    } else {
+      log('Translator bawaan Chrome tidak bisa dipakai di browser ini — sisa ' + failedSegs.length + ' teks tetap gagal (coba "Ulangi yang gagal" nanti).', 'w');
+    }
   }
   return done;
 }
@@ -8032,6 +8173,8 @@ function guardScriptsInOutput(outText, origText) { return repairScripts(origText
 window.__GTHTML_V2__ = { extractScriptBlocks, analyzeScriptDamage, repairScripts, guardScriptsInOutput, unescapeTwineText, tryParseJS, tokenizeJS, ID_CODE_WORDS };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3__ (v3) */
 window.__GTHTML_V3__ = { analyzeVarUsage, processVarCandidates, extractVarAssignments, isCodeLikeString, varClassOf, varUsageSummary };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V31__ (v3.1) */
+window.__GTHTML_V31__ = { translateBatch, translateSegments, googleDictBatch, parseDictResponse, builtinBatch, isRetryable, resetCircuitBreaker, circuitBreaker: CB, setRetrySleep, state: S, renderSkipList, saveProject, restoreProject, setCustomCfg: (c) => { customCfg = Object.assign({}, customCfg, c); } };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8213,7 +8356,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.0\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.1\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8227,7 +8370,7 @@ function buildPo() {
 }
 function xmlEscape(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function buildTmx() {
-  const out = ['<?xml version="1.0" encoding="UTF-8"?>', '<tmx version="1.4">', '<header creationtool="Game Translate HTML" creationtoolversion="3.0" datatype="PlainText" segtype="sentence" adminlang="en-US" srclang="en" o-tmf="Game Translate HTML"/>', '<body>'];
+  const out = ['<?xml version="1.0" encoding="UTF-8"?>', '<tmx version="1.4">', '<header creationtool="Game Translate HTML" creationtoolversion="3.1" datatype="PlainText" segtype="sentence" adminlang="en-US" srclang="en" o-tmf="Game Translate HTML"/>', '<body>'];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8396,6 +8539,7 @@ function renderList() {
       if (!seg) return;
       b.disabled = true;
       const prep = prepareForTranslate(seg.text);
+      resetCircuitBreaker(); // sekali klik = percobaan baru (pemutus dari proses lama tidak ikut)
       const res = await translateBatch([prep.send], SRC, TGT);
       if (res[0]) {
         const clean = restoreTranslated(res[0].text, prep, seg.text);
@@ -8409,9 +8553,20 @@ function renderList() {
   });
   $('chkAll').checked = slice.length > 0 && slice.every((s) => S.selected.has(s.id));
 }
+/* Status ceklis utama "Pilih semua" (v3.1): checked bila semua passage
+   dilewati, indeterminate bila sebagian, nonaktif bila belum ada file. */
+function updateSkipAll() {
+  const m = $('skipAll'); if (!m) return;
+  const total = S.passages.length;
+  const skipped = S.passages.filter((p) => S.skipPassages.has(p.name)).length;
+  m.disabled = total === 0;
+  m.checked = total > 0 && skipped === total;
+  m.indeterminate = skipped > 0 && skipped < total;
+  const c = $('skipAllCount'); if (c) c.textContent = total ? '(' + skipped + ' dilewati dari ' + total + ' passage)' : '';
+}
 function renderSkipList() {
   const box = $('skipList');
-  if (!S.passages.length) { box.innerHTML = '<span class="mut">Belum ada file.</span>'; return; }
+  if (!S.passages.length) { box.innerHTML = '<span class="mut">Belum ada file.</span>'; updateSkipAll(); return; }
   box.innerHTML = S.passages.map((p) =>
     '<label><input type="checkbox" data-p="' + esc(p.name) + '"' + (S.skipPassages.has(p.name) ? ' checked' : '') + '> ' + esc(p.name) + '</label>'
   ).join('');
@@ -8419,9 +8574,10 @@ function renderSkipList() {
     cb.addEventListener('change', () => {
       if (cb.checked) S.skipPassages.add(cb.dataset.p); else S.skipPassages.delete(cb.dataset.p);
       for (const seg of S.segments) if (seg.passage === cb.dataset.p) seg.skipped = cb.checked;
-      updateStats(); renderList(); saveProject();
+      updateStats(); renderList(); saveProject(); updateSkipAll();
     });
   });
+  updateSkipAll();
 }
 function renderGlossary() {
   const body = $('glossBody');
@@ -8784,6 +8940,13 @@ function init() {
     const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
     for (const s of slice) { if (!s.skipped) { if ($('chkAll').checked) S.selected.add(s.id); else S.selected.delete(s.id); } }
     renderList();
+  });
+  // v3.1: ceklis utama skip-passage — centang semua / hapus semua.
+  $('skipAll').addEventListener('change', () => {
+    const all = $('skipAll').checked;
+    for (const p of S.passages) { if (all) S.skipPassages.add(p.name); else S.skipPassages.delete(p.name); }
+    for (const seg of S.segments) seg.skipped = S.skipPassages.has(seg.passage);
+    updateStats(); renderSkipList(); renderList(); saveProject();
   });
   $('btnPrevPage').addEventListener('click', () => { if (S.page > 0) { S.page--; renderList(); } });
   $('btnNextPage').addEventListener('click', () => { S.page++; renderList(); });
