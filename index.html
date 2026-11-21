@@ -115,6 +115,7 @@ body.simple .adv{display:none!important}
       <li><b>Filter kebocoran pemindai (v3.2):</b> segmen yang isinya cuma baris kosong (<code>\n</code>/<code>\t</code>), teks debug (<code>@@.debug-text</code> / <code>@@.error</code>), dan komentar kode (<code>/* ... */</code>) tidak lagi masuk Daftar Teks — hanya teks tampil asli yang diterjemahkan.</li>
       <li><b>Pemutus sirkuit &amp; mesin cadangan (v3.1):</b> bila satu mesin gagal 3 batch berturut-turut, mesin itu dimatikan untuk sisa proses dan app otomatis pindah ke mesin berikutnya (Google → Google Dict → Edge → Translator Chrome di perangkat → MyMemory). Mesin yang sedang dipakai terlihat di status terjemahan.</li>
       <li><b>Tinjau Teks Variabel dihapus (v3.2):</b> fitur v3 dihapus atas permintaan Ilham — string di <code>(set:)</code> / <code>&lt;&lt;set&gt;&gt;</code> kembali dilindungi utuh seperti sebelum v3 (tidak diterjemahkan).</li>
+      <li><b>Simpanan proyek di IndexedDB (v3.3):</b> proyek tersimpan lengkap termasuk teks asli file-nya — setelah reload, klik <b>Lanjutkan proyek</b> dan pekerjaanmu kembali tanpa perlu upload ulang file yang sama.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -235,7 +236,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.2 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.3 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6415,9 +6416,13 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.2 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.3 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
+   - (v3.3) Simpanan proyek pindah ke IndexedDB (kuota ratusan MB):
+     proyek lengkap termasuk teks asli tersimpan; reload tidak perlu
+     upload ulang. localStorage (~5 MB, dipakai bersama aplikasi
+     Gabungan) tidak lagi dipakai untuk proyek.
    - (v3.2) Filter kebocoran pemindai: segmen kosong (hanya \n/\t),
      teks debug @@.debug-text / @@.error, dan komentar JS dibuang —
      tidak masuk Daftar Teks. (v3) Tinjau Teks Variabel DIHAPUS atas
@@ -7912,6 +7917,8 @@ function guardScriptsInOutput(outText, origText) { return repairScripts(origText
 window.__GTHTML_V2__ = { extractScriptBlocks, analyzeScriptDamage, repairScripts, guardScriptsInOutput, unescapeTwineText, tryParseJS, tokenizeJS, ID_CODE_WORDS };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V31__ (v3.1) */
 window.__GTHTML_V31__ = { translateBatch, translateSegments, googleDictBatch, parseDictResponse, builtinBatch, isRetryable, resetCircuitBreaker, circuitBreaker: CB, setRetrySleep, state: S, renderSkipList, saveProject, restoreProject, setCustomCfg: (c) => { customCfg = Object.assign({}, customCfg, c); } };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V33__ (v3.3) */
+window.__GTHTML_V33__ = { saveProject, loadSavedProject, restoreProject, idbSave, idbLoad, idbDelete, idbAvailable, migrateFromLocalStorage, readLocalStorageProject, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8092,7 +8099,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.2\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.3\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8218,7 +8225,7 @@ function updateStats() {
   } else if (total > 0) eta = 'selesai';
   $('statEta').textContent = eta;
   $('statNote').textContent = S.fileName
-    ? ('File: ' + S.fileName + ' — ' + S.engine.name + ' — ' + S.passages.length + ' passage, ' + S.segments.length + ' segmen terpindai.')
+    ? ('File: ' + S.fileName + ' — ' + (S.engine ? S.engine.name : 'mesin tidak diketahui') + ' — ' + S.passages.length + ' passage, ' + S.segments.length + ' segmen terpindai.')
     : 'Belum ada file. Upload file game HTML untuk mulai.';
 }
 function statusPill(seg) {
@@ -8339,12 +8346,73 @@ function renderReport(verifyChecks, qaRows) {
     ? untr.slice(0, 50).map((s) => '<li>' + esc((s.passage ? s.passage + ': ' : '') + s.text.slice(0, 80)) + '</li>').join('') + (untr.length > 50 ? '<li class="mut">…dan ' + (untr.length - 50) + ' lagi.</li>' : '')
     : '<li class="ok">Tidak ada — semua teks sudah diterjemahkan.</li>';
 }
-/* ---------------- autosave localStorage (ide 13) ---------------- */
+/* ---------------- simpanan proyek IndexedDB (v3.3, ide 13) ----------------
+   v3.2 menyimpan seluruh proyek di satu key localStorage 'gthtml_v1'.
+   localStorage Chrome ~5 MB per origin, dan origin ini dipakai bersama
+   aplikasi Gabungan (cache terjemahannya sendiri bisa ~5 MB) — file
+   647 KB–1 MB saja sudah membuat saveProject gagal QuotaExceededError
+   dan jatuh ke simpanan slim tanpa teks asli (reload = upload ulang).
+   v3.3: proyek LENGKAP termasuk originalText disimpan di IndexedDB
+   (kuota ratusan MB, API bawaan browser, tanpa library luar — file
+   app tetap mandiri satu file). Satu proyek aktif, key 'current' —
+   sama seperti satu key localStorage sebelumnya; paling sederhana dan
+   cocok dengan alur app (satu file game dalam satu waktu).
+   localStorage hanya untuk pengaturan kecil (provider, Mode Sederhana).
+   Bila IndexedDB tidak tersedia/gagal (mis. mode privat), jatuh kembali
+   ke perilaku lama (localStorage slim + peringatan) — app tidak crash. */
+const IDB_NAME = 'gthtml';
+const IDB_STORE = 'projects';
+const IDB_KEY = 'current';
+function idbAvailable() {
+  try { return typeof indexedDB !== 'undefined' && !!indexedDB; } catch (e) { return false; }
+}
+let idbDbPromise = null;
+function idbOpen() {
+  if (!idbAvailable()) return Promise.reject(new Error('IndexedDB tidak tersedia'));
+  if (idbDbPromise) return idbDbPromise;
+  idbDbPromise = new Promise((resolve, reject) => {
+    let req;
+    try { req = indexedDB.open(IDB_NAME, 1); } catch (e) { reject(e); return; }
+    req.onupgradeneeded = () => {
+      try {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      } catch (e) { /* abaikan — onsuccess/onerror yang memutuskan */ }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB open gagal'));
+    req.onblocked = () => reject(new Error('IndexedDB diblokir'));
+  });
+  // Bila open gagal, jangan kunci promise gagal itu selamanya.
+  idbDbPromise.catch(() => { idbDbPromise = null; });
+  return idbDbPromise;
+}
+function idbRequest(mode, fn) {
+  return idbOpen().then((db) => new Promise((resolve, reject) => {
+    let req;
+    try {
+      const tx = db.transaction(IDB_STORE, mode);
+      req = fn(tx.objectStore(IDB_STORE));
+    } catch (e) { reject(e); return; }
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB request gagal'));
+  }));
+}
+/* Rantai tulis: saveProject dipanggil berkali-kali (debounce 800 ms,
+   tiap batch terjemahan) — put diantre supaya urutan tulis terjaga
+   dan simpanan terakhir yang menang. */
+let idbWriteChain = Promise.resolve();
+function idbSave(data) {
+  const p = idbWriteChain.then(() => idbRequest('readwrite', (st) => st.put(data, IDB_KEY)));
+  idbWriteChain = p.catch(() => {});
+  return p;
+}
+function idbLoad() { return idbRequest('readonly', (st) => st.get(IDB_KEY)).catch(() => null); }
+function idbDelete() { return idbRequest('readwrite', (st) => st.delete(IDB_KEY)).catch(() => {}); }
 let saveTimer = null;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProject, 800); }
-function saveProject() {
-  if (!S.fileName) return;
-  const data = {
+function collectProjectData() {
+  return {
     v: 1, fileName: S.fileName, fileHash: S.fileHash, originalText: S.originalText,
     segments: S.segments, passages: S.passages,
     translations: [...S.translations.entries()],
@@ -8352,9 +8420,13 @@ function saveProject() {
     includeScript: S.includeScript, translateNames: S.translateNames,
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
   };
+}
+/* Fallback lama (localStorage) — dipakai bila IndexedDB tidak ada/gagal. */
+function saveProjectToLocalStorage(data) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(data));
     S.needsReupload = false;
+    return true;
   } catch (e) {
     // localStorage penuh (file besar) — simpan tanpa teks asli; lanjutkan
     // butuh upload ulang file yang sama.
@@ -8363,10 +8435,19 @@ function saveProject() {
       localStorage.setItem(LS_KEY, JSON.stringify(slim));
       S.needsReupload = true;
       log('Simpanan localStorage penuh — teks asli tidak tersimpan. Untuk melanjutkan setelah reload, upload ulang file yang sama.', 'w');
-    } catch (e2) { /* abaikan */ }
+      return true;
+    } catch (e2) { return false; }
   }
 }
-function loadSavedProject() {
+function saveProject() {
+  if (!S.fileName) return;
+  const data = collectProjectData();
+  if (!idbAvailable()) { saveProjectToLocalStorage(data); return; }
+  idbSave(data).then(() => { S.needsReupload = false; }).catch(() => {
+    saveProjectToLocalStorage(data);
+  });
+}
+function readLocalStorageProject() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return null;
@@ -8374,6 +8455,25 @@ function loadSavedProject() {
     if (!d || d.v !== 1 || !d.fileName) return null;
     return d;
   } catch (e) { return null; }
+}
+/* Migrasi sekali: pindahkan proyek lama dari localStorage ke IndexedDB,
+   lalu hapus key localStorage itu (membebaskan kuota ~5 MB). Bila
+   migrasi gagal, key lama dipertahankan — data tidak hilang. */
+function migrateFromLocalStorage() {
+  const d = readLocalStorageProject();
+  if (!d) return Promise.resolve(null);
+  if (!idbAvailable()) return Promise.resolve(null);
+  return idbSave(d).then(() => {
+    try { localStorage.removeItem(LS_KEY); } catch (e) { /* abaikan */ }
+    return d;
+  }).catch(() => null);
+}
+function loadSavedProject() {
+  if (!idbAvailable()) return Promise.resolve(readLocalStorageProject());
+  return idbLoad().then((d) => {
+    if (d && d.v === 1 && d.fileName) return d;
+    return migrateFromLocalStorage().then((m) => m || readLocalStorageProject());
+  }).catch(() => readLocalStorageProject());
 }
 function restoreProject(d) {
   S.fileName = d.fileName; S.fileHash = d.fileHash || '';
@@ -8679,9 +8779,10 @@ function init() {
     }
     btn.disabled = false;
   });
-  // Proyek tersimpan
-  const saved = loadSavedProject();
-  if (saved) {
+  // Proyek tersimpan (v3.3: IndexedDB, async — migrasi dari
+  // localStorage lama berjalan di dalam loadSavedProject).
+  loadSavedProject().then((saved) => {
+    if (!saved) return;
     const done = (saved.translations || []).filter(([, t]) => t && t.text && !t.failed).length;
     $('savedInfo').textContent = saved.fileName + ' — ' + done + '/' + (saved.segments || []).length + ' teks diterjemahkan, disimpan ' + new Date(saved.ts).toLocaleString('id-ID') + '.';
     $('savedBanner').classList.remove('hidden');
@@ -8691,11 +8792,12 @@ function init() {
       log('Proyek tersimpan dilanjutkan: ' + saved.fileName + (S.needsReupload ? ' (upload ulang file yang sama untuk Timpa).' : '.'));
     });
     $('btnDeleteSaved').addEventListener('click', () => {
+      idbDelete();
       try { localStorage.removeItem(LS_KEY); } catch (e) { /* abaikan */ }
       $('savedBanner').classList.add('hidden');
       log('Simpanan proyek dihapus.');
     });
-  }
+  });
   updateStats();
   if (typeof window.acorn === 'undefined') log('PERINGATAN: acorn tidak termuat — ekstraksi <script> tidak akan jalan.', 'e');
   else log('Acorn ' + (window.acorn.version || '?') + ' termuat — ekstraksi <script> siap.');
