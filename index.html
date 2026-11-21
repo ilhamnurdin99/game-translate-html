@@ -184,6 +184,19 @@ body.simple .adv{display:none!important}
     <p id="buildInfo" class="mut"></p>
   </section>
 
+  <section id="secFix">
+    <h2>Perbaiki Kode &lt;&lt;script&gt;&gt; (v2)</h2>
+    <p class="mut">Untuk file hasil terjemahan yang <b>rusak</b> karena kode JavaScript di dalam passage <code>&lt;&lt;script&gt;&gt;</code> ikut diterjemahkan (dulu: <code>else</code> jadi <code>kalau tidak</code>, <code>.show()</code> jadi <code>.tampilkan()</code>, <code>Save</code> jadi <code>Simpan</code>). Upload file <b>asli</b> (Inggris) dan file <b>hasil yang rusak</b> — app membandingkan tiap blok <code>&lt;&lt;script&gt;&gt;</code> / <code>&lt;script&gt;</code> dan memulihkan yang rusak dari aslinya. Teks dialog/narasi tidak disentuh sama sekali. Kalau tidak ada yang rusak, file tidak diubah.</p>
+    <label>File asli (Inggris, belum diterjemahkan)<input type="file" id="fixOrigFile" accept=".html,.htm"></label>
+    <label>File hasil terjemahan yang rusak<input type="file" id="fixBadFile" accept=".html,.htm"></label>
+    <div class="rowbtns">
+      <button id="btnFixCheck" class="primary">Periksa &amp; Perbaiki Kode</button>
+      <button id="btnFixDownload" disabled>Unduh file -PERBAIKAN</button>
+    </div>
+    <p id="fixInfo" class="mut">Belum ada pemeriksaan.</p>
+    <ul id="fixReport" class="check"><li class="mut">-</li></ul>
+  </section>
+
   <section id="secReport">
     <h2>Laporan — Verifikasi &amp; QA</h2>
     <h3>Verifikasi file hasil</h3>
@@ -209,7 +222,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v1.0 — khusus game HTML. Mesin terjemah: provider custom → Google (gratis) → Microsoft Edge (gratis) → MyMemory. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v2.0 — khusus game HTML. Mesin terjemah: provider custom → Google (gratis) → Microsoft Edge (gratis) → MyMemory. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6389,7 +6402,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v1.0 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v2.0 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - Ekstraksi: DOMParser (deteksi mesin + verifikasi) + pemindaian teks
@@ -6780,6 +6793,11 @@ const SC_QUOTE_MACROS = {
   dialog: 'first', print: 'all', notify: 'all', '=': 'all', '-': 'all',
   linkappend: 'first', linkprepend: 'first', linkreplace: 'first',
 };
+/* (v2) Macro blok yang isinya KODE, bukan teks tampil — isinya tidak
+   pernah masuk Daftar Teks. Dulu isi blok ini bocor sebagai teks biasa
+   dan ikut diterjemahkan (Seedship: else -> 'kalau tidak', .show() ->
+   .tampilkan(), Save -> Simpan), sampai game rusak. */
+const BLOCK_CODE_MACROS = new Set(['script', 'widget', 'stylesheet', 'javascript']);
 function quotedArgs(str) {
   // daftar {text, start, end} untuk string ber-tanda-kutip di dalam str
   const out = [];
@@ -6818,6 +6836,19 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
     } else if (tok.startsWith('<<')) {
       const head = /^<<\s*([A-Za-z0-9_=\-]+)/.exec(tok);
       const name = head ? head[1].toLowerCase() : '';
+      // (v2) Blok kode: lewati sampai penutup <</nama>> — isinya tidak
+      // disegmen sama sekali. Hitung kedalaman untuk nama yang sama.
+      if (BLOCK_CODE_MACROS.has(name)) {
+        const closeRe = new RegExp('<<\\s*(/?)\\s*' + name + '\\s*>>', 'g');
+        closeRe.lastIndex = te;
+        let depth = 1, cm, endPos = decoded.length;
+        while ((cm = closeRe.exec(decoded))) {
+          if (cm[1] === '/') { depth--; if (depth === 0) { endPos = cm.index + cm[0].length; break; } }
+          else depth++;
+        }
+        last = endPos;
+        continue;
+      }
       const rule = SC_QUOTE_MACROS[name];
       if (rule) {
         const args = quotedArgs(tok);
@@ -6885,6 +6916,15 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
     if (!tokens.some((t) => m.index >= t.start && m.index < t.end)) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'tag', text: m[0] });
   }
   tokens.sort((a, b) => a.start - b.start);
+  // (v2) Isi <script>/<style> di passage Harlowe adalah kode, bukan teks —
+  // perpanjang token tag sampai penutupnya supaya isinya tidak disegmen.
+  for (const t of tokens) {
+    if (t.kind !== 'tag') continue;
+    const tm = /^<(script|style)\b/i.exec(t.text);
+    if (!tm) continue;
+    const cm = new RegExp('</' + tm[1] + '\\s*>', 'i').exec(text.slice(t.end));
+    t.end = cm ? t.end + cm.index + cm[0].length : text.length;
+  }
   let last = 0;
   for (const t of tokens) {
     if (t.start < last) continue; // tumpang tindih — lewati
@@ -6981,9 +7021,15 @@ function scanFile(text, opts) {
       const contentRaw = m[2];
       const contentRawStart = m.index + m[0].length - contentRaw.length - 17; // -'</tw-passagedata>'.length
       rawPassages += contentRaw;
-      const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
-      segments.push(...scanPassageContent(contentRaw, contentRawStart, ctx));
-      if (opts.translateNames && name && nameRawStart >= 0) {
+      // (v2) Passage kode SugarCube — isinya JavaScript/CSS murni, bukan
+      // teks tampil. Jangan pernah masuk Daftar Teks.
+      const isCodePassage = /^(story (javascript|stylesheet))$/i.test(name);
+      if (!isCodePassage) {
+        const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
+        segments.push(...scanPassageContent(contentRaw, contentRawStart, ctx));
+      }
+      if (opts.translateNames && name && nameRawStart >= 0 && !isCodePassage) {
+        const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
         segments.push(mkSeg(ctx, name, nameRawStart, nameRawEnd, { kind: 'passage-name', translatable: true }));
       }
     }
@@ -7001,9 +7047,14 @@ function scanFile(text, opts) {
         const contentRaw = m[3];
         const contentRawStart = m.index + m[0].length - contentRaw.length - 6; // -'</div>'.length
         rawPassages += contentRaw;
-        const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
-        segments.push(...scanPassageContent(contentRaw, contentRawStart, ctx));
-        if (opts.translateNames && name && nameRawStart >= 0) {
+        // (v2) Passage kode — lihat catatan di cabang Twine 2 di atas.
+        const isCodePassage = /^(story (javascript|stylesheet))$/i.test(name);
+        if (!isCodePassage) {
+          const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
+          segments.push(...scanPassageContent(contentRaw, contentRawStart, ctx));
+        }
+        if (opts.translateNames && name && nameRawStart >= 0 && !isCodePassage) {
+          const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: name });
           segments.push(mkSeg(ctx, name, nameRawStart, nameRawEnd, { kind: 'passage-name', translatable: true }));
         }
       }
@@ -7351,6 +7402,307 @@ function applyTM() {
   return n;
 }
 
+/* ---------------- Perbaiki Kode <<script>> (v2) ----------------
+   Latar: terjemahan lama (aplikasi Gabungan) ikut menerjemahkan kode JS di
+   dalam passage <<script>> Twine — else -> 'kalau tidak', .show() ->
+   .tampilkan(), Save -> Simpan, scrollTop -> gulirTop — sampai SugarCube
+   menampilkan spanduk merah 'bad evaluation'. Dua lapis pertahanan:
+   (A) alat perbaikan: bandingkan file ASLI vs file HASIL yang rusak,
+       pulihkan isi <<script>> / <script> dari aslinya (write-back akurat
+       per byte, hanya isi script yang berubah);
+   (B) penjaga otomatis: isi <<script>> tidak pernah masuk Daftar Teks
+       (lihat BLOCK_CODE_MACROS di atas) dan sebelum Timpa, isi script di
+       file hasil divalidasi lalu dipulihkan diam-diam bila rusak.
+   Analisis memakai acorn (parse + tokenisasi) supaya kata di dalam string
+   literal / komentar tidak pernah dianggap kode. Isi passage Twine 1
+   disimpan dengan escape Twee (\n, \t, \\) sehingga harus di-unescape
+   dulu sebelum di-parse — Twine 2 tidak perlu. */
+const ID_CODE_WORDS = new Map([
+  ['kalau', 'else'], ['tidak', 'not/else'], ['jika', 'if'], ['untuk', 'for'],
+  ['selama', 'while'], ['sementara', 'while'], ['kembali', 'return'],
+  ['kembalikan', 'return'], ['fungsi', 'function'], ['benar', 'true'],
+  ['salah', 'false'], ['ini', 'this'], ['baru', 'new'], ['coba', 'try'],
+  ['tangkap', 'catch'], ['lempar', 'throw'], ['alihkan', 'switch'],
+  ['kasus', 'case'], ['berhenti', 'break'], ['putus', 'break'],
+  ['lanjutkan', 'continue'], ['hapus', 'delete'], ['jenis', 'typeof'],
+  ['dalam', 'in'], ['di', 'in'], ['kelas', 'class'],
+  ['tampilkan', 'show'], ['sembunyikan', 'hide'], ['variabel', 'var'],
+  ['bukan', 'not'], ['kosong', 'null'], ['dengan', 'with'],
+  ['lakukan', 'do'], ['akhirnya', 'finally'], ['simpan', 'Save'],
+  ['mesin', 'Engine'], ['tubuh', 'body'], ['gulir', 'scroll'],
+]);
+/* Kata yang hanya dihitung di posisi keyword (awal statement / setelah
+   '{' ';' '}' dan sejenisnya) — di posisi lain bisa jadi nama biasa. */
+const POS_WORDS = new Set(['jika', 'di', 'dalam']);
+function unescapeTwineText(s) {
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '\\' && i + 1 < s.length) {
+      const n = s[i + 1];
+      if (n === 'n') { out += '\n'; i++; }
+      else if (n === 't') { out += '\t'; i++; }
+      else if (n === 'r') { out += '\r'; i++; }
+      else if (n === '\\') { out += '\\'; i++; }
+      else if (n === "'") { out += "'"; i++; }
+      else if (n === '"') { out += '"'; i++; }
+      else if (n === 'u' && /^[0-9a-fA-F]{4}$/.test(s.slice(i + 2, i + 6))) { out += String.fromCharCode(parseInt(s.slice(i + 2, i + 6), 16)); i += 5; }
+      else out += c;
+    } else out += c;
+  }
+  return out;
+}
+function tryParseJS(code) {
+  if (!window.acorn) return { ok: false, error: 'acorn tidak tersedia' };
+  for (const src of ['script', 'module']) {
+    try { window.acorn.parse(code, { ecmaVersion: 'latest', sourceType: src, allowReturnOutsideFunction: true }); return { ok: true, error: '' }; }
+    catch (e) { if (src === 'module') return { ok: false, error: String((e && e.message) || e) }; }
+  }
+  return { ok: false, error: 'gagal parse' };
+}
+/* Tokenisasi acorn -> [{type, value}] atau null bila tidak bisa di-token. */
+function tokenizeJS(code) {
+  if (!window.acorn || !window.acorn.tokenizer) return null;
+  try {
+    const tk = window.acorn.tokenizer(code, { ecmaVersion: 'latest' });
+    const out = [];
+    let t;
+    while ((t = tk.getToken()).type.label !== 'eof') out.push({ type: t.type.label, value: t.value });
+    return out;
+  } catch (e) { return null; }
+}
+/* String literal (berurutan) di dalam kode, atau null bila gagal parse. */
+function stringLiterals(code) {
+  let ast = null;
+  for (const src of ['script', 'module']) {
+    try { ast = window.acorn.parse(code, { ecmaVersion: 'latest', sourceType: src, allowReturnOutsideFunction: true }); break; }
+    catch (e) { ast = null; }
+  }
+  if (!ast) return null;
+  const out = [];
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'Literal' && typeof node.value === 'string') out.push(node.value);
+    else if (node.type === 'TemplateLiteral') for (const q of node.quasis) if (q.value.cooked != null) out.push(q.value.cooked);
+    for (const k in node) {
+      const v = node[k];
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === 'object' && v.type) walk(v);
+    }
+  };
+  walk(ast);
+  return out;
+}
+/* String di posisi kode (selector/ID/kunci properti/dll.) — bukan string
+   tampilan. Dipakai untuk blok <script> HTML yang string tampilannya
+   memang boleh diterjemahkan lewat opt-in. */
+function codePositionStrings(code) {
+  let ast = null;
+  for (const src of ['script', 'module']) {
+    try { ast = window.acorn.parse(code, { ecmaVersion: 'latest', sourceType: src, allowReturnOutsideFunction: true }); break; }
+    catch (e) { ast = null; }
+  }
+  if (!ast) return null;
+  const out = [];
+  const walk = (node, parent) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'Literal' && typeof node.value === 'string') {
+      let codePos = isCodePosition(node, parent);
+      if (!codePos && parent && parent.type === 'CallExpression') {
+        const cal = parent.callee;
+        if (cal && cal.type === 'Identifier' && (cal.name === '$' || cal.name === 'jQuery')) codePos = true;
+      }
+      if (codePos) out.push(node.value);
+    }
+    for (const k in node) {
+      const v = node[k];
+      if (Array.isArray(v)) v.forEach((c) => walk(c, node));
+      else if (v && typeof v === 'object' && v.type) walk(v, node);
+    }
+  };
+  walk(ast, null);
+  return out;
+}
+/* Analisis sepasang isi script (asli vs hasil). Kembalikan
+   {damaged, reasons[]}. Kata di dalam string literal / komentar tidak
+   pernah dihitung — tokenizer acorn hanya melihat token identifier. */
+function analyzeScriptDamage(origBlock, dmgBlock) {
+  const origCode = origBlock.unescape ? unescapeTwineText(origBlock.decodedBody) : origBlock.decodedBody;
+  const dmgCode = dmgBlock.unescape ? unescapeTwineText(dmgBlock.decodedBody) : dmgBlock.decodedBody;
+  if (origCode === dmgCode) return { damaged: false, reasons: [] };
+  const reasons = [];
+  const origParse = tryParseJS(origCode);
+  const dmgParse = tryParseJS(dmgCode);
+  if (!dmgParse.ok && origParse.ok) reasons.push('gagal parse: ' + dmgParse.error);
+  const origToks = tokenizeJS(origCode), dmgToks = tokenizeJS(dmgCode);
+  if (origToks && dmgToks) {
+    const origIdents = new Set(origToks.filter((t) => t.type === 'name').map((t) => t.value));
+    const found = [], newIdents = [], lostIdents = [];
+    const dmgIdentSet = new Set();
+    for (let i = 0; i < dmgToks.length; i++) {
+      const tk = dmgToks[i];
+      if (tk.type !== 'name') continue;
+      dmgIdentSet.add(tk.value);
+      if (!origIdents.has(tk.value)) {
+        if (!newIdents.includes(tk.value)) newIdents.push(tk.value);
+        const low = String(tk.value).toLowerCase();
+        if (ID_CODE_WORDS.has(low)) {
+          if (POS_WORDS.has(low)) {
+            const prev = i > 0 ? dmgToks[i - 1] : null;
+            if (prev && (prev.type === 'name' || prev.type === 'string' || prev.type === 'num' || prev.type === '.')) continue;
+          }
+          if (!found.includes(tk.value)) found.push(tk.value);
+        }
+      }
+    }
+    for (const w of origIdents) if (!dmgIdentSet.has(w) && !lostIdents.includes(w)) lostIdents.push(w);
+    if (found.length) reasons.push('kata Indonesia di posisi kode: ' + found.join(', '));
+    else if (newIdents.length || lostIdents.length) reasons.push('identifier kode berubah' + (newIdents.length ? ' (baru: ' + newIdents.slice(0, 4).join(', ') + ')' : '') + (lostIdents.length ? ' (hilang: ' + lostIdents.slice(0, 4).join(', ') + ')' : ''));
+    if (dmgBlock.kind === 'twine-script') {
+      // Isi <<script>> adalah kode murni — string di dalamnya pun nilai
+      // kode (selector, nama class, nama passage), bukan teks tampil.
+      const oStrs = stringLiterals(origCode), dStrs = stringLiterals(dmgCode);
+      if (oStrs && dStrs && oStrs.length === dStrs.length) {
+        let changed = 0; const ex = [];
+        for (let i = 0; i < oStrs.length; i++) if (oStrs[i] !== dStrs[i]) { changed++; if (ex.length < 2) ex.push(dStrs[i].slice(0, 40)); }
+        if (changed) reasons.push('string di dalam kode berubah (' + changed + '): "' + ex.join('", "') + '"');
+      }
+    } else {
+      const oCp = codePositionStrings(origCode), dCp = codePositionStrings(dmgCode);
+      if (oCp && dCp && oCp.length === dCp.length) {
+        let changed = 0; const ex = [];
+        for (let i = 0; i < oCp.length; i++) if (oCp[i] !== dCp[i]) { changed++; if (ex.length < 2) ex.push(dCp[i].slice(0, 40)); }
+        if (changed) reasons.push('string posisi kode berubah (' + changed + '): "' + ex.join('", "') + '"');
+      }
+    }
+  }
+  // Blok Twine <<script>> isinya kode murni: perbedaan apa pun yang
+  // terdeteksi di atas = rusak. Blok <script> HTML boleh berubah (string
+  // tampilan via opt-in), jadi hanya bukti di atas yang dihitung — dan
+  // perbedaan yang hanya spasi/komentar tidak pernah dipulihkan.
+  return { damaged: reasons.length > 0, reasons };
+}
+/* Kumpulkan blok <<script>> dari satu passage (teks hasil-decode + peta
+   offset mentah). rawStart/rawEnd menunjuk ke teks mentah file. */
+function collectTwineScriptBlocks(fullText, decText, map, baseRaw, passage, kind, style, unescape, blocks) {
+  const re = /<<\s*script\s*>>([\s\S]*?)<<\s*\/\s*script\s*>>/g;
+  let m, idx = 0;
+  while ((m = re.exec(decText))) {
+    const openEnd = m[0].indexOf('>>') + 2;
+    const closeStart = m[0].lastIndexOf('<<');
+    const ds = m.index + openEnd, de = m.index + closeStart;
+    const rawStart = map[ds] + baseRaw, rawEnd = map[de] + baseRaw;
+    blocks.push({
+      passage, kind: 'twine-script', index: idx++,
+      rawStart, rawEnd, rawBody: fullText.slice(rawStart, rawEnd),
+      decodedBody: m[1], style, unescape,
+    });
+  }
+}
+/* Ekstrak semua blok script dari satu file game:
+   {format: 'twine2'|'twine1'|'html', blocks: [{passage, kind, index,
+   rawStart, rawEnd, rawBody, decodedBody, style, unescape}]} */
+function extractScriptBlocks(text) {
+  const blocks = [];
+  const tw2 = [...text.matchAll(/<tw-passagedata\b([^>]*)>([\s\S]*?)<\/tw-passagedata>/g)];
+  if (tw2.length) {
+    for (const m of tw2) {
+      const name = parseAttrs(m[1]).name || '';
+      const contentRaw = m[2];
+      const contentRawStart = m.index + m[0].length - contentRaw.length - 17;
+      const dec = decodeEntitiesMapped(contentRaw);
+      collectTwineScriptBlocks(text, dec.text, dec.map, contentRawStart, name, 'twine2', detectEncodeStyle(contentRaw), false, blocks);
+    }
+    return { format: 'twine2', blocks };
+  }
+  const tid = [...text.matchAll(/<div\b([^>]*\btiddler\s*=\s*"([^"]*)"[^>]*)>([\s\S]*?)<\/div>/g)];
+  if (tid.length) {
+    for (const m of tid) {
+      const name = decodeEntities(m[2]);
+      const contentRaw = m[3];
+      const contentRawStart = m.index + m[0].length - contentRaw.length - 6;
+      const dec = decodeEntitiesMapped(contentRaw);
+      collectTwineScriptBlocks(text, dec.text, dec.map, contentRawStart, name, 'twine1', detectEncodeStyle(contentRaw), true, blocks);
+    }
+    return { format: 'twine1', blocks };
+  }
+  const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+  let m, idx = 0;
+  while ((m = re.exec(text))) {
+    idx++;
+    const attrs = m[1] || '';
+    if (/\bsrc\s*=/.test(attrs)) continue;
+    const typeM = /type\s*=\s*["']([^"']*)["']/i.exec(attrs);
+    if (typeM && typeM[1] && !/javascript|ecmascript|module/i.test(typeM[1])) continue;
+    const code = m[2];
+    const contentStart = m.index + m[0].length - code.length - 9;
+    blocks.push({ passage: '<script> #' + idx, kind: 'html-script', index: idx, rawStart: contentStart, rawEnd: contentStart + code.length, rawBody: code, decodedBody: code, style: null, unescape: false });
+  }
+  return { format: 'html', blocks };
+}
+/* Sesuaikan encoding isi script asli dengan gaya file hasil (keduanya
+   biasanya sama — Twine meng-encode isi passage dengan &lt; &gt;). */
+function adaptScriptBody(origBlock, dmgBlock) {
+  const entRe = /&(?:lt|gt|amp|quot|apos|nbsp|#)/;
+  const origEnt = entRe.test(origBlock.rawBody), dmgEnt = entRe.test(dmgBlock.rawBody);
+  if (origEnt === dmgEnt) return origBlock.rawBody;
+  if (dmgEnt) return encodePassageText(origBlock.decodedBody, dmgBlock.style || { quote: false, apos: false, nbsp: false });
+  return origBlock.decodedBody;
+}
+/* Bandingkan file ASLI vs file HASIL yang rusak; pulihkan blok script yang
+   rusak dari aslinya (write-back per byte — hanya isi script yang berubah).
+   Kembalikan {text, rows, restored, total}; rows: {passage, kind, reason,
+   status: 'Dipulihkan'|'Sudah benar'|'Dilewati'}. Dipakai juga sebagai
+   penjaga otomatis sebelum Timpa (guardScriptsInOutput). */
+function repairScripts(origText, dmgText) {
+  const o = extractScriptBlocks(origText), d = extractScriptBlocks(dmgText);
+  const rows = [], reps = [];
+  const oMap = new Map();
+  for (const b of o.blocks) oMap.set(b.passage + '\0' + b.index, b);
+  for (const b of d.blocks) {
+    const ob = oMap.get(b.passage + '\0' + b.index);
+    if (!ob) { rows.push({ passage: b.passage, kind: b.kind, reason: 'tidak ditemukan pasangannya di file asli', status: 'Dilewati' }); continue; }
+    const a = analyzeScriptDamage(ob, b);
+    if (!a.damaged) { rows.push({ passage: b.passage, kind: b.kind, reason: 'sudah benar', status: 'Sudah benar' }); continue; }
+    reps.push({ start: b.rawStart, end: b.rawEnd, replacement: adaptScriptBody(ob, b) });
+    rows.push({ passage: b.passage, kind: b.kind, reason: a.reasons.join('; '), status: 'Dipulihkan' });
+  }
+  reps.sort((x, y) => x.start - y.start);
+  let out = dmgText;
+  for (let i = reps.length - 1; i >= 0; i--) out = out.slice(0, reps[i].start) + reps[i].replacement + out.slice(reps[i].end);
+  const restored = rows.filter((r) => r.status === 'Dipulihkan').length;
+  return { text: out, rows, restored, total: d.blocks.length };
+}
+function guardScriptsInOutput(outText, origText) { return repairScripts(origText, outText); }
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V2__ */
+window.__GTHTML_V2__ = { extractScriptBlocks, analyzeScriptDamage, repairScripts, guardScriptsInOutput, unescapeTwineText, tryParseJS, tokenizeJS, ID_CODE_WORDS };
+/* State + aksi seksi Perbaiki Kode (v2). */
+let fixState = { origText: '', badText: '', badName: '', result: null };
+async function runFixCheck() {
+  const fo = $('fixOrigFile').files[0], fb = $('fixBadFile').files[0];
+  if (!fo || !fb) { log('Pilih dulu file asli dan file hasil yang rusak.', 'w'); return; }
+  $('btnFixCheck').disabled = true;
+  try {
+    const origText = await readFileAsText(fo);
+    const badText = await readFileAsText(fb);
+    const res = repairScripts(origText, badText);
+    fixState = { origText, badText, badName: fb.name, result: res };
+    const ok = res.rows.filter((r) => r.status === 'Sudah benar').length;
+    const skip = res.rows.filter((r) => r.status === 'Dilewati').length;
+    $('fixInfo').textContent = res.restored
+      ? ('Dipulihkan ' + res.restored + ' blok script dari ' + res.total + ' blok (' + ok + ' sudah benar, ' + skip + ' dilewati). Teks dialog/narasi tidak disentuh.')
+      : ('Tidak ada kode rusak ditemukan di ' + res.total + ' blok script — file tidak diubah.');
+    $('fixReport').innerHTML = res.rows.length
+      ? res.rows.map((r) => '<li class="' + (r.status === 'Dilewati' ? '' : 'ok') + '">' + esc(r.passage) + ' — <b>' + esc(r.status) + '</b>' + (r.reason ? ' — ' + esc(r.reason) : '') + '</li>').join('')
+      : '<li class="mut">Tidak ada blok script di file ini.</li>';
+    $('btnFixDownload').disabled = !res.restored;
+    log(res.restored ? ('Perbaiki Kode: ' + res.restored + ' blok dipulihkan.') : 'Perbaiki Kode: tidak ada kode rusak ditemukan.', res.restored ? 'g' : '');
+  } catch (e) {
+    log('Perbaiki Kode gagal: ' + (e && e.message ? e.message : e), 'e');
+  }
+  $('btnFixCheck').disabled = false;
+}
+
 /* ---------------- write-back akurat per byte (ide 3) ---------------- */
 function passageNameTranslation(name) {
   for (const seg of S.segments) {
@@ -7504,7 +7856,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v1.0\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v2.0\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -7518,7 +7870,7 @@ function buildPo() {
 }
 function xmlEscape(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function buildTmx() {
-  const out = ['<?xml version="1.0" encoding="UTF-8"?>', '<tmx version="1.4">', '<header creationtool="Game Translate HTML" creationtoolversion="1.0" datatype="PlainText" segtype="sentence" adminlang="en-US" srclang="en" o-tmf="Game Translate HTML"/>', '<body>'];
+  const out = ['<?xml version="1.0" encoding="UTF-8"?>', '<tmx version="1.4">', '<header creationtool="Game Translate HTML" creationtoolversion="2.0" datatype="PlainText" segtype="sentence" adminlang="en-US" srclang="en" o-tmf="Game Translate HTML"/>', '<body>'];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -7880,13 +8232,23 @@ function doBuild(downloadFiles) {
   if (repaired.repaired.length) log('Repair: ' + repaired.repaired.length + ' teks diperbaiki (variabel disisipkan kembali).', 'g');
   if (repaired.reverted.length) log('Repair: ' + repaired.reverted.length + ' teks dikembalikan ke Inggris karena tidak bisa diperbaiki.', 'w');
   const built = buildOutput();
+  // (v2) Penjaga kode: pulihkan diam-diam blok <<script>>/<script> yang
+  // rusak di file hasil dari aslinya — jangan pernah memblokir Timpa.
+  const guard = guardScriptsInOutput(built.text, S.originalText);
+  let guardMsg = '';
+  if (guard.restored) {
+    built.text = guard.text;
+    const names = [...new Set(guard.rows.filter((r) => r.status === 'Dipulihkan').map((r) => r.passage))];
+    guardMsg = ' Penjaga kode: ' + guard.restored + ' blok script dipulihkan otomatis dari aslinya (' + names.slice(0, 5).join(', ') + (names.length > 5 ? ', …' : '') + ').';
+    log(guardMsg.trim(), 'w');
+  }
   S.outputText = built.text;
   const checks = verifyOutput(built.text);
   const qaRows = qaAll();
   renderReport(checks, qaRows);
   renderList(); updateStats(); saveProject();
   const okCount = checks.filter((c) => c.ok).length;
-  $('buildInfo').textContent = 'Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi: ' + okCount + '/' + checks.length + ' cek lolos. ' + qaRows.length + ' teks bermasalah (lihat Laporan).';
+  $('buildInfo').textContent = 'Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi: ' + okCount + '/' + checks.length + ' cek lolos. ' + qaRows.length + ' teks bermasalah (lihat Laporan).' + guardMsg;
   log('Timpa selesai: ' + built.replaced + ' string diganti. Verifikasi ' + okCount + '/' + checks.length + ' lolos.');
   if (downloadFiles) {
     if (!S.origDownloaded) {
@@ -8033,6 +8395,14 @@ function init() {
   $('btnExportTmx').addEventListener('click', () => {
     if (!S.fileName) { log('Belum ada file.', 'w'); return; }
     download(S.fileName.replace(/\.html?$/i, '') + '-ID.tmx', buildTmx(), 'application/xml;charset=utf-8');
+  });
+  // Perbaiki Kode <<script>> (v2)
+  $('btnFixCheck').addEventListener('click', () => runFixCheck());
+  $('btnFixDownload').addEventListener('click', () => {
+    if (!fixState.result || !fixState.result.restored) { log('Belum ada hasil perbaikan untuk diunduh.', 'w'); return; }
+    const name = fixState.badName.replace(/\.html?$/i, '') + '-PERBAIKAN.html';
+    download(name, fixState.result.text, 'text/html;charset=utf-8');
+    log('File perbaikan diunduh sebagai ' + name + '.', 'g');
   });
   // Provider custom
   loadCustomProvider();
