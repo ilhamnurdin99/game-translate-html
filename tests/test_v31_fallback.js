@@ -20,7 +20,7 @@ check('A0 hook v3.1 tersedia', !!V && typeof V.translateBatch === 'function' && 
   && typeof V.googleDictBatch === 'function' && typeof V.parseDictResponse === 'function'
   && typeof V.builtinBatch === 'function' && typeof V.isRetryable === 'function'
   && typeof V.resetCircuitBreaker === 'function');
-check('A0 label versi v3.3', html.includes('Game Translate HTML v3.3') && !html.includes('Game Translate HTML v3.2'));
+check('A0 label versi v3.4', html.includes('Game Translate HTML v3.4') && !html.includes('Game Translate HTML v3.3'));
 check('A0 Cara pakai menyebut pemutus sirkuit v3.1', html.includes('Pemutus sirkuit') && html.includes('(v3.1)'));
 check('A0 BATCH = 10', /const BATCH = 10;/.test(html));
 check('A0 ceklis Pilih semua skip-passage ada', html.includes('id="skipAll"') && html.includes('id="skipAllCount"') && html.includes('Pilih semua'));

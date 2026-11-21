@@ -116,6 +116,7 @@ body.simple .adv{display:none!important}
       <li><b>Pemutus sirkuit &amp; mesin cadangan (v3.1):</b> bila satu mesin gagal 3 batch berturut-turut, mesin itu dimatikan untuk sisa proses dan app otomatis pindah ke mesin berikutnya (Google → Google Dict → Edge → Translator Chrome di perangkat → MyMemory). Mesin yang sedang dipakai terlihat di status terjemahan.</li>
       <li><b>Tinjau Teks Variabel dihapus (v3.2):</b> fitur v3 dihapus atas permintaan Ilham — string di <code>(set:)</code> / <code>&lt;&lt;set&gt;&gt;</code> kembali dilindungi utuh seperti sebelum v3 (tidak diterjemahkan).</li>
       <li><b>Simpanan proyek di IndexedDB (v3.3):</b> proyek tersimpan lengkap termasuk teks asli file-nya — setelah reload, klik <b>Lanjutkan proyek</b> dan pekerjaanmu kembali tanpa perlu upload ulang file yang sama.</li>
+      <li><b>Pemulihan placeholder (v3.4):</b> placeholder glossary (<code>{{{GL0}}}</code>) dan variabel (<code>{{{GT0}}}</code>) dipulihkan tanpa peduli huruf besar/kecil — mesin yang mengecilkan hurufnya tidak lagi membuat placeholder bocor ke file hasil. Sisa placeholder ditolak saat validasi dan dibersihkan dari simpanan lama.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -236,7 +237,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.3 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6416,9 +6417,16 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.3 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
+   - (v3.4) Pemulihan placeholder tidak peduli huruf besar/kecil: mesin
+     (khususnya Google gratis) sering mengecilkan {{{GL0}}} jadi {{{gl0}}}
+     saat menerjemahkan — pemulihan case-sensitive lama tidak mengenalinya
+     sehingga placeholder bocor ke file hasil (23 label "Continue" di
+     Afterimage). validateOne kini menolak sisa placeholder, verifyOutput
+     memeriksanya, dan terjemahan lama yang bocor dibersihkan otomatis
+     saat proyek dimuat / sebelum Timpa.
    - (v3.3) Simpanan proyek pindah ke IndexedDB (kuota ratusan MB):
      proyek lengkap termasuk teks asli tersimpan; reload tidak perlu
      upload ulang. localStorage (~5 MB, dipakai bersama aplikasi
@@ -6620,7 +6628,9 @@ function protectPlaceholders(text) {
   return { text: out, slots };
 }
 function unprotectPlaceholders(text, slots) {
-  return text.replace(/\{\{\{GT(\d+)\}\}\}/g, (m, n) => (slots[+n] !== undefined ? slots[+n] : m));
+  // (v3.4) case-insensitive: mesin sering mengecilkan {{{GT0}}} jadi
+  // {{{gt0}}} saat menerjemahkan — slot harus tetap dipulihkan.
+  return text.replace(/\{\{\{GT(\d+)\}\}\}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n] : m));
 }
 function extractPlaceholders(text) {
   const found = new Set();
@@ -6658,7 +6668,9 @@ function protectGlossary(text, glossary) {
   return { text: out, slots };
 }
 function unprotectGlossary(text, slots) {
-  return text.replace(/\{\{\{GL(\d+)\}\}\}/g, (m, n) => (slots[+n] !== undefined ? slots[+n].id : m));
+  // (v3.4) case-insensitive: mesin sering mengecilkan {{{GL0}}} jadi
+  // {{{gl0}}} saat menerjemahkan — slot harus tetap dipulihkan.
+  return text.replace(/\{\{\{GL(\d+)\}\}\}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n].id : m));
 }
 function normalizeSpaces(translated, original) {
   if (!translated) return translated;
@@ -7563,8 +7575,33 @@ function restoreTranslated(text, prep, original) {
   out = unprotectGlossary(out, prep.gloss);
   return normalizeSpaces(out, original);
 }
+/* (v3.4) Pola placeholder perlindungan yang tersisa: {{{GLn}}} / {{{GTn}}}
+   dalam huruf apa pun. Google sering mengecilkan hurufnya ({{{GL0}}} →
+   {{{gl0}}}) dan pemulihan case-sensitive lama tidak mengenalinya, sehingga
+   placeholder bocor ke file hasil sebagai "terjemahan sukses". */
+const LEFTOVER_PLACEHOLDER_RE = /\{\{\{(?:GL|GT)\d+\}\}\}/i;
+function hasLeftoverPlaceholder(text) { return !!text && LEFTOVER_PLACEHOLDER_RE.test(text); }
+/* (v3.4) Bersihkan terjemahan tersimpan yang masih mengandung placeholder
+   bocor (mis. {{{gl0}}} dari sebelum v3.4): tandai gagal supaya bisa
+   diterjemahkan ulang lewat "Ulangi yang gagal" — proyek tidak perlu
+   diterjemahkan dari nol. Terjemahan bersih tidak disentuh. */
+function cleanPlaceholderTranslations() {
+  let n = 0;
+  for (const [id, tr] of S.translations) {
+    if (tr && !tr.failed && tr.text && hasLeftoverPlaceholder(tr.text)) {
+      S.translations.set(id, { text: '', via: 'gagal:placeholder tersisa', failed: true });
+      n++;
+    }
+  }
+  if (n) {
+    log('Dibersihkan ' + n + ' terjemahan yang masih mengandung placeholder {{{...}}} (mis. {{{gl0}}}) — teks itu kembali ke Inggris dan bisa diulang lewat "Ulangi yang gagal".', 'w');
+    saveProject();
+  }
+  return n;
+}
 function validateOne(clean, original) {
   if (!clean || !clean.trim()) return 'kosong';
+  if (hasLeftoverPlaceholder(clean)) return 'placeholder tersisa';
   if (isHallucinatedOutput(clean, original)) return 'halusinasi';
   if (getMissingVars(original, clean).length > 0) return 'variabel hilang';
   if (clean === original) return 'sama';
@@ -7919,6 +7956,8 @@ window.__GTHTML_V2__ = { extractScriptBlocks, analyzeScriptDamage, repairScripts
 window.__GTHTML_V31__ = { translateBatch, translateSegments, googleDictBatch, parseDictResponse, builtinBatch, isRetryable, resetCircuitBreaker, circuitBreaker: CB, setRetrySleep, state: S, renderSkipList, saveProject, restoreProject, setCustomCfg: (c) => { customCfg = Object.assign({}, customCfg, c); } };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V33__ (v3.3) */
 window.__GTHTML_V33__ = { saveProject, loadSavedProject, restoreProject, idbSave, idbLoad, idbDelete, idbAvailable, migrateFromLocalStorage, readLocalStorageProject, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V34__ (v3.4) */
+window.__GTHTML_V34__ = { cleanPlaceholderTranslations, hasLeftoverPlaceholder, LEFTOVER_PLACEHOLDER_RE, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8023,6 +8062,10 @@ function verifyOutput(outText) {
   const origLink = countRe(/\[\[[^\]]+\]\]/g, S.originalText);
   const outLink = countRe(/\[\[[^\]]+\]\]/g, outText);
   if (origLink) ok('Link [[...]] utuh (' + origLink + ')', origLink === outLink, 'hasil: ' + outLink);
+  // (v3.4) Tidak ada placeholder perlindungan yang tersisa di file hasil
+  // (mis. {{{gl0}}} dari mesin yang mengecilkan hurufnya).
+  const leftover = (outText.match(/\{\{\{(?:GL|GT)\d+\}\}\}/gi) || []).length;
+  ok('Tidak ada placeholder {{{...}}} tersisa di file hasil', leftover === 0, leftover ? leftover + ' placeholder tersisa (mis. {{{gl0}}})' : '');
   // Struktur segmen: pindai ulang file hasil, jumlah segmen harus sama.
   try {
     const re = scanFile(outText, { includeScript: S.includeScript, translateNames: S.translateNames });
@@ -8099,7 +8142,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.3\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8484,6 +8527,8 @@ function restoreProject(d) {
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
   S.engine = d.engine || null; S.encodeStyle = d.encodeStyle || { quote: false, apos: false, nbsp: false };
   S.needsReupload = !S.originalText;
+  // (v3.4) Bersihkan terjemahan lama yang masih mengandung placeholder bocor.
+  cleanPlaceholderTranslations();
   segCounter = S.segments.reduce((a, s) => Math.max(a, parseInt(String(s.id).slice(1), 10) || 0), 0);
   for (const seg of S.segments) seg.skipped = S.skipPassages.has(seg.passage);
   $('optScript').checked = S.includeScript;
@@ -8574,6 +8619,9 @@ async function runTranslate(which) {
 function doBuild(downloadFiles) {
   if (!S.fileName) { log('Upload file dulu.', 'w'); return null; }
   if (S.needsReupload || !S.originalText) { log('Teks asli tidak tersimpan di proyek ini — upload ulang file yang sama dulu, baru Timpa.', 'e'); return null; }
+  // (v3.4) Bersihkan terjemahan yang masih mengandung placeholder bocor
+  // sebelum membangun file hasil.
+  cleanPlaceholderTranslations();
   if (S.translateNames) {
     if (!window.confirm('Mode nama passage AKTIF: nama passage (name= di tw-storydata) akan diubah mengikuti terjemahan, dan semua link ke passage itu ikut berubah. Ini mengubah identitas save game. Lanjutkan?')) return null;
   }
