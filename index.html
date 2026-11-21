@@ -112,8 +112,9 @@ body.simple .adv{display:none!important}
     <ol class="small" style="margin:6px 0 6px 18px">
       <li>Upload file game HTML (Twine / SugarCube / Harlowe) — file dibaca di browser, tidak dikirim ke mana-mana.</li>
       <li>Periksa Daftar Teks, lalu <b>Terjemahkan semua</b>.</li>
-      <li><b>Tinjau Teks Variabel (v3):</b> string yang disimpan di variabel (<code>(set: $pesan to "...")</code> / <code>&lt;&lt;set $pesan to "..."&gt;&gt;</code>) diterjemahkan otomatis bila variabel itu hanya ditampilkan; yang meragukan (dipakai juga sebagai pembanding/kunci, pendek, atau tidak pernah dipakai) muncul di seksi "Tinjau Teks Variabel" — putuskan per baris.</li>
+      <li><b>Filter kebocoran pemindai (v3.2):</b> segmen yang isinya cuma baris kosong (<code>\n</code>/<code>\t</code>), teks debug (<code>@@.debug-text</code> / <code>@@.error</code>), dan komentar kode (<code>/* ... */</code>) tidak lagi masuk Daftar Teks — hanya teks tampil asli yang diterjemahkan.</li>
       <li><b>Pemutus sirkuit &amp; mesin cadangan (v3.1):</b> bila satu mesin gagal 3 batch berturut-turut, mesin itu dimatikan untuk sisa proses dan app otomatis pindah ke mesin berikutnya (Google → Google Dict → Edge → Translator Chrome di perangkat → MyMemory). Mesin yang sedang dipakai terlihat di status terjemahan.</li>
+      <li><b>Tinjau Teks Variabel dihapus (v3.2):</b> fitur v3 dihapus atas permintaan Ilham — string di <code>(set:)</code> / <code>&lt;&lt;set&gt;&gt;</code> kembali dilindungi utuh seperti sebelum v3 (tidak diterjemahkan).</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -180,13 +181,6 @@ body.simple .adv{display:none!important}
     <div id="listBody"><p class="mut">Belum ada teks. Upload file dulu.</p></div>
   </section>
 
-  <section id="secVarReview">
-    <h2>Tinjau Teks Variabel (v3)</h2>
-    <p class="mut">String yang disimpan di variabel game — mis. <code>(set: $pesan to "Selamat datang...")</code> atau <code>&lt;&lt;set $pesan to "Selamat datang..."&gt;&gt;</code> — sering itu dialog yang nantinya ditampilkan lewat <code>(print: $pesan)</code> / <code>&lt;&lt;print $pesan&gt;&gt;</code>. Yang hanya ditampilkan langsung masuk Daftar Teks. Yang meragukan tampil di sini — putuskan per baris: <b>Terjemahkan</b> memasukkannya ke Daftar Teks, <b>Biarkan (kode)</b> membiarkannya tetap Inggris. String yang dipakai murni sebagai kunci/pembanding tidak diekstrak sama sekali.</p>
-    <p id="varSummary" class="mut">Belum ada file. Upload file dulu.</p>
-    <div id="varReviewBody"><p class="mut">Belum ada teks. Upload file dulu.</p></div>
-  </section>
-
   <section id="secActions">
     <h2>Langkah 3 — Timpa &amp; Unduh</h2>
     <p class="mut">Timpa menulis terjemahan kembali ke file dengan posisi byte yang sama persis — file hasil identik dengan aslinya kecuali string yang diterjemahkan. Salinan asli (.orig) ikut diunduh otomatis dan bisa dipulihkan.</p>
@@ -241,7 +235,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.1 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.2 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6421,13 +6415,13 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.1 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.2 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
-   - (v3) Tinjau Teks Variabel: string di (set: $var to "...") /
-     <<set $var to "...">> diklasifikasikan dari pemakaian $var di
-     seluruh file — otomatis bila hanya tampil, ditinjau bila meragukan,
-     tidak diekstrak bila murni kunci/pembanding.
+   - (v3.2) Filter kebocoran pemindai: segmen kosong (hanya \n/\t),
+     teks debug @@.debug-text / @@.error, dan komentar JS dibuang —
+     tidak masuk Daftar Teks. (v3) Tinjau Teks Variabel DIHAPUS atas
+     permintaan Ilham; string (set:) / <<set>> dilindungi utuh lagi.
    - Ekstraksi: DOMParser (deteksi mesin + verifikasi) + pemindaian teks
      mentah dengan offset persis (supaya write-back akurat per byte —
      DOMParser tidak menyimpan offset, jadi offset diambil dari teks
@@ -6687,10 +6681,6 @@ const S = {
   tm: new Map(), // teks asli -> terjemahan
   glossary: [],
   skipPassages: new Set(),
-  varReview: [], // (v3) kandidat teks variabel yang perlu ditinjau
-  varStats: { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 },
-  varDecisions: new Set(), // (v3) kunci kandidat yang disetujui -> masuk Daftar Teks
-  varSkipped: new Set(), // (v3) kunci kandidat yang dibiarkan (kode)
   includeScript: false, translateNames: false,
   encodeStyle: { quote: false, apos: false, nbsp: false },
   running: false, cancelled: false,
@@ -6746,20 +6736,82 @@ function detectEngine(text) {
    Keluaran: segmen {id, kind, passage, text, rawStart, rawEnd,
    translatable, ref} — rawStart/rawEnd menunjuk ke teks MENTAH (masih
    ter-encode) sehingga write-back bisa menyisip tepat di posisi itu. */
+/* (v3.2) Filter kebocoran di celah teks biasa: komentar JS dan markup
+   custom-style SugarCube @@.class;isi@@.
+   - Komentar JS dan komentar SugarCube /% ... %/ dilindungi utuh
+     (seperti komentar HTML) — isinya bukan teks.
+   - @@.debug-text;...@@ dan @@.error;...@@ dilewati seluruhnya (teks
+     debug — hanya tampil di mode debug game, isinya nama variabel).
+   - @@.class;isi@@ kelas lain: isinya teks tampil — segmen berisi isi
+     TANPA wrapper @@ (wrapper kembali utuh saat write-back, karena
+     segmen hanya menunjuk offset isi di dalam file).
+   - @@ pembuka tanpa penutup di celah ini: span berlanjut melewati macro
+     berikutnya — tandai ctx.atSpan supaya token macro/link di dalamnya
+     tidak diekstrak, dan celah berikutnya dibuang sampai penutup @@.
+   Dipakai semua jalur: SugarCube, Harlowe (komentar JS saja — Harlowe
+   tidak pakai @@), dan HTML biasa. */
 function emitPlainRun(parts, runText, runDecStart, map, baseRaw, ctx) {
+  const atEnabled = ctx.engineKind !== 'harlowe';
+  const flush = (a, b) => { if (b > a) emitPlainRunCore(parts, runText.slice(a, b), runDecStart + a, map, baseRaw, ctx); };
+  let i = 0;
+  if (atEnabled && ctx.atSpan) {
+    const close = runText.indexOf('@@');
+    if (close < 0) return; // seluruh celah masih di dalam span — buang
+    ctx.atSpan = false;
+    i = close + 2;
+  }
+  while (i < runText.length) {
+    const cm = runText.indexOf('/*', i);
+    const pm = atEnabled ? runText.indexOf('/%', i) : -1;
+    const am = atEnabled ? runText.indexOf('@@', i) : -1;
+    let next = -1, kind = '';
+    if (cm >= 0) { next = cm; kind = 'c'; }
+    if (pm >= 0 && (next < 0 || pm < next)) { next = pm; kind = 'p'; }
+    if (am >= 0 && (next < 0 || am < next)) { next = am; kind = 'a'; }
+    if (next < 0) break;
+    flush(i, next);
+    if (kind === 'c') {
+      const end = runText.indexOf('*/', next + 2);
+      i = end < 0 ? runText.length : end + 2; // tanpa penutup: buang sampai akhir celah
+    } else if (kind === 'p') {
+      // Komentar SugarCube /% ... %/ (tanpa penutup: buang sampai akhir celah).
+      const end = runText.indexOf('%/', next + 2);
+      i = end < 0 ? runText.length : end + 2;
+    } else {
+      const close = runText.indexOf('@@', next + 2);
+      if (close < 0) { ctx.atSpan = true; return; } // pembuka tanpa penutup — span berlanjut
+      const inner = runText.slice(next + 2, close);
+      const cls = /^\.([A-Za-z0-9_-]+);/.exec(inner);
+      if (!cls || (cls[1] !== 'debug-text' && cls[1] !== 'error')) {
+        const body = cls ? inner.slice(cls[0].length) : inner;
+        const bodyStart = next + 2 + (cls ? cls[0].length : 0);
+        emitPlainRun(parts, body, runDecStart + bodyStart, map, baseRaw, ctx);
+      }
+      i = close + 2;
+    }
+  }
+  flush(i, runText.length);
+}
+function emitPlainRunCore(parts, runText, runDecStart, map, baseRaw, ctx) {
   // Pecah per paragraf (baris kosong); tiap potongan dipangkas spasi tepi
   // (spasi tepi bukan segmen — tidak disentuh saat write-back).
   const re = /\n[ \t]*\n+/g;
   let last = 0, m;
   const pushPiece = (piece, pStart) => {
     if (!piece) return;
-    const lead = /^[\s\u00A0]+/.exec(piece); // spasi tepi depan
-    const trail = /[\s\u00A0]+$/.exec(piece);
+    // (v3.2) Pangkas juga escape Twine 1 (\n \t \r literal) di tepi —
+    // di file Twine 1, baris kosong disimpan sebagai escape literal,
+    // bukan newline asli, jadi pemangkas whitespace lama tidak kena.
+    const lead = /^(?:[\s\u00A0]|\\[nrt])+/.exec(piece); // spasi tepi depan
+    const trail = /(?:[\s\u00A0]|\\[nrt])+$/.exec(piece);
     let a = 0, b = piece.length;
     if (lead) a = lead[0].length;
     if (trail) b = piece.length - trail[0].length;
     if (b <= a) return;
     const core = piece.slice(a, b);
+    // (v3.2) Segmen yang isinya hanya whitespace/escape — bukan teks,
+    // tidak pernah bisa diterjemahkan (Seedship: 3.191 dari 4.441).
+    if (/^(?:[\s\u00A0]|\\[nrt])*$/.test(core)) return;
     if (!scanAccepts(core)) return;
     // Potong segmen yang terlalu panjang di batas kalimat.
     const chunks = splitLong(core);
@@ -6846,12 +6898,18 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
   // sehingga kode tag bocor ke Daftar Teks. Pola baru: < + huruf, lalu
   // string ber-tanda-kutip atau karakter apa pun kecuali > dan tanda kutip
   // (termasuk newline), lalu >. Komentar HTML dilindungi terpisah.
-  const re = /(\[\[[^\]\n]*\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
+  // (v3.2) Komentar JS /* ... */ dan komentar SugarCube /% ... %/
+  // dilindungi seperti komentar HTML — isinya (termasuk macro di
+  // dalamnya) bukan teks tampil.
+  const re = /(\[\[[^\]\n]*\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/%[\s\S]*?%\/|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
   let last = 0, m;
   while ((m = re.exec(decoded))) {
     if (m.index > last) emitPlainRun(parts, decoded.slice(last, m.index), last, map, baseRaw, ctx);
     const tok = m[0], ts = m.index, te = ts + tok.length;
     if (tok.startsWith('[[')) {
+      // (v3.2) Link di dalam span @@ (mis. @@.debug-text;[[...]]@@) —
+      // labelnya bukan teks tampil.
+      if (ctx.atSpan) { last = te; continue; }
       const inner = tok.slice(2, -2);
       const p = parseLinkToken(inner);
       if (p.label !== null && p.label.trim() && scanAccepts(p.label) && p.label.trim() !== p.target.trim()) {
@@ -6876,9 +6934,9 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
         last = endPos; re.lastIndex = endPos;
         continue;
       }
-      // (v3) Penugasan variabel: <<set $var to "...">> — kandidat teks
-      // variabel (klasifikasi + keputusan dilakukan di scanFile).
-      if (name === 'set' && ctx.varState) collectVarCandidates(ctx, tok, ts, map, baseRaw);
+      // (v3.2) Di dalam span @@ (mis. @@.debug-text;...@@ yang merentang
+      // macro) — isi span bukan teks tampil, jangan ekstrak argumennya.
+      if (ctx.atSpan) { last = te; continue; }
       const rule = SC_QUOTE_MACROS[name];
       if (rule) {
         const args = quotedArgs(tok);
@@ -6945,6 +7003,12 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
   while ((m = tagRe.exec(text))) {
     if (!tokens.some((t) => m.index >= t.start && m.index < t.end)) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'tag', text: m[0] });
   }
+  // (v3.2) Komentar JS dilindungi — isinya (termasuk macro di dalamnya)
+  // bukan teks tampil.
+  const cmRe = /\/\*[\s\S]*?\*\//g;
+  while ((m = cmRe.exec(text))) {
+    if (!tokens.some((t) => m.index >= t.start && m.index < t.end)) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'comment', text: m[0] });
+  }
   tokens.sort((a, b) => a.start - b.start);
   // (v2) Isi <script>/<style> di passage Harlowe adalah kode, bukan teks —
   // perpanjang token tag sampai penutupnya supaya isinya tidak disegmen.
@@ -6981,9 +7045,6 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
         }
       } else if (t.name === 'print') {
         for (const a of args) if (scanAccepts(a.text)) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, { macro: t.name }));
-      } else if ((t.name === 'set' || t.name === 'put') && ctx.varState) {
-        // (v3) Penugasan variabel Harlowe — kandidat teks variabel.
-        collectVarCandidates(ctx, t.text, ts, map, baseRaw);
       } else if (HARLOWE_TARGET_MACROS.has(t.name) && ctx.translateNames) {
         for (const a of args) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, { kind: 'link-target', translatable: false, ref: a.text }));
       }
@@ -7027,318 +7088,6 @@ function harlowePlainGap(text, decStart, map, baseRaw, ctx, parts) {
   flushPlain(plainStart, text.length);
 }
 
-/* ---------------- Tinjau Teks Variabel (v3) ----------------
-   Zona abu-abu terakhir pemisahan kode vs teks tampil: string yang
-   disimpan di variabel — Harlowe (set: $pesan to "...") / SugarCube
-   <<set $pesan to "...">> — selama ini dilindungi utuh sehingga TIDAK
-   PERNAH diterjemahkan, padahal sering itu dialog yang nantinya tampil
-   lewat (print: $pesan) / <<print $pesan>>. Sebaliknya menerjemahkan
-   membabi buta merusak string yang dipakai sebagai kunci/ID/pembanding.
-   Pendekatan: (1) kenali penugasan string saat segmentasi; (2) analisis
-   pemakaian tiap $var di SELURUH file (semua passage); (3) klasifikasikan
-   tiap string kandidat: otomatis (hanya tampil + lolos filter teks),
-   perlu ditinjau (campuran / pendek / tak dipakai), atau kode (hanya
-   kunci/pembanding atau jelas ID). Keputusan pengguna (disetujui /
-   dibiarkan) dicatat per kejadian (passage + var + urutan) supaya
-   bertahan saat Pindai ulang dan saat verifikasi file hasil. */
-
-/* Posisi target penugasan di dalam teks macro: $var yang diikuti 'to'
-   atau '=' (set), atau 'into $var' (put). */
-function setTargetPositions(macroText, name) {
-  const out = [];
-  if (name === 'set') {
-    const varRe = /\$([A-Za-z_][A-Za-z0-9_]*)/g;
-    let vm;
-    while ((vm = varRe.exec(macroText))) {
-      const rest = macroText.slice(vm.index + vm[0].length);
-      if (/^\s*(to|=)\s*/.test(rest)) out.push({ varName: vm[1], index: vm.index });
-    }
-  } else if (name === 'put') {
-    const intoRe = /\binto\s+(\$[A-Za-z_][A-Za-z0-9_]*)/g;
-    let im;
-    while ((im = intoRe.exec(macroText))) out.push({ varName: im[1].slice(1), index: im.index + im[0].indexOf('$') });
-  }
-  return out;
-}
-/* Pasangan (variabel, argumen string) yang ditugaskan di dalam satu macro
-   penugasan. set: tiap $var diikuti 'to'/'=' lalu string kutip (bisa
-   lebih dari satu, mis. (either: "a", "b")); put: string kutip sebelum
-   'into $var'. Hanya string literal kutip — angka/boolean/ekspresi
-   tanpa string diabaikan. */
-function extractVarAssignments(macroText, quoted) {
-  const out = [];
-  const isSet = /^\s*(<<\s*set\b|\(\s*set\s*:)/i.test(macroText);
-  const isPut = /^\(\s*put\s*:/i.test(macroText);
-  if (isSet) {
-    const targets = setTargetPositions(macroText, 'set');
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
-      const rest = macroText.slice(t.index + t.varName.length + 1);
-      const m = /^\s*(to|=)\s*/.exec(rest);
-      if (!m) continue;
-      const qStart = t.index + t.varName.length + 1 + m[0].length;
-      const limit = (i + 1 < targets.length) ? targets[i + 1].index : macroText.length;
-      for (const q of quoted) {
-        const openIdx = q.start - 1;
-        if (openIdx >= qStart && openIdx < limit) out.push({ varName: t.varName, arg: q });
-      }
-    }
-  } else if (isPut) {
-    const intoRe = /\binto\s+(\$[A-Za-z_][A-Za-z0-9_]*)/g;
-    let im, prevEnd = 0;
-    while ((im = intoRe.exec(macroText))) {
-      for (const q of quoted) {
-        const openIdx = q.start - 1;
-        if (openIdx >= prevEnd && openIdx < im.index) out.push({ varName: im[1].slice(1), arg: q });
-      }
-      prevEnd = im.index + im[0].length;
-    }
-  }
-  return out;
-}
-/* Kumpulkan kandidat dari satu macro penugasan ke ctx.varState (dipakai
-   segmentSugarCube / harloweWalk saat memindai). tokDecStart = offset
-   macro dalam teks hasil-decode passage; map/baseRaw = peta ke file mentah. */
-function collectVarCandidates(ctx, macroText, tokDecStart, map, baseRaw) {
-  const st = ctx.varState;
-  if (!st) return;
-  for (const a of extractVarAssignments(macroText, quotedArgs(macroText))) {
-    const key0 = (ctx.passage || '') + '|' + a.varName;
-    const idx = st.occ.get(key0) || 0;
-    st.occ.set(key0, idx + 1);
-    st.candidates.push({
-      passage: ctx.passage || null, varName: a.varName, text: a.arg.text, quote: a.arg.quote,
-      rawStart: map[tokDecStart + a.arg.start] + baseRaw, rawEnd: map[tokDecStart + a.arg.end] + baseRaw,
-      occIndex: idx,
-    });
-  }
-}
-/* Macro yang menampilkan nilai $var vs yang memakainya sebagai kode. */
-const SC_VAR_DISPLAY_MACROS = new Set(['print', '=', '-', 'linkappend', 'linkprepend', 'linkreplace']);
-const SC_VAR_CODE_MACROS = new Set(['if', 'elseif', 'else-if', 'unless', 'set', 'for', 'switch', 'while', 'goto', 'display', 'include', 'replace', 'append', 'prepend', 'remove']);
-const HL_VAR_DISPLAY_MACROS = new Set(['print', 'link', 'link-replace', 'link-reveal', 'link-repeat', 'link-undo']);
-const HL_VAR_CODE_MACROS = new Set(['if', 'unless', 'else-if', 'cond', 'go-to', 'display', 'datamap', 'dm', 'move', 'for', 'live', 'click', 'mouseover', 'mouseout', 'a', 'either', 'str', 'num', 'set', 'put']);
-/* $var di dalam string kutip bukan pemakaian variabel (Harlowe/SugarCube
-   tidak menginterpolasi $var di dalam string) — lewati. */
-function varUsesOutsideStrings(macroText) {
-  const quoted = quotedArgs(macroText);
-  const inString = (pos) => quoted.some((q) => pos >= q.start - 1 && pos <= q.end);
-  const uses = [];
-  for (const vm of macroText.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) {
-    if (inString(vm.index)) continue;
-    uses.push({ name: vm[1], pos: vm.index });
-  }
-  return { uses, quoted };
-}
-function scanSCMacroVars(tok, name, bump) {
-  const { uses, quoted } = varUsesOutsideStrings(tok);
-  if (!uses.length) return;
-  if (name === 'set') {
-    const targets = setTargetPositions(tok, 'set');
-    for (const u of uses) {
-      if (targets.some((tp) => tp.index === u.pos)) continue; // target penugasan bukan pemakaian
-      bump(u.name, 'code'); // nilai diteruskan sebagai data / dihitung
-    }
-    return;
-  }
-  if (name === 'button' || name === 'link' || name === 'option' || name === 'dialog') {
-    // Argumen pertama = label tampil, argumen berikutnya = nama passage (kode).
-    // Tanpa argumen kutip, satu argumen $var = label sekaligus passage -> ragu.
-    const firstQ = quoted[0];
-    for (const u of uses) {
-      if (!firstQ) { bump(u.name, 'unknown'); continue; }
-      bump(u.name, u.pos < firstQ.end ? 'display' : 'code');
-    }
-    return;
-  }
-  if (SC_VAR_DISPLAY_MACROS.has(name)) { for (const u of uses) bump(u.name, 'display'); return; }
-  if (SC_VAR_CODE_MACROS.has(name)) { for (const u of uses) bump(u.name, 'code'); return; }
-  for (const u of uses) bump(u.name, 'unknown'); // macro lain (mis. widget kustom) — meragukan
-}
-function scanHarloweMacroVars(macroText, name, bump) {
-  const { uses, quoted } = varUsesOutsideStrings(macroText);
-  if (!uses.length) return;
-  if (name === 'set' || name === 'put') {
-    const targets = setTargetPositions(macroText, name);
-    for (const u of uses) {
-      if (targets.some((tp) => tp.index === u.pos)) continue;
-      bump(u.name, 'code');
-    }
-    return;
-  }
-  if (name === 'link-goto') {
-    // Argumen pertama = label tampil, kedua = nama passage (kode).
-    const firstQ = quoted[0];
-    for (const u of uses) bump(u.name, !firstQ ? 'unknown' : (u.pos < firstQ.end ? 'display' : 'code'));
-    return;
-  }
-  if (HL_VAR_DISPLAY_MACROS.has(name)) { for (const u of uses) bump(u.name, 'display'); return; }
-  if (HL_VAR_CODE_MACROS.has(name)) { for (const u of uses) bump(u.name, 'code'); return; }
-  for (const u of uses) bump(u.name, 'unknown');
-}
-/* Analisis pemakaian $var di satu passage SugarCube (teks hasil-decode).
-   Teks biasa di antara token = interpolasi tampil; isi <<script>> /
-   <<widget>> / <<stylesheet>> dilewati seperti segmentasi. */
-function analyzeSugarCubeVars(text, bump) {
-  const re = /(\[\[[^\]\n]*\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
-  let last = 0, m;
-  const plain = (s) => { for (const vm of s.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'display'); };
-  while ((m = re.exec(text))) {
-    if (m.index > last) plain(text.slice(last, m.index));
-    const tok = m[0], ts = m.index, te = ts + tok.length;
-    if (tok.startsWith('[[')) {
-      const p = parseLinkToken(tok.slice(2, -2));
-      if (p.label !== null) for (const vm of p.label.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'display');
-      for (const vm of p.target.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'code');
-    } else if (tok.startsWith('<<')) {
-      const head = /^<<\s*([A-Za-z0-9_=\-]+)/.exec(tok);
-      const name = head ? head[1].toLowerCase() : '';
-      if (BLOCK_CODE_MACROS.has(name)) {
-        const closeRe = new RegExp('<<\\s*(/?)\\s*' + name + '\\s*>>', 'g');
-        closeRe.lastIndex = te;
-        let depth = 1, cm, endPos = text.length;
-        while ((cm = closeRe.exec(text))) {
-          if (cm[1] === '/') { depth--; if (depth === 0) { endPos = cm.index + cm[0].length; break; } }
-          else depth++;
-        }
-        last = endPos; re.lastIndex = endPos;
-        continue;
-      }
-      scanSCMacroVars(tok, name, bump);
-    }
-    last = te;
-  }
-  if (last < text.length) plain(text.slice(last));
-}
-/* Analisis pemakaian $var di satu passage Harlowe. Celah teks (termasuk
-   isi hook [...]) = interpolasi tampil; (display: $var) menampilkan
-   passage — itu kunci, bukan teks (diklasifikasikan 'code'). */
-function analyzeHarloweVars(text, bump) {
-  const tokens = [];
-  const linkRe = /\[\[[^\]\n]*\]\]/g;
-  let m;
-  while ((m = linkRe.exec(text))) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'link', text: m[0] });
-  for (const mc of scanHarloweMacros(text)) tokens.push({ start: mc.start, end: mc.end, kind: 'macro', name: mc.name, text: text.slice(mc.start, mc.end) });
-  const tagRe = /<!--[\s\S]*?-->|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\}/g;
-  while ((m = tagRe.exec(text))) {
-    if (!tokens.some((t) => m.index >= t.start && m.index < t.end)) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'tag', text: m[0] });
-  }
-  tokens.sort((a, b) => a.start - b.start);
-  for (const t of tokens) {
-    if (t.kind !== 'tag') continue;
-    const tm = /^<(script|style)\b/i.exec(t.text);
-    if (!tm) continue;
-    const cm = new RegExp('</' + tm[1] + '\\s*>', 'i').exec(text.slice(t.end));
-    t.end = cm ? t.end + cm.index + cm[0].length : text.length;
-  }
-  let last = 0;
-  const plain = (s) => {
-    const noTarget = s.replace(/\[\[([^\]\n|]*)\|[^\]\n]*\]\]/g, '[[$1]]');
-    for (const vm of noTarget.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'display');
-  };
-  for (const t of tokens) {
-    if (t.start < last) continue;
-    if (t.start > last) plain(text.slice(last, t.start));
-    if (t.kind === 'link') {
-      const p = parseLinkToken(t.text.slice(2, -2));
-      if (p.label !== null) for (const vm of p.label.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'display');
-      for (const vm of p.target.matchAll(/\$([A-Za-z_][A-Za-z0-9_]*)/g)) bump(vm[1], 'code');
-    } else if (t.kind === 'macro') {
-      scanHarloweMacroVars(t.text, t.name, bump);
-    }
-    last = t.end;
-  }
-  if (last < text.length) plain(text.slice(last));
-}
-/* Pemakaian tiap $var di SELURUH file: {display, code, unknown}.
-   Passage kode (Story JavaScript/Stylesheet) dilewati. */
-function analyzeVarUsage(passageJobs, engineKind) {
-  const usage = new Map();
-  const bump = (name, kind) => {
-    let u = usage.get(name);
-    if (!u) { u = { display: 0, code: 0, unknown: 0 }; usage.set(name, u); }
-    u[kind]++;
-  };
-  for (const job of passageJobs) {
-    if (job.isCodePassage) continue;
-    const text = decodeEntitiesMapped(job.contentRaw).text;
-    if (engineKind === 'harlowe') analyzeHarloweVars(text, bump);
-    else analyzeSugarCubeVars(text, bump);
-  }
-  return usage;
-}
-function varClassOf(u) {
-  const total = (u.display || 0) + (u.code || 0) + (u.unknown || 0);
-  if (total === 0) return 'takdipakai';
-  if (u.display > 0 && !u.code && !u.unknown) return 'tampil';
-  if (u.code > 0 && !u.display && !u.unknown) return 'kode';
-  return 'campuran';
-}
-function varUsageSummary(u) {
-  const parts = [];
-  if (u.display) parts.push('ditampilkan ' + u.display + '×');
-  if (u.code) parts.push('dipakai sebagai kode/pembanding ' + u.code + '×');
-  if (u.unknown) parts.push('dipakai di macro lain ' + u.unknown + '×');
-  if (!parts.length) parts.push('tidak pernah dipakai');
-  return parts.join(', ');
-}
-/* String yang jelas kode: tanpa spasi dan berisi -, _, /, #, atau mirip
-   identifier (snake_case, camelCase, PascalCase, huruf+angka, path). */
-function isCodeLikeString(s) {
-  const t = (s || '').trim();
-  if (!t) return true;
-  if (/\s/.test(t)) return false;
-  if (/[-_/#]/.test(t)) return true;
-  if (/^[a-z]+[A-Z]/.test(t)) return true;
-  if (/^[A-Z][a-z]+[A-Z]/.test(t)) return true;
-  if (/^[A-Z][A-Z0-9_]{2,}$/.test(t)) return true;
-  if (/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)+$/.test(t)) return true;
-  if (/^[a-z]+\d+$/.test(t)) return true;
-  return false;
-}
-function varReviewReason(c) {
-  if (c.varClass === 'takdipakai') return 'Variabel tidak pernah dipakai di mana pun — belum jelas apakah teks ini akan tampil.';
-  if (c.varClass === 'campuran') return 'Dipakai sebagai teks tampil DAN sebagai kode/pembanding — terjemahkan hanya bila yakin tampil.';
-  if (c.text.trim().length < 3) return 'String sangat pendek — bisa jadi label, jawaban, atau kode.';
-  if (!/\s/.test(c.text.trim())) return 'Satu kata — bisa jadi nama/label, tapi juga bisa jadi kunci.';
-  if (!scanAccepts(c.text)) return 'String tidak lolos filter teks biasa — periksa manual.';
-  return 'Pemakaian meragukan — periksa manual.';
-}
-/* Klasifikasi tiap kandidat (per kejadian — string yang sama di dua
-   variabel berbeda adalah dua segmen terpisah). Aturan aman: yang tidak
-   bisa dipastikan masuk 'tinjau', JANGAN otomatis diterjemahkan. */
-function processVarCandidates(candidates, usage, opts) {
-  opts = opts || {};
-  const auto = [], review = [];
-  const stats = { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
-  for (const c of candidates) {
-    const u = usage.get(c.varName) || { display: 0, code: 0, unknown: 0 };
-    c.usage = u;
-    c.varClass = varClassOf(u);
-    c.key = (c.passage || '') + '|' + c.varName + '|' + c.occIndex;
-    let cls;
-    if (isCodeLikeString(c.text) || c.varClass === 'kode') cls = 'kode';
-    else if (c.varClass === 'tampil' && scanAccepts(c.text) && c.text.trim().length >= 3) cls = 'otomatis';
-    else cls = 'tinjau';
-    // Keputusan pengguna yang tersimpan mengalahkan klasifikasi.
-    if (opts.varDecisions && opts.varDecisions.has(c.key)) { cls = 'otomatis'; c.approved = true; }
-    else if (opts.varSkipped && opts.varSkipped.has(c.key)) { cls = 'dibiarkan'; }
-    c.cls = cls;
-    if (cls === 'kode') stats.kode++;
-    else if (cls === 'dibiarkan') stats.dibiarkan++;
-    else if (cls === 'otomatis') {
-      stats.auto++;
-      if (c.approved) stats.disetujui++;
-      auto.push(c);
-    } else {
-      stats.tinjau++;
-      c.reason = varReviewReason(c);
-      review.push(c);
-    }
-  }
-  return { auto, review, stats };
-}
-
 /* ---------------- pemindaian file ---------------- */
 function scanPassageContent(rawContent, contentRawStart, ctx) {
   const dec = decodeEntitiesMapped(rawContent);
@@ -7350,12 +7099,9 @@ function scanFile(text, opts) {
   const engine = detectEngine(text);
   const segments = [];
   const passages = [];
-  const ctx0 = { engineKind: engine.kind, translateNames: !!opts.translateNames };
+  const ctx0 = { engineKind: engine.kind, translateNames: !!opts.translateNames, atSpan: false };
   let rawPassages = '';
-  // (v3) Tinjau Teks Variabel: passage dikumpulkan dulu ke jobs supaya
-  // analisis pemakaian variabel melihat seluruh file sebelum segmentasi.
   const jobs = [];
-  let varReview = [], varStats = { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
   // --- Twine 2: <tw-passagedata> ---
   const tw2 = [...text.matchAll(/<tw-passagedata\b([^>]*)>([\s\S]*?)<\/tw-passagedata>/g)];
   if (tw2.length) {
@@ -7371,7 +7117,9 @@ function scanFile(text, opts) {
       const contentRawStart = m.index + m[0].length - contentRaw.length - 17; // -'</tw-passagedata>'.length
       // (v2) Passage kode SugarCube — isinya JavaScript/CSS murni, bukan
       // teks tampil. Jangan pernah masuk Daftar Teks.
-      const isCodePassage = /^(story (javascript|stylesheet))$/i.test(name);
+      // (v3.2) Twine 1 memakai nama pendek "JavaScript"/"Stylesheet"
+      // untuk passage kode yang sama (Seedship: "Stylesheet" berisi CSS).
+      const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name);
       jobs.push({ name, kind: 'twine2', nameRawStart, nameRawEnd, tags: attrs.tags || '', contentRaw, contentRawStart, isCodePassage });
     }
   } else {
@@ -7387,21 +7135,17 @@ function scanFile(text, opts) {
         const contentRaw = m[3];
         const contentRawStart = m.index + m[0].length - contentRaw.length - 6; // -'</div>'.length
         // (v2) Passage kode — lihat catatan di cabang Twine 2 di atas.
-        const isCodePassage = /^(story (javascript|stylesheet))$/i.test(name);
+        const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name);
         jobs.push({ name, kind: 'twine1', nameRawStart, nameRawEnd, tags: '', contentRaw, contentRawStart, isCodePassage });
       }
     }
   }
   if (jobs.length) {
-    // (v3) Analisis pemakaian variabel di SELURUH file dulu, baru
-    // segmentasi — supaya tiap string variabel bisa diklasifikasikan
-    // dari semua pemakaian $var-nya, bukan hanya passage-nya sendiri.
-    const varState = { usage: analyzeVarUsage(jobs, engine.kind), candidates: [], occ: new Map() };
     for (const job of jobs) {
       passages.push({ name: job.name, kind: job.kind, nameRawStart: job.nameRawStart, nameRawEnd: job.nameRawEnd, tags: job.tags });
       rawPassages += job.contentRaw;
       if (!job.isCodePassage) {
-        const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: job.name, varState });
+        const ctx = Object.assign({}, ctx0, { kind: 'twine', passage: job.name });
         segments.push(...scanPassageContent(job.contentRaw, job.contentRawStart, ctx));
       }
       if (opts.translateNames && job.name && job.nameRawStart >= 0 && !job.isCodePassage) {
@@ -7409,12 +7153,7 @@ function scanFile(text, opts) {
         segments.push(mkSeg(ctx, job.name, job.nameRawStart, job.nameRawEnd, { kind: 'passage-name', translatable: true }));
       }
     }
-    const varRes = processVarCandidates(varState.candidates, varState.usage, opts);
-    for (const c of varRes.auto) {
-      segments.push(mkSeg({ kind: 'twine', passage: c.passage }, c.text, c.rawStart, c.rawEnd, { kind: 'var-string', varName: c.varName, quote: c.quote }));
-    }
     segments.sort((a, b) => a.rawStart - b.rawStart);
-    varReview = varRes.review; varStats = varRes.stats;
   } else {
     // --- HTML biasa: tokenisasi teks mentah (tag vs teks) ---
     segments.push(...scanGenericHtml(text, ctx0));
@@ -7427,7 +7166,7 @@ function scanFile(text, opts) {
     segments.push(...res.segments);
     scriptWarn = res.warn;
   }
-  return { engine, segments, passages, encodeStyle, scriptWarn, twineCount: tw2.length, varReview, varStats };
+  return { engine, segments, passages, encodeStyle, scriptWarn, twineCount: tw2.length };
 }
 function scanGenericHtml(text, ctx0) {
   const segments = [];
@@ -8171,8 +7910,6 @@ function repairScripts(origText, dmgText) {
 function guardScriptsInOutput(outText, origText) { return repairScripts(origText, outText); }
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V2__ */
 window.__GTHTML_V2__ = { extractScriptBlocks, analyzeScriptDamage, repairScripts, guardScriptsInOutput, unescapeTwineText, tryParseJS, tokenizeJS, ID_CODE_WORDS };
-/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3__ (v3) */
-window.__GTHTML_V3__ = { analyzeVarUsage, processVarCandidates, extractVarAssignments, isCodeLikeString, varClassOf, varUsageSummary };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V31__ (v3.1) */
 window.__GTHTML_V31__ = { translateBatch, translateSegments, googleDictBatch, parseDictResponse, builtinBatch, isRetryable, resetCircuitBreaker, circuitBreaker: CB, setRetrySleep, state: S, renderSkipList, saveProject, restoreProject, setCustomCfg: (c) => { customCfg = Object.assign({}, customCfg, c); } };
 /* State + aksi seksi Perbaiki Kode (v2). */
@@ -8220,8 +7957,7 @@ function buildOutput() {
     const tr = S.translations.get(seg.id);
     if (!tr || !tr.text || tr.failed || tr.text === seg.text) continue;
     let rep;
-    if (seg.kind === 'var-string') rep = encodePassageText(escapeJsString(tr.text, seg.quote || '"'), S.encodeStyle);
-    else if (seg.kind === 'js') rep = escapeJsString(tr.text, seg.quote || '"');
+    if (seg.kind === 'js') rep = escapeJsString(tr.text, seg.quote || '"');
     else if (seg.kind === 'js-template') rep = escapeTemplateText(tr.text);
     else if (seg.kind === 'passage-name') rep = encodeAttrValue(tr.text);
     else rep = encodePassageText(tr.text, S.encodeStyle);
@@ -8282,7 +8018,7 @@ function verifyOutput(outText) {
   if (origLink) ok('Link [[...]] utuh (' + origLink + ')', origLink === outLink, 'hasil: ' + outLink);
   // Struktur segmen: pindai ulang file hasil, jumlah segmen harus sama.
   try {
-    const re = scanFile(outText, { includeScript: S.includeScript, translateNames: S.translateNames, varDecisions: S.varDecisions, varSkipped: S.varSkipped });
+    const re = scanFile(outText, { includeScript: S.includeScript, translateNames: S.translateNames });
     ok('Jumlah segmen hasil pindai ulang sama', re.segments.length === S.segments.length, 'asli: ' + S.segments.length + ', hasil: ' + re.segments.length);
   } catch (e) { ok('Pindai ulang file hasil', false, e.message); }
   return checks;
@@ -8356,7 +8092,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.1\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.2\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8508,7 +8244,7 @@ function renderList() {
     const idx = S.page * S.perPage + i + 1;
     const t = S.translations.get(seg.id);
     const val = t && t.text ? t.text : '';
-    const src = [seg.passage || '', seg.kind === 'var-string' ? ('variabel $' + seg.varName) : seg.kind].filter(Boolean).join(' · ');
+    const src = [seg.passage || '', seg.kind].filter(Boolean).join(' · ');
     html.push('<div class="trow" data-id="' + seg.id + '">'
       + '<input type="checkbox" class="sel" data-id="' + seg.id + '"' + (S.selected.has(seg.id) ? ' checked' : '') + (seg.skipped ? ' disabled' : '') + '>'
       + '<span>' + idx + '</span>'
@@ -8603,61 +8339,6 @@ function renderReport(verifyChecks, qaRows) {
     ? untr.slice(0, 50).map((s) => '<li>' + esc((s.passage ? s.passage + ': ' : '') + s.text.slice(0, 80)) + '</li>').join('') + (untr.length > 50 ? '<li class="mut">…dan ' + (untr.length - 50) + ' lagi.</li>' : '')
     : '<li class="ok">Tidak ada — semua teks sudah diterjemahkan.</li>';
 }
-/* ---------------- Tinjau Teks Variabel — render + aksi (v3) ---------------- */
-function renderVarReview() {
-  const sum = $('varSummary'), body = $('varReviewBody');
-  if (!sum || !body) return;
-  const st = S.varStats || { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
-  const nTinjau = S.varReview ? S.varReview.length : 0;
-  sum.textContent = S.fileName
-    ? ('Otomatis diterjemahkan: ' + st.auto + ' · Perlu ditinjau: ' + nTinjau + ' · Kode (tidak diekstrak): ' + st.kode + ' · Disetujui: ' + st.disetujui + ' · Dibiarkan: ' + st.dibiarkan + '.')
-    : 'Belum ada file. Upload file dulu.';
-  if (!S.varReview || !S.varReview.length) {
-    body.innerHTML = '<p class="mut">' + (S.fileName ? 'Tidak ada teks variabel yang perlu ditinjau.' : 'Belum ada teks. Upload file dulu.') + '</p>';
-    return;
-  }
-  body.innerHTML = S.varReview.map((c) => '<div class="trow" data-key="' + esc(c.key) + '">'
-    + '<span></span><span></span>'
-    + '<div><div class="orig">' + esc(c.text) + '</div><div class="src">' + esc((c.passage || '') + ' · $' + c.varName + ' · ' + varUsageSummary(c.usage)) + '</div><div class="src">' + esc(c.reason || '') + '</div></div>'
-    + '<div><button class="var-ok small primary" data-key="' + esc(c.key) + '">Terjemahkan</button> <button class="var-skip small" data-key="' + esc(c.key) + '">Biarkan (kode)</button></div>'
-    + '<div><span class="pill edit">tinjau</span></div>'
-    + '</div>').join('');
-  body.querySelectorAll('.var-ok').forEach((b) => b.addEventListener('click', () => approveVarItem(b.dataset.key)));
-  body.querySelectorAll('.var-skip').forEach((b) => b.addEventListener('click', () => skipVarItem(b.dataset.key)));
-}
-function approveVarItem(key) {
-  const i = S.varReview.findIndex((c) => c.key === key);
-  if (i < 0) return;
-  const c = S.varReview[i];
-  S.varDecisions.add(key);
-  S.varReview.splice(i, 1);
-  const seg = mkSeg({ kind: 'twine', passage: c.passage }, c.text, c.rawStart, c.rawEnd, { kind: 'var-string', varName: c.varName, quote: c.quote });
-  S.segments.push(seg);
-  S.segments.sort((a, b) => a.rawStart - b.rawStart);
-  S.varStats.disetujui = (S.varStats.disetujui || 0) + 1;
-  S.varStats.auto = (S.varStats.auto || 0) + 1;
-  log('Tinjau Variabel: $' + c.varName + ' "' + c.text.slice(0, 40) + '" disetujui — masuk Daftar Teks.');
-  updateStats(); renderList(); renderVarReview(); saveProject();
-}
-function skipVarItem(key) {
-  const i = S.varReview.findIndex((c) => c.key === key);
-  if (i < 0) return;
-  const c = S.varReview[i];
-  S.varSkipped.add(key);
-  S.varReview.splice(i, 1);
-  S.varStats.dibiarkan = (S.varStats.dibiarkan || 0) + 1;
-  log('Tinjau Variabel: $' + c.varName + ' "' + c.text.slice(0, 40) + '" dibiarkan (kode) — tetap Inggris.');
-  renderVarReview(); saveProject();
-}
-function refreshVarReview() {
-  if (!S.originalText) {
-    S.varReview = []; S.varStats = { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
-    renderVarReview(); return;
-  }
-  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames, varDecisions: S.varDecisions, varSkipped: S.varSkipped });
-  S.varReview = res.varReview || []; S.varStats = res.varStats || { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
-  renderVarReview();
-}
 /* ---------------- autosave localStorage (ide 13) ---------------- */
 let saveTimer = null;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProject, 800); }
@@ -8668,7 +8349,6 @@ function saveProject() {
     segments: S.segments, passages: S.passages,
     translations: [...S.translations.entries()],
     glossary: S.glossary, skipPassages: [...S.skipPassages],
-    varDecisions: [...S.varDecisions], varSkipped: [...S.varSkipped],
     includeScript: S.includeScript, translateNames: S.translateNames,
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
   };
@@ -8701,7 +8381,6 @@ function restoreProject(d) {
   S.segments = d.segments || []; S.passages = d.passages || [];
   S.translations = new Map(d.translations || []);
   S.glossary = d.glossary || []; S.skipPassages = new Set(d.skipPassages || []);
-  S.varDecisions = new Set(d.varDecisions || []); S.varSkipped = new Set(d.varSkipped || []);
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
   S.engine = d.engine || null; S.encodeStyle = d.encodeStyle || { quote: false, apos: false, nbsp: false };
   S.needsReupload = !S.originalText;
@@ -8711,7 +8390,6 @@ function restoreProject(d) {
   $('optNames').checked = S.translateNames;
   showFileInfo();
   renderSkipList(); renderGlossary(); updateStats(); renderList(); renderReport(null, null);
-  refreshVarReview();
 }
 function showFileInfo() {
   $('fileInfo').classList.remove('hidden');
@@ -8737,7 +8415,7 @@ function doScan() {
     const t = S.translations.get(seg.id);
     if (t) keep.set(seg.kind + '|' + (seg.passage || '') + '|' + seg.text, t);
   }
-  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames, varDecisions: S.varDecisions, varSkipped: S.varSkipped });
+  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames });
   S.engine = res.engine; S.segments = res.segments; S.passages = res.passages; S.encodeStyle = res.encodeStyle;
   S.translations = new Map();
   for (const seg of S.segments) {
@@ -8746,8 +8424,6 @@ function doScan() {
     seg.skipped = S.skipPassages.has(seg.passage);
   }
   S.page = 0; S.selected.clear();
-  S.varReview = res.varReview || []; S.varStats = res.varStats || { auto: 0, tinjau: 0, kode: 0, disetujui: 0, dibiarkan: 0 };
-  renderVarReview();
   if (res.scriptWarn) log(res.scriptWarn, 'w');
   log('Pindai selesai: ' + S.segments.length + ' segmen dari ' + S.passages.length + ' passage. Mesin: ' + S.engine.name + '.');
 }
@@ -8757,7 +8433,6 @@ async function loadFile(file) {
   S.originalText = text;
   S.fileHash = djb2(text);
   S.translations = new Map(); S.tm = new Map(); S.skipPassages = new Set();
-  S.varDecisions = new Set(); S.varSkipped = new Set(); S.varReview = [];
   S.outputText = ''; S.page = 0; S.selected.clear();
   S.stats = { totalMs: 0, doneCount: 0 };
   segCounter = 0;
