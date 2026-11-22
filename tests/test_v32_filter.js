@@ -104,7 +104,7 @@ const SEED_PATH = '/home/hatch/workspace/user/files/index.html';
 if (fs.existsSync(SEED_PATH)) {
   const seed = fs.readFileSync(SEED_PATH, 'utf8');
   const scanS = w.scanFile(seed, { includeScript: false, translateNames: false });
-  check('E1 Seedship: total segmen 1.081 (v3.1: 4.441)', scanS.segments.length === 1081, 'dapat: ' + scanS.segments.length);
+  check('E1 Seedship: total segmen 1.194 (v3.4.2: 1.081; +103 label <<link>> ber-badan + 10 tautan setter yang kini terpisah)', scanS.segments.length === 1194, 'dapat: ' + scanS.segments.length);
   check('E1 Seedship: 0 whitespace-only', !scanS.segments.some((s) => /^\s*$/.test(unesc(s.text))));
   check('E1 Seedship: 0 mengandung @@ / .debug-text / .error', !scanS.segments.some((s) => s.text.includes('@@') || s.text.includes('.debug-text') || s.text.includes('.error')));
   check('E1 Seedship: 0 mengandung /* atau /%', !scanS.segments.some((s) => s.text.includes('/*') || s.text.includes('/%')));

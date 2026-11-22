@@ -120,6 +120,7 @@ body.simple .adv{display:none!important}
       <li><b>Pemulihan placeholder (v3.4):</b> placeholder glossary (<code>{{{GL0}}}</code>) dan variabel (<code>{{{GT0}}}</code>) dipulihkan tanpa peduli huruf besar/kecil — mesin yang mengecilkan hurufnya tidak lagi membuat placeholder bocor ke file hasil. Sisa placeholder ditolak saat validasi dan dibersihkan dari simpanan lama.</li>
       <li><b>Statistik di atas Daftar Teks &amp; ETA dari batch terakhir (v3.4.1):</b> kotak Statistik pindah ke atas Daftar Teks supaya selalu terlihat saat proses berjalan; perkiraan waktu dihitung dari kecepatan 10 batch terakhir, bukan rata-rata sejak awal — fase mesin mati tidak lagi membuat ETA membengkak. Daftar Teks tetap 100 baris per halaman, tapi kotaknya lebih besar dan bisa di-scroll sendiri.</li>
       <li><b>Bangun file tanpa macet (v3.4.2):</b> Timpa &amp; Unduh / Pratinjau kini dikerjakan bertahap dengan jeda, jadi tab tidak lagi "Page Unresponsive" di file besar (17.699 teks) — progres tiap langkah terlihat di info build, dan tombol Timpa/Pratinjau nonaktif selama build berjalan. Hasil file-nya identik dengan sebelumnya.</li>
+      <li><b>Variabel &amp; tautan lebih aman (v3.4.3):</b> variabel sementara (<code>_var</code>), properti (<code>$Player.name</code>) dan <code>[...]</code> yang menempel pada <code>$var</code> kini dilindungi sebelum dikirim ke mesin, dan validasi menolak terjemahan yang kehilangan variabel; tautan setter <code>[[label|tujuan][setter]]</code> kini dikenali — labelnya diterjemahkan, tujuan dan setter-nya (warna rambut, uang, waktu) tidak disentuh; label <code>&lt;&lt;link&gt;&gt;</code>/<code>&lt;&lt;button&gt;&gt;</code> satu argumen yang ber-badan kini diterjemahkan; bila Timpa ditolak (mis. teks asli tidak tersimpan), alasannya tampil di dekat tombol, bukan cuma di Log.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -240,7 +241,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.2 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.3 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6420,9 +6421,15 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.2 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.3 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
+   - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
+     $Var[...] menempel dilindungi placeholder; validateOne/QA menolak
+     terjemahan yang kehilangan variabel; tautan setter [[...][...]]
+     dikenali (setter tidak diterjemahkan); label <<link>>/<<button>>
+     satu argumen yang ber-badan diterjemahkan; penolakan Timpa tampil
+     di #buildInfo, bukan hanya di Log.
    - (v3.4.2) Build bertahap tanpa macet: doBuild() kini async dan
      memberi jeda antar fase (plus per potongan 1000 segmen di fase
      repair/QA), jadi tab tidak lagi "Page Unresponsive" di file besar.
@@ -6630,7 +6637,14 @@ function scanAccepts(s) {
 }
 
 /* ---------------- perlindungan placeholder & glossary ---------------- */
-const PLACEHOLDER_RE = /\{\{\{[\s\S]*?\}\}\}|\{[A-Za-z0-9_.$]+\}|%(\d+\$)?[sd]|\$[A-Za-z_][A-Za-z0-9_]*/g;
+/* (v3.4.3) Pola variabel diperluas: $Var(.properti)*([..])* menempel dan
+   variabel sementara _var. Titik hanya bila diikuti huruf (jangan telan
+   titik akhir kalimat, mis. "$Money. Kalimat"); [...] hanya bila menempel
+   langsung pada $var (jangan lindungi hook Harlowe [...] bebas — itu teks
+   tampil); \b sebelum _ agar "some_var" tidak kena. Tetap berbasis pola,
+   bukan daftar nama — nama variabel beda tiap karakter ($IlhamTop vs
+   $LionTop). Pola $/_ ini harus sama dengan yang di getMissingVars. */
+const PLACEHOLDER_RE = /\{\{\{[\s\S]*?\}\}\}|\{[A-Za-z0-9_.$]+\}|%(\d+\$)?[sd]|\$[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*(?:\[[^\]\[]*\])*|\b_[A-Za-z][A-Za-z0-9_]*/g;
 function protectPlaceholders(text) {
   const slots = [];
   const out = text.replace(PLACEHOLDER_RE, (m) => { slots.push(m); return '{{{GT' + (slots.length - 1) + '}}}'; });
@@ -6649,7 +6663,11 @@ function extractPlaceholders(text) {
   return found;
 }
 function getMissingVars(orig, trans) {
-  const regex = /\{[^}]*\}|\[[^\]]*\]|%(\d+\$)?[sd]/g;
+  // (v3.4.3) Juga memeriksa $Var (dengan .properti dan [...] menempel)
+  // dan _var — pola yang sama dengan PLACEHOLDER_RE. Terjemahan yang
+  // kehilangan variabel kini ditolak validateOne ('variabel hilang') dan
+  // ditandai QA ('variabel hilang/tambah').
+  const regex = /\{[^}]*\}|\[[^\]]*\]|%(\d+\$)?[sd]|\$[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*(?:\[[^\]\[]*\])*|\b_[A-Za-z][A-Za-z0-9_]*/g;
   const origVars = orig.match(regex) || [];
   if (!origVars.length) return [];
   const transVars = trans.match(regex) || [];
@@ -6875,22 +6893,38 @@ function mkSeg(ctx, text, rawStart, rawEnd, extra) {
 /* Urai isi [[...]]: kembalikan {label, labelStart, labelEnd, target,
    targetStart, targetEnd} (offset dalam teks hasil-decode, relatif ke
    awal token). label null bila tidak ada label. */
+/* (v3.4.3) Pola tautan [[...]] — dengan bagian setter opsional
+   [[...][setter]]. Dipakai pemindai SugarCube (di bawah), Harlowe
+   (linkRe) dan hitungan verifikasi — ubah ketiganya bersamaan. */
+const LINK_TOKEN_RE = /\[\[[^\]\n]*(?:\]\[[^\]\n]*)?\]\]/;
 function parseLinkToken(inner) {
+  // (v3.4.3) Pisahkan setter [[...][setter]] — setter adalah kode
+  // (mis. [$Minutes += $TravelTime]), bukan teks tampil.
+  let setter = null;
+  const setterAt = inner.indexOf('][');
+  if (setterAt >= 0) {
+    setter = inner.slice(setterAt + 2);
+    inner = inner.slice(0, setterAt);
+  }
   let sep = -1, sepLen = 1;
   const bar = inner.indexOf('|');
   const arrow = inner.indexOf('->');
   if (bar >= 0 && (arrow < 0 || bar < arrow)) { sep = bar; sepLen = 1; }
   else if (arrow >= 0) { sep = arrow; sepLen = 2; }
-  if (sep < 0) return { label: null, target: inner, targetStart: 0, targetEnd: inner.length };
+  if (sep < 0) return { label: null, target: inner, targetStart: 0, targetEnd: inner.length, setter };
   return {
     label: inner.slice(0, sep), labelStart: 0, labelEnd: sep,
     target: inner.slice(sep + sepLen), targetStart: sep + sepLen, targetEnd: inner.length,
+    setter,
   };
 }
 /* Aturan argumen kutip macro SugarCube (FASE 16B aplikasi Gabungan):
    button/link: hanya argumen kutip PERTAMA (label), dan HANYA bila ada
    argumen kutip KEDUA (nama passage). Satu argumen = label sekaligus nama
-   passage — menerjemahkannya merusak link. dialog: hanya argumen pertama.
+   passage — menerjemahkannya merusak link. (v3.4.3) Pengecualian: satu
+   argumen yang BER-BADAN (ada penutup <</link>>/<</button>> setelahnya)
+   adalah label teks tampil — lihat hasLinkBody di bawah.
+   dialog: hanya argumen pertama.
    print/notify/'='/'-': semua argumen. linkappend/linkprepend/linkreplace/
    option: argumen pertama saja. Macro lain: tidak ada. */
 const SC_QUOTE_MACROS = {
@@ -6917,6 +6951,23 @@ function quotedArgs(str) {
   }
   return out;
 }
+/* (v3.4.3) Apakah macro <<link>>/<<button>> satu argumen ini bentuk
+   ber-badan — ada penutup <</nama>> SEBELUM pembuka <<link>>/<<button>>
+   berikutnya di teks passage yang sama? Bila ya, argumen tunggalnya
+   adalah label teks tampil (mis. <<link "Keep walking">>...<</link>>).
+   Bila tidak ada penutup, itu bentuk nama passage (mis. <<link "Beach">>)
+   dan argumennya jangan diterjemahkan. Penutup milik link lain tidak
+   dihitung karena pembuka link berikutnya selalu datang lebih dulu. */
+function hasLinkBody(text, from, name) {
+  const closeRe = new RegExp('<<\\s*/\\s*' + name + '\\s*>>', 'gi');
+  closeRe.lastIndex = from;
+  const close = closeRe.exec(text);
+  if (!close) return false;
+  const openRe = /<<\s*(link|button)\b/gi;
+  openRe.lastIndex = from;
+  const open = openRe.exec(text);
+  return !open || close.index < open.index;
+}
 function segmentSugarCube(decoded, map, baseRaw, ctx) {
   const parts = [];
   // Tag HTML: quote-aware + multi-baris — <[^>\n]+> yang lama gagal pada tag
@@ -6927,7 +6978,7 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
   // (v3.2) Komentar JS /* ... */ dan komentar SugarCube /% ... %/
   // dilindungi seperti komentar HTML — isinya (termasuk macro di
   // dalamnya) bukan teks tampil.
-  const re = /(\[\[[^\]\n]*\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/%[\s\S]*?%\/|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
+  const re = /(\[\[[^\]\n]*(?:\]\[[^\]\n]*)?\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/%[\s\S]*?%\/|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
   let last = 0, m;
   while ((m = re.exec(decoded))) {
     if (m.index > last) emitPlainRun(parts, decoded.slice(last, m.index), last, map, baseRaw, ctx);
@@ -6966,7 +7017,9 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
       const rule = SC_QUOTE_MACROS[name];
       if (rule) {
         const args = quotedArgs(tok);
-        const take = rule === 'all' ? args : (rule === 'first' ? args.slice(0, 1) : (args.length >= 2 ? args.slice(0, 1) : []));
+        let take = rule === 'all' ? args : (rule === 'first' ? args.slice(0, 1) : (args.length >= 2 ? args.slice(0, 1) : []));
+        // (v3.4.3) Satu argumen + ber-badan = label teks tampil.
+        if (rule === 'first-if-two' && args.length === 1 && (name === 'link' || name === 'button') && hasLinkBody(decoded, te, name)) take = args.slice(0, 1);
         for (const a of take) {
           if (scanAccepts(a.text)) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, { macro: name }));
         }
@@ -7021,7 +7074,7 @@ function segmentHarlowe(decoded, map, baseRaw, ctx) {
    tampil — mis. (if: $x)[Teks ini harus diterjemahkan]). */
 function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
   const tokens = [];
-  const linkRe = /\[\[[^\]\n]*\]\]/g;
+  const linkRe = new RegExp(LINK_TOKEN_RE.source, 'g'); // (v3.4.3) kenal setter [[...][...]]
   let m;
   while ((m = linkRe.exec(text))) tokens.push({ start: m.index, end: m.index + m[0].length, kind: 'link', text: m[0] });
   for (const mc of scanHarloweMacros(text)) tokens.push({ start: mc.start, end: mc.end, kind: 'macro', name: mc.name, text: text.slice(mc.start, mc.end) });
@@ -7978,6 +8031,8 @@ window.__GTHTML_V34__ = { cleanPlaceholderTranslations, hasLeftoverPlaceholder, 
 window.__GTHTML_V341__ = { recentAvgSeconds, updateStats, renderList, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V342__ (v3.4.2) */
 window.__GTHTML_V342__ = { doBuild, buildOutput, verifyOutput, qaAll, qaAllChunked, repairTranslations, setBuildButtonsDisabled, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V343__ (v3.4.3) */
+window.__GTHTML_V343__ = { protectPlaceholders, getMissingVars, parseLinkToken, validateOne, hasLinkBody, doBuild, buildOutput, verifyOutput, qaAll, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8086,8 +8141,8 @@ function verifyOutput(outText) {
   const origMacroEnc = countRe(/&lt;&lt;[A-Za-z]/g, S.originalText);
   const outMacroEnc = countRe(/&lt;&lt;[A-Za-z]/g, outText);
   if (origMacroEnc) ok('Macro ter-encode &lt;&lt;... utuh (' + origMacroEnc + ')', origMacroEnc === outMacroEnc, 'hasil: ' + outMacroEnc);
-  const origLink = countRe(/\[\[[^\]]+\]\]/g, S.originalText);
-  const outLink = countRe(/\[\[[^\]]+\]\]/g, outText);
+  const origLink = countRe(new RegExp(LINK_TOKEN_RE.source, 'g'), S.originalText); // (v3.4.3) setter ikut terhitung
+  const outLink = countRe(new RegExp(LINK_TOKEN_RE.source, 'g'), outText);
   if (origLink) ok('Link [[...]] utuh (' + origLink + ')', origLink === outLink, 'hasil: ' + outLink);
   // (v3.4) Tidak ada placeholder perlindungan yang tersisa di file hasil
   // (mis. {{{gl0}}} dari mesin yang mengecilkan hurufnya).
@@ -8196,7 +8251,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.2\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.3\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8697,9 +8752,12 @@ function setBuildButtonsDisabled(disabled) {
   $('btnPreview').disabled = disabled;
 }
 async function doBuild(downloadFiles) {
-  if (!S.fileName) { log('Upload file dulu.', 'w'); return null; }
-  if (S.needsReupload || !S.originalText) { log('Teks asli tidak tersimpan di proyek ini — upload ulang file yang sama dulu, baru Timpa.', 'e'); return null; }
-  if (buildRunning) { log('Build sedang berjalan — tunggu selesai dulu.', 'w'); return null; }
+  // (v3.4.3) Penolakan juga tampil di #buildInfo di dekat tombol
+  // Timpa/Pratinjau — bukan hanya di Log — supaya alasannya kelihatan.
+  const blockBuild = (msg, lvl) => { log(msg, lvl || 'w'); const bi = $('buildInfo'); if (bi) bi.textContent = msg; };
+  if (!S.fileName) { blockBuild('Upload file dulu.'); return null; }
+  if (S.needsReupload || !S.originalText) { blockBuild('Teks asli tidak tersimpan di proyek ini — upload ulang file yang sama dulu, baru Timpa.', 'e'); return null; }
+  if (buildRunning) { blockBuild('Build sedang berjalan — tunggu selesai dulu.'); return null; }
   buildRunning = true;
   setBuildButtonsDisabled(true);
   try {
