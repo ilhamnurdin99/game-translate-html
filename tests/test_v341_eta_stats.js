@@ -25,7 +25,7 @@ const V341 = w.__GTHTML_V341__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.1 tersedia', !!V341 && typeof V341.recentAvgSeconds === 'function' && typeof V341.updateStats === 'function' && typeof V341.renderList === 'function');
-check('A0 label versi v3.4.4', html.includes('Game Translate HTML v3.4.4') && !html.includes('Game Translate HTML v3.4.3'));
+check('A0 label versi v3.4.5', html.includes('Game Translate HTML v3.4.5') && !html.includes('Game Translate HTML v3.4.4'));
 check('A0 Cara pakai menyebut v3.4.1', html.includes('Statistik di atas Daftar Teks &amp; ETA dari batch terakhir (v3.4.1)'));
 check('A0 GTHTML tersedia', !!G && typeof G.prepareForTranslate === 'function');
 
