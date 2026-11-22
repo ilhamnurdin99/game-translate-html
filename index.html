@@ -123,6 +123,7 @@ body.simple .adv{display:none!important}
       <li><b>Variabel &amp; tautan lebih aman (v3.4.3):</b> variabel sementara (<code>_var</code>), properti (<code>$Player.name</code>) dan <code>[...]</code> yang menempel pada <code>$var</code> kini dilindungi sebelum dikirim ke mesin, dan validasi menolak terjemahan yang kehilangan variabel; tautan setter <code>[[label|tujuan][setter]]</code> kini dikenali — labelnya diterjemahkan, tujuan dan setter-nya (warna rambut, uang, waktu) tidak disentuh; label <code>&lt;&lt;link&gt;&gt;</code>/<code>&lt;&lt;button&gt;&gt;</code> satu argumen yang ber-badan kini diterjemahkan; bila Timpa ditolak (mis. teks asli tidak tersimpan), alasannya tampil di dekat tombol, bukan cuma di Log.</li>
       <li><b>Pilih mesin &amp; cari di Daftar Teks (v3.4.4):</b> di Langkah 2 ada ceklis "Mesin yang dipakai" — matikan mesin yang sedang bermasalah (mis. Google yang mengembalikan kosong) supaya run langsung mulai dari mesin berikutnya; Translator Chrome yang tidak dicentang tidak dipakai sebagai penyelamat. Placeholder yang kurungnya dirusak mesin (mis. <code>{{GL1}}}</code>) kini ikut dipulihkan dan ditangkap validasi. Kotak pencarian di atas Daftar Teks mencari teks asli dan/atau terjemahan, supaya kebocoran bisa ditemukan dan diedit manual.</li>
       <li><b>Ringkasan QA selalu segar &amp; filter belum diterjemahkan (v3.4.5):</b> ringkasan "Laporan — Verifikasi &amp; QA" kini diperbarui setiap ada perubahan terjemahan — habis TM dipakai, terjemahan per baris, atau edit manual (edit manual diperbarui 500 ms setelah berhenti mengetik, supaya tidak melambat di file besar). Ceklis "Hanya yang belum diterjemahkan" di atas Daftar Teks menampilkan hanya teks yang belum ada terjemahannya, bisa digabung dengan pencarian — untuk melihat apakah yang tertinggal itu masalah mesin atau kode bocor.</li>
+      <li><b>Label tautan satu argumen (v3.4.6):</b> ceklis "Terjemahkan label tautan satu argumen [[...]]" di Langkah 2 — default MATI, supaya game lain tidak terpengaruh. Bila hidup, label tautan <code>[[Home]]</code> dan <code>&lt;&lt;link "Home"&gt;&gt;</code> tanpa badan ikut diterjemahkan; Timpa menulis balik <code>[[Rumah|Home]]</code> (target asli dipertahankan, jadi tautan tidak rusak). Tautan di dalam argumen macro (mis. <code>&lt;&lt;addToLoc "[[Home]]"&gt;&gt;</code>) dan isi <code>&lt;&lt;widget&gt;&gt;</code> tetap tidak disentuh.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -186,6 +187,7 @@ body.simple .adv{display:none!important}
       <label class="inline"><input type="checkbox" class="engChk" data-eng="edge" checked> Edge</label>
       <label class="inline"><input type="checkbox" class="engChk" data-eng="mymemory" checked> MyMemory</label>
       <label class="inline"><input type="checkbox" class="engChk" data-eng="chrome" checked> Translator Chrome</label>
+      <label class="inline"><input type="checkbox" id="optLinkLabels"> Terjemahkan label tautan satu argumen [[...]]</label>
     </div>
     <div class="bar"><i id="transBar"></i></div>
     <div style="display:flex;gap:8px;align-items:center;margin:10px 0">
@@ -258,7 +260,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.5 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.6 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6438,7 +6440,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.5 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.6 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6753,6 +6755,8 @@ const S = {
   glossary: [],
   skipPassages: new Set(),
   includeScript: false, translateNames: false,
+  linkLabels: false, // (v3.4.6) terjemahkan label tautan satu argumen [[...]] — opt-in, default mati
+  linkNoBodyTargets: [], // (v3.4.6) target <<link "X">> tanpa badan — untuk peringatan mode nama passage
   encodeStyle: { quote: false, apos: false, nbsp: false },
   running: false, cancelled: false,
   page: 0, perPage: 100, selected: new Set(),
@@ -7019,8 +7023,14 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
       if (ctx.atSpan) { last = te; continue; }
       const inner = tok.slice(2, -2);
       const p = parseLinkToken(inner);
-      if (p.label !== null && p.label.trim() && scanAccepts(p.label) && p.label.trim() !== p.target.trim()) {
+      // (v3.4.6) Bila ceklis hidup, label yang sama dengan target tetap jadi
+      // segmen — file hasil berbentuk [[Label|Target]], jadi pindai ulang
+      // harus menghitung sama.
+      if (p.label !== null && p.label.trim() && scanAccepts(p.label) && (p.label.trim() !== p.target.trim() || ctx.linkLabels)) {
         parts.push(mkSeg(ctx, p.label, map[ts + 2 + p.labelStart] + baseRaw, map[ts + 2 + p.labelEnd] + baseRaw, { linkLabel: true }));
+      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target)) {
+        // (v3.4.6) Tautan satu argumen [[X]] — label = target; jadi segmen bila ceklis hidup.
+        parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { linkLabel: true, singleLink: true }));
       }
       if (ctx.translateNames && p.target.trim()) {
         parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { kind: 'link-target', translatable: false, ref: p.target }));
@@ -7048,14 +7058,30 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
       if (rule) {
         const args = quotedArgs(tok);
         let take = rule === 'all' ? args : (rule === 'first' ? args.slice(0, 1) : (args.length >= 2 ? args.slice(0, 1) : []));
+        let singleLinkArg = null;
         // (v3.4.3) Satu argumen + ber-badan = label teks tampil.
-        if (rule === 'first-if-two' && args.length === 1 && (name === 'link' || name === 'button') && hasLinkBody(decoded, te, name)) take = args.slice(0, 1);
+        // (v3.4.6) Satu argumen TANPA badan + ceklis label tautan = label teks
+        // tampil (hanya <<link>>; <<button>> tanpa badan tidak berguna).
+        // Tanpa ceklis, targetnya dicatat untuk peringatan mode nama passage.
+        if (rule === 'first-if-two' && args.length === 1 && (name === 'link' || name === 'button')) {
+          if (hasLinkBody(decoded, te, name)) take = args.slice(0, 1);
+          else if (name === 'link' && ctx.linkLabels) { take = args.slice(0, 1); singleLinkArg = args[0]; }
+          else if (name === 'link') { (ctx.linkNoBodyTargets = ctx.linkNoBodyTargets || []).push(args[0].text); }
+        }
         for (const a of take) {
-          if (scanAccepts(a.text)) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, { macro: name }));
+          if (scanAccepts(a.text)) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, a === singleLinkArg ? { macro: name, singleLink: true, quote: a.quote } : { macro: name }));
         }
         if ((rule === 'first-if-two' || rule === 'first') && ctx.translateNames && args.length >= 2) {
           const t = args[1];
           parts.push(mkSeg(ctx, t.text, map[ts + t.start] + baseRaw, map[ts + t.end] + baseRaw, { kind: 'link-target', translatable: false, ref: t.text }));
+        }
+        // (v3.4.6) Tautan <<link "X">> tanpa badan yang jadi segmen label juga
+        // mendapat segmen link-target pendamping (rentang sama) — bentuk dua
+        // argumen hasil Timpa (<<link "Tr" "X">>) memang punya segmen itu, jadi
+        // pindai ulang menghitung sama. buildOutput melewatinya (rentang sama
+        // dengan segmen label) supaya tidak ada penggantian ganda.
+        if (singleLinkArg && ctx.translateNames) {
+          parts.push(mkSeg(ctx, singleLinkArg.text, map[ts + singleLinkArg.start] + baseRaw, map[ts + singleLinkArg.end] + baseRaw, { kind: 'link-target', translatable: false, ref: singleLinkArg.text }));
         }
       }
       // macro lain: dilindungi utuh
@@ -7136,8 +7162,12 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
     if (t.kind === 'link') {
       const inner = t.text.slice(2, -2);
       const p = parseLinkToken(inner);
-      if (p.label !== null && p.label.trim() && scanAccepts(p.label) && p.label.trim() !== p.target.trim()) {
+      // (v3.4.6) Lihat catatan yang sama di segmentSugarCube.
+      if (p.label !== null && p.label.trim() && scanAccepts(p.label) && (p.label.trim() !== p.target.trim() || ctx.linkLabels)) {
         parts.push(mkSeg(ctx, p.label, map[ts + 2 + p.labelStart] + baseRaw, map[ts + 2 + p.labelEnd] + baseRaw, { linkLabel: true }));
+      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target)) {
+        // (v3.4.6) Tautan satu argumen [[X]] — label = target; jadi segmen bila ceklis hidup.
+        parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { linkLabel: true, singleLink: true }));
       }
       if (ctx.translateNames && p.target.trim()) {
         parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { kind: 'link-target', translatable: false, ref: p.target }));
@@ -7208,7 +7238,7 @@ function scanFile(text, opts) {
   const engine = detectEngine(text);
   const segments = [];
   const passages = [];
-  const ctx0 = { engineKind: engine.kind, translateNames: !!opts.translateNames, atSpan: false };
+  const ctx0 = { engineKind: engine.kind, translateNames: !!opts.translateNames, linkLabels: !!opts.linkLabels, atSpan: false, linkNoBodyTargets: [] };
   let rawPassages = '';
   const jobs = [];
   // --- Twine 2: <tw-passagedata> ---
@@ -7275,7 +7305,7 @@ function scanFile(text, opts) {
     segments.push(...res.segments);
     scriptWarn = res.warn;
   }
-  return { engine, segments, passages, encodeStyle, scriptWarn, twineCount: tw2.length };
+  return { engine, segments, passages, encodeStyle, scriptWarn, twineCount: tw2.length, linkNoBodyTargets: ctx0.linkNoBodyTargets };
 }
 function scanGenericHtml(text, ctx0) {
   const segments = [];
@@ -7594,6 +7624,18 @@ function saveEngineSel() {
 function applyEngineSelToUI() {
   document.querySelectorAll('.engChk').forEach((cb) => { cb.checked = engineEnabled(cb.dataset.eng); });
 }
+/* (v3.4.6) Label tautan satu argumen [[...]]: ceklis opt-in, default mati.
+   Default lintas proyek di localStorage (pola gthtml_engines_v1); nilai
+   per proyek tersimpan di IndexedDB dan menimpa default saat dipulihkan.
+   File baru kembali ke default lintas proyek (pola listQuery v3.4.4). */
+const LINKLABELS_KEY = 'gthtml_linklabels_v1';
+function readLinkLabelsDefault() {
+  try { const raw = localStorage.getItem(LINKLABELS_KEY); return raw === null ? false : JSON.parse(raw) === true; } catch (e) { return false; }
+}
+function saveLinkLabels() {
+  try { localStorage.setItem(LINKLABELS_KEY, JSON.stringify(!!S.linkLabels)); } catch (e) { /* abaikan */ }
+}
+function applyLinkLabelsToUI() { const cb = $('optLinkLabels'); if (cb) cb.checked = !!S.linkLabels; }
 function readEngineSelFromUI() {
   const sel = {};
   document.querySelectorAll('.engChk').forEach((cb) => { sel[cb.dataset.eng] = cb.checked; });
@@ -7741,9 +7783,12 @@ function cleanPlaceholderTranslations() {
   }
   return n;
 }
-function validateOne(clean, original) {
+function validateOne(clean, original, seg) {
   if (!clean || !clean.trim()) return 'kosong';
   if (hasLeftoverPlaceholder(clean)) return 'placeholder tersisa';
+  // (v3.4.6) Label tautan satu argumen: '|' di terjemahan akan merusak
+  // tautan [[...|...]] / <<link "a" "b">> saat Timpa — tolak seperti penjaga placeholder/variabel.
+  if (seg && seg.singleLink && clean.includes('|')) return 'label mengandung |';
   if (isHallucinatedOutput(clean, original)) return 'halusinasi';
   if (getMissingVars(original, clean).length > 0) return 'variabel hilang';
   if (clean === original) return 'sama';
@@ -7765,7 +7810,7 @@ async function translateSegments(queue) {
       const r = results[j];
       if (r) {
         const clean = restoreTranslated(r.text, preps[j], seg.text);
-        const bad = validateOne(clean, seg.text);
+        const bad = validateOne(clean, seg.text, seg);
         if (bad) { S.translations.set(seg.id, { text: '', via: 'gagal:' + bad, failed: true }); }
         else S.translations.set(seg.id, { text: clean, via: r.via });
       } else {
@@ -7802,7 +7847,7 @@ async function translateSegments(queue) {
       for (let j = 0; j < failedSegs.length; j++) {
         const seg = failedSegs[j];
         const clean = restoreTranslated(bOut[j], bPreps[j], seg.text);
-        if (!validateOne(clean, seg.text)) { S.translations.set(seg.id, { text: clean, via: 'Chrome' }); rescued++; }
+        if (!validateOne(clean, seg.text, seg)) { S.translations.set(seg.id, { text: clean, via: 'Chrome' }); rescued++; }
       }
       if (rescued) { log('Translator Chrome menyelamatkan ' + rescued + ' dari ' + failedSegs.length + ' teks yang gagal di mesin online.'); updateStats(); renderList(); saveProject(); }
     } else {
@@ -8121,6 +8166,8 @@ window.__GTHTML_V343__ = { protectPlaceholders, getMissingVars, parseLinkToken, 
 window.__GTHTML_V344__ = { engineEnabled, allEnginesOff, enabledEngineLabels, setEngineSel, applyEngineSelToUI, readEngineSelFromUI, loadEngineSel, saveEngineSel, listFilterMatches, filteredSegs, renderList, unprotectGlossary, unprotectPlaceholders, hasLeftoverPlaceholder, LEFTOVER_PLACEHOLDER_RE, validateOne, cleanPlaceholderTranslations, verifyOutput, translateBatch, translateSegments, runTranslate, doBuild, buildOutput, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V345__ (v3.4.5) */
 window.__GTHTML_V345__ = { renderReport, applyTM, runTranslate, filteredSegs, listFilterMatches, untranslatedList, renderList, scheduleReportRefresh, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V346__ (v3.4.6) */
+window.__GTHTML_V346__ = { parseLinkToken, hasLinkBody, validateOne, buildOutput, verifyOutput, doBuild, scanFile, readLinkLabelsDefault, saveLinkLabels, applyLinkLabelsToUI, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8158,12 +8205,43 @@ function passageNameTranslation(name) {
   }
   return null;
 }
+/* (v3.4.6) Tulis balik label tautan satu argumen: [[Label|Target]] atau
+   <<link "Label" "Target">> — target dipertahankan (atau diganti nama bila
+   mode nama passage aktif). Untuk [[...]], target asli diambil dari
+   potongan asli supaya encoding-nya utuh; target hasil ganti nama
+   di-encode seperti teks passage. Untuk <<link>>, pengganti disisipkan di
+   antara tanda kutip argumen pertama yang sudah ada. */
+function singleLinkReplacement(seg, labelText, targetText, targetIsOriginal) {
+  if (seg.macro === 'link') {
+    const q = seg.quote || '"';
+    return escapeJsString(labelText, q) + q + ' ' + q + escapeJsString(targetText, q);
+  }
+  return encodePassageText(labelText, S.encodeStyle) + '|' + (targetIsOriginal ? S.originalText.slice(seg.rawStart, seg.rawEnd) : encodePassageText(targetText, S.encodeStyle));
+}
 function buildOutput() {
   const reps = []; // {start, end, replacement}
+  let pipeSkipped = 0; // (v3.4.6) label tautan dengan '|' yang dibuang supaya tautan tidak rusak
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     if (seg.kind === 'link-target') continue; // ditangani di bawah via nama passage
     const tr = S.translations.get(seg.id);
+    // (v3.4.6) Label tautan satu argumen [[X]] / <<link "X">> tanpa badan.
+    if (seg.singleLink) {
+      const nt = S.translateNames ? passageNameTranslation(seg.text) : null;
+      const targetText = nt || seg.text;
+      let labelText = null;
+      if (tr && tr.text && !tr.failed) {
+        if (tr.text.includes('|')) pipeSkipped++; // terjemahan label dibuang — '|' merusak tautan
+        else labelText = tr.text;
+      }
+      if (labelText !== null && !(labelText === seg.text && targetText === seg.text)) {
+        reps.push({ start: seg.rawStart, end: seg.rawEnd, replacement: singleLinkReplacement(seg, labelText, targetText, !nt) });
+      } else if (labelText === null && nt && nt !== seg.text) {
+        // Label tidak diterjemahkan, tapi target harus ikut diganti nama (mode nama passage).
+        reps.push({ start: seg.rawStart, end: seg.rawEnd, replacement: singleLinkReplacement(seg, seg.text, targetText, !nt) });
+      }
+      continue;
+    }
     if (!tr || !tr.text || tr.failed || tr.text === seg.text) continue;
     let rep;
     if (seg.kind === 'js') rep = escapeJsString(tr.text, seg.quote || '"');
@@ -8175,8 +8253,13 @@ function buildOutput() {
   // Target link [[label|target]] / macro: ganti dengan nama passage hasil
   // terjemahan (hanya bila mode nama passage aktif).
   if (S.translateNames) {
+    // (v3.4.6) Target tautan satu argumen sudah ditangani segmen labelnya
+    // (rentang sama) — jangan ganda, supaya tidak ada penggantian tumpang tindih.
+    const singleRanges = new Set();
+    if (S.linkLabels) for (const s of S.segments) if (s.singleLink) singleRanges.add(s.rawStart + ':' + s.rawEnd);
     for (const seg of S.segments) {
       if (seg.kind !== 'link-target' || !seg.ref) continue;
+      if (singleRanges.has(seg.rawStart + ':' + seg.rawEnd)) continue;
       const nt = passageNameTranslation(seg.ref);
       if (!nt || nt === seg.ref) continue;
       let rep;
@@ -8201,7 +8284,7 @@ function buildOutput() {
     pos = r.end;
   }
   parts.push(S.originalText.slice(pos));
-  return { text: parts.join(''), replaced: reps.length };
+  return { text: parts.join(''), replaced: reps.length, pipeSkipped };
 }
 /* ---------------- verifikasi file hasil (ide 5) ---------------- */
 function verifyOutput(outText) {
@@ -8240,7 +8323,7 @@ function verifyOutput(outText) {
   ok('Tidak ada placeholder {{{...}}} tersisa di file hasil', leftover === 0, leftover ? leftover + ' placeholder tersisa (mis. {{{gl0}}})' : '');
   // Struktur segmen: pindai ulang file hasil, jumlah segmen harus sama.
   try {
-    const re = scanFile(outText, { includeScript: S.includeScript, translateNames: S.translateNames });
+    const re = scanFile(outText, { includeScript: S.includeScript, translateNames: S.translateNames, linkLabels: S.linkLabels });
     ok('Jumlah segmen hasil pindai ulang sama', re.segments.length === S.segments.length, 'asli: ' + S.segments.length + ', hasil: ' + re.segments.length);
   } catch (e) { ok('Pindai ulang file hasil', false, e.message); }
   return checks;
@@ -8252,6 +8335,8 @@ function qaSegment(seg) {
   if (!tr || !tr.text) { issues.push('belum diterjemahkan'); return issues; }
   if (tr.failed) { issues.push('gagal diterjemahkan'); return issues; }
   if (tr.text === seg.text) issues.push('sama persis dengan aslinya');
+  // (v3.4.6) Label tautan satu argumen dengan '|' — Timpa akan membuang terjemahan ini supaya tautan tidak rusak.
+  if (seg.singleLink && tr.text.includes('|')) issues.push('label mengandung | (merusak tautan)');
   const missing = getMissingVars(seg.text, tr.text);
   if (missing.length) issues.push('variabel hilang: ' + missing.join(', '));
   const extra = getMissingVars(tr.text, seg.text);
@@ -8341,7 +8426,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.5\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.6\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8587,7 +8672,7 @@ function renderList() {
       const res = await translateBatch([prep.send], SRC, TGT);
       if (res[0]) {
         const clean = restoreTranslated(res[0].text, prep, seg.text);
-        const bad = validateOne(clean, seg.text);
+        const bad = validateOne(clean, seg.text, seg);
         if (bad) S.translations.set(seg.id, { text: '', via: 'gagal:' + bad, failed: true });
         else S.translations.set(seg.id, { text: clean, via: res[0].via });
       } else S.translations.set(seg.id, { text: '', via: 'gagal', failed: true });
@@ -8724,6 +8809,7 @@ function collectProjectData() {
     translations: [...S.translations.entries()],
     glossary: S.glossary, skipPassages: [...S.skipPassages],
     includeScript: S.includeScript, translateNames: S.translateNames,
+    linkLabels: S.linkLabels, linkNoBodyTargets: S.linkNoBodyTargets || [], // (v3.4.6) ceklis label tautan ikut tersimpan
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
     engineSel: S.engineSel, // (v3.4.4) mesin yang dipakai ikut tersimpan
   };
@@ -8789,6 +8875,9 @@ function restoreProject(d) {
   S.translations = new Map(d.translations || []);
   S.glossary = d.glossary || []; S.skipPassages = new Set(d.skipPassages || []);
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
+  // (v3.4.6) Label tautan satu argumen — proyek lama tanpa field ini tetap memakai default lintas proyek.
+  if (d.linkLabels !== undefined) S.linkLabels = !!d.linkLabels;
+  S.linkNoBodyTargets = d.linkNoBodyTargets || [];
   S.engine = d.engine || null; S.encodeStyle = d.encodeStyle || { quote: false, apos: false, nbsp: false };
   // (v3.4.4) Pilihan mesin dari proyek tersimpan (proyek lama tanpa
   // engineSel tetap memakai default semua aktif).
@@ -8800,6 +8889,7 @@ function restoreProject(d) {
   for (const seg of S.segments) seg.skipped = S.skipPassages.has(seg.passage);
   $('optScript').checked = S.includeScript;
   $('optNames').checked = S.translateNames;
+  $('optLinkLabels').checked = S.linkLabels; // (v3.4.6)
   showFileInfo();
   renderSkipList(); renderGlossary(); updateStats(); renderList(); renderReport(null, null);
 }
@@ -8827,8 +8917,9 @@ function doScan() {
     const t = S.translations.get(seg.id);
     if (t) keep.set(seg.kind + '|' + (seg.passage || '') + '|' + seg.text, t);
   }
-  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames });
+  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames, linkLabels: S.linkLabels });
   S.engine = res.engine; S.segments = res.segments; S.passages = res.passages; S.encodeStyle = res.encodeStyle;
+  S.linkNoBodyTargets = res.linkNoBodyTargets || [];
   S.translations = new Map();
   for (const seg of S.segments) {
     const t = keep.get(seg.kind + '|' + (seg.passage || '') + '|' + seg.text);
@@ -8848,6 +8939,7 @@ async function loadFile(file) {
   S.outputText = ''; S.page = 0; S.selected.clear();
   S.listQuery = ''; const ls = $('listSearch'); if (ls) ls.value = ''; // (v3.4.4) file baru = pencarian baru
   S.listOnlyUntr = false; const lo = $('chkOnlyUntr'); if (lo) lo.checked = false; // (v3.4.5) file baru = filter baru
+  S.linkLabels = readLinkLabelsDefault(); const ll = $('optLinkLabels'); if (ll) ll.checked = S.linkLabels; // (v3.4.6) file baru = default lintas proyek
   S.stats = { totalMs: 0, doneCount: 0, recent: [] };
   segCounter = 0;
   doScan();
@@ -8877,7 +8969,7 @@ async function runTranslate(which) {
   S.running = true; S.cancelled = false;
   $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
   $('btnRetryFailed').disabled = true; $('btnStop').disabled = false;
-  log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + ')');
+  log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + '; label tautan satu argumen: ' + (S.linkLabels ? 'AKTIF' : 'NONAKTIF') + ')');
   const done = await translateSegments(queue);
   const failed = queue.filter((s) => { const t = S.translations.get(s.id); return t && t.failed; }).length;
   log('Selesai: ' + done + ' teks diproses, ' + failed + ' gagal. ' + (failed ? 'Pakai "Ulangi yang gagal" atau perbaiki manual di Daftar Teks.' : ''));
@@ -8920,6 +9012,13 @@ async function doBuild(downloadFiles) {
     if (repaired.repaired.length) log('Repair: ' + repaired.repaired.length + ' teks diperbaiki (variabel disisipkan kembali).', 'g');
     if (repaired.reverted.length) log('Repair: ' + repaired.reverted.length + ' teks dikembalikan ke Inggris karena tidak bisa diperbaiki.', 'w');
     const built = buildOutput();
+    // (v3.4.6) Mode nama passage aktif tapi ceklis label tautan mati: tautan
+    // <<link "X">> tanpa badan tidak ikut diganti nama — peringatkan, jangan diam-diam.
+    if (S.translateNames && !S.linkLabels && S.linkNoBodyTargets && S.linkNoBodyTargets.length) {
+      const renamed = [...new Set(S.linkNoBodyTargets)].filter((t) => { const nt = passageNameTranslation(t); return nt && nt !== t; });
+      if (renamed.length) log('Peringatan: mode nama passage aktif, tapi ' + renamed.length + ' tautan <<link "X">> tanpa badan tidak ikut diganti nama (' + renamed.map((t) => '"' + t + '" → "' + passageNameTranslation(t) + '"').join(', ') + ') — targetnya masih menunjuk nama lama. Nyalakan ceklis "Terjemahkan label tautan satu argumen" lalu Timpa ulang, atau perbaiki manual.', 'w');
+    }
+    if (built.pipeSkipped) log('Peringatan: ' + built.pipeSkipped + ' label tautan mengandung | dan tidak ditulis balik — tautan dibiarkan apa adanya, perbaiki terjemahannya manual.', 'w');
     await sleep(0);
     // (v2) Penjaga kode: pulihkan diam-diam blok <<script>>/<script> yang
     // rusak di file hasil dari aslinya — jangan pernah memblokir Timpa.
@@ -9032,6 +9131,13 @@ function init() {
     if (S.translateNames) log('Mode nama passage AKTIF — nama passage akan ikut diterjemahkan dan name= diubah saat Timpa (konfirmasi diminta).', 'w');
     if (S.originalText) { doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); saveProject(); }
   });
+  // (v3.4.6) Label tautan satu argumen [[...]] / <<link "X">> tanpa badan.
+  $('optLinkLabels').addEventListener('change', () => {
+    S.linkLabels = $('optLinkLabels').checked;
+    saveLinkLabels();
+    if (S.linkLabels) log('Label tautan satu argumen AKTIF — label [[X]] dan <<link "X">> tanpa badan ikut diterjemahkan; Timpa menulis balik [[Terjemahan|X]] (target dipertahankan).', 'w');
+    if (S.originalText) { doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); saveProject(); }
+  });
   // Glossary
   $('btnGlossAdd').addEventListener('click', () => {
     const en = $('glossEn').value.trim(), id = $('glossId').value.trim();
@@ -9120,6 +9226,10 @@ function init() {
   loadEngineSel();
   applyEngineSelToUI();
   document.querySelectorAll('.engChk').forEach((cb) => cb.addEventListener('change', () => { readEngineSelFromUI(); saveEngineSel(); }));
+  // (v3.4.6) Label tautan satu argumen: default lintas proyek dari localStorage,
+  // lalu proyek tersimpan (restoreProject) menimpanya bila ada.
+  S.linkLabels = readLinkLabelsDefault();
+  applyLinkLabelsToUI();
   // (v3.4.4) Pencarian di Daftar Teks.
   $('listSearch').addEventListener('input', () => { S.listQuery = $('listSearch').value; S.page = 0; renderList(); });
   $('listSearchScope').addEventListener('change', () => { S.listScope = $('listSearchScope').value; S.page = 0; renderList(); });
