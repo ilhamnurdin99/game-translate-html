@@ -121,6 +121,7 @@ body.simple .adv{display:none!important}
       <li><b>Statistik di atas Daftar Teks &amp; ETA dari batch terakhir (v3.4.1):</b> kotak Statistik pindah ke atas Daftar Teks supaya selalu terlihat saat proses berjalan; perkiraan waktu dihitung dari kecepatan 10 batch terakhir, bukan rata-rata sejak awal — fase mesin mati tidak lagi membuat ETA membengkak. Daftar Teks tetap 100 baris per halaman, tapi kotaknya lebih besar dan bisa di-scroll sendiri.</li>
       <li><b>Bangun file tanpa macet (v3.4.2):</b> Timpa &amp; Unduh / Pratinjau kini dikerjakan bertahap dengan jeda, jadi tab tidak lagi "Page Unresponsive" di file besar (17.699 teks) — progres tiap langkah terlihat di info build, dan tombol Timpa/Pratinjau nonaktif selama build berjalan. Hasil file-nya identik dengan sebelumnya.</li>
       <li><b>Variabel &amp; tautan lebih aman (v3.4.3):</b> variabel sementara (<code>_var</code>), properti (<code>$Player.name</code>) dan <code>[...]</code> yang menempel pada <code>$var</code> kini dilindungi sebelum dikirim ke mesin, dan validasi menolak terjemahan yang kehilangan variabel; tautan setter <code>[[label|tujuan][setter]]</code> kini dikenali — labelnya diterjemahkan, tujuan dan setter-nya (warna rambut, uang, waktu) tidak disentuh; label <code>&lt;&lt;link&gt;&gt;</code>/<code>&lt;&lt;button&gt;&gt;</code> satu argumen yang ber-badan kini diterjemahkan; bila Timpa ditolak (mis. teks asli tidak tersimpan), alasannya tampil di dekat tombol, bukan cuma di Log.</li>
+      <li><b>Pilih mesin &amp; cari di Daftar Teks (v3.4.4):</b> di Langkah 2 ada ceklis "Mesin yang dipakai" — matikan mesin yang sedang bermasalah (mis. Google yang mengembalikan kosong) supaya run langsung mulai dari mesin berikutnya; Translator Chrome yang tidak dicentang tidak dipakai sebagai penyelamat. Placeholder yang kurungnya dirusak mesin (mis. <code>{{GL1}}}</code>) kini ikut dipulihkan dan ditangkap validasi. Kotak pencarian di atas Daftar Teks mencari teks asli dan/atau terjemahan, supaya kebocoran bisa ditemukan dan diedit manual.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -176,12 +177,26 @@ body.simple .adv{display:none!important}
       <button id="btnStop" disabled>Berhenti</button>
       <span style="align-self:center" class="mut" id="transStatus"></span>
     </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:10px 0 0">
+      <span class="mut">Mesin yang dipakai:</span>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="custom" checked> Provider custom</label>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="google" checked> Google</label>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="dict" checked> Google Dict</label>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="edge" checked> Edge</label>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="mymemory" checked> MyMemory</label>
+      <label class="inline"><input type="checkbox" class="engChk" data-eng="chrome" checked> Translator Chrome</label>
+    </div>
     <div class="bar"><i id="transBar"></i></div>
     <div style="display:flex;gap:8px;align-items:center;margin:10px 0">
       <label class="inline"><input type="checkbox" id="chkAll"> Pilih semua di halaman</label>
       <span class="mut" id="pageInfo"></span>
       <button id="btnPrevPage">‹ Sebelumnya</button>
       <button id="btnNextPage">Berikutnya ›</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin:0 0 10px">
+      <input type="text" id="listSearch" placeholder="Cari di Daftar Teks — teks asli / terjemahan (mis. {{GL1}}})" style="flex:1;min-width:180px">
+      <select id="listSearchScope"><option value="all">Semua</option><option value="orig">Teks asli</option><option value="tr">Terjemahan</option></select>
+      <button id="btnClearSearch" title="Hapus pencarian">✕</button>
     </div>
     <div class="trow head"><span></span><span>No.</span><span>Teks asli (Inggris)</span><span>Terjemahan (Indonesia)</span><span>Status</span></div>
     <div id="listBody"><p class="mut">Belum ada teks. Upload file dulu.</p></div>
@@ -241,7 +256,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.3 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.4 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6421,7 +6436,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.3 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.4 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6430,6 +6445,11 @@ body.simple .adv{display:none!important}
      dikenali (setter tidak diterjemahkan); label <<link>>/<<button>>
      satu argumen yang ber-badan diterjemahkan; penolakan Timpa tampil
      di #buildInfo, bukan hanya di Log.
+   - (v3.4.4) Pilih mesin terjemah (ceklis di Langkah 2, tersimpan per
+     proyek + default localStorage; Translator Chrome yang tidak
+     dicentang tidak dipakai sebagai penyelamat); placeholder cacat
+     ({{GL1}}}) ikut dipulihkan & ditangkap validasi; pencarian di
+     Daftar Teks (teks asli / terjemahan / keduanya).
    - (v3.4.2) Build bertahap tanpa macet: doBuild() kini async dan
      memberi jeda antar fase (plus per potongan 1000 segmen di fase
      repair/QA), jadi tab tidak lagi "Page Unresponsive" di file besar.
@@ -6653,7 +6673,9 @@ function protectPlaceholders(text) {
 function unprotectPlaceholders(text, slots) {
   // (v3.4) case-insensitive: mesin sering mengecilkan {{{GT0}}} jadi
   // {{{gt0}}} saat menerjemahkan — slot harus tetap dipulihkan.
-  return text.replace(/\{\{\{GT(\d+)\}\}\}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n] : m));
+  // (v3.4.4) toleran terhadap kurung yang rusak, sama seperti
+  // unprotectGlossary: 1-3 kurung tiap sisi, plus spasi di dalam.
+  return text.replace(/\{{1,3}\s*GT(\d+)\s*\}{1,3}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n] : m));
 }
 function extractPlaceholders(text) {
   const found = new Set();
@@ -6697,7 +6719,10 @@ function protectGlossary(text, glossary) {
 function unprotectGlossary(text, slots) {
   // (v3.4) case-insensitive: mesin sering mengecilkan {{{GL0}}} jadi
   // {{{gl0}}} saat menerjemahkan — slot harus tetap dipulihkan.
-  return text.replace(/\{\{\{GL(\d+)\}\}\}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n].id : m));
+  // (v3.4.4) toleran terhadap kurung yang rusak: mesin juga menghilangkan
+  // kurung ({{{GL1}}} -> {{GL1}}}) — pulihkan walau tinggal 1-3 kurung
+  // di tiap sisi, plus spasi di dalam (mis. {{{ GL1 }}}).
+  return text.replace(/\{{1,3}\s*GL(\d+)\s*\}{1,3}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n].id : m));
 }
 function normalizeSpaces(translated, original) {
   if (!translated) return translated;
@@ -6729,6 +6754,9 @@ const S = {
   encodeStyle: { quote: false, apos: false, nbsp: false },
   running: false, cancelled: false,
   page: 0, perPage: 100, selected: new Set(),
+  // (v3.4.4) Mesin yang dipakai (ceklis Langkah 2) + pencarian Daftar Teks.
+  engineSel: { custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true },
+  listQuery: '', listScope: 'all',
   stats: { totalMs: 0, doneCount: 0, recent: [] },
   origDownloaded: false, needsReupload: false,
 };
@@ -7525,6 +7553,50 @@ function setEngine(name) {
   log('Mesin: ' + name + '.');
   const el = $('transStatus'); if (el) el.textContent = 'Mesin: ' + name + '…';
 }
+/* (v3.4.4) Mesin yang dipakai — dipilih pengguna lewat ceklis di Langkah 2
+   ("Mesin yang dipakai"). Default semua aktif (perilaku lama). Pilihan
+   tersimpan per proyek (IndexedDB, ikut saveProject) + default lintas
+   proyek di localStorage. Pemutus sirkuit tetap berlaku untuk mesin yang
+   aktif dan tetap di-reset per run seperti sebelumnya. */
+const ENGINE_KEYS = ['custom', 'google', 'dict', 'edge', 'mymemory', 'chrome'];
+const ENGINE_LABELS = { custom: 'Provider custom', google: 'Google', dict: 'Google Dict', edge: 'Edge', mymemory: 'MyMemory', chrome: 'Translator Chrome' };
+const ENGINES_KEY = 'gthtml_engines_v1';
+function engineEnabled(name) { return !S.engineSel || S.engineSel[name] !== false; }
+function allEnginesOff() { return ENGINE_KEYS.every((k) => !engineEnabled(k)); }
+function enabledEngineLabels() {
+  const out = [];
+  if (engineEnabled('custom') && customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model) out.push(ENGINE_LABELS.custom);
+  if (engineEnabled('google')) out.push(ENGINE_LABELS.google);
+  if (engineEnabled('dict')) out.push(ENGINE_LABELS.dict);
+  if (engineEnabled('edge')) out.push(ENGINE_LABELS.edge);
+  if (engineEnabled('mymemory')) out.push(ENGINE_LABELS.mymemory);
+  if (engineEnabled('chrome')) out.push(ENGINE_LABELS.chrome);
+  return out;
+}
+function setEngineSel(patch) {
+  S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, S.engineSel, patch);
+  applyEngineSelToUI();
+  saveEngineSel();
+}
+function loadEngineSel() {
+  try {
+    const raw = localStorage.getItem(ENGINES_KEY);
+    if (!raw) return;
+    const v = JSON.parse(raw);
+    S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, v);
+  } catch (e) { /* abaikan */ }
+}
+function saveEngineSel() {
+  try { localStorage.setItem(ENGINES_KEY, JSON.stringify(S.engineSel)); } catch (e) { /* abaikan */ }
+}
+function applyEngineSelToUI() {
+  document.querySelectorAll('.engChk').forEach((cb) => { cb.checked = engineEnabled(cb.dataset.eng); });
+}
+function readEngineSelFromUI() {
+  const sel = {};
+  document.querySelectorAll('.engChk').forEach((cb) => { sel[cb.dataset.eng] = cb.checked; });
+  S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, sel);
+}
 async function tryWithRetry(fn, attempts, baseMs) {
   let lastErr = null;
   for (let a = 0; a < attempts; a++) {
@@ -7561,14 +7633,14 @@ async function googleDictBatch(texts, src, tgt) {
 async function translateBatch(texts, src, tgt) {
   const n = texts.length;
   const mapOk = (r, via) => r.map((x) => (x ? { text: x, via } : null));
-  if (customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model && !CB.custom.down) {
+  if (engineEnabled('custom') && customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model && !CB.custom.down) {
     setEngine('Custom');
     try {
       const r = await tryWithRetry(() => customBatch(texts, src, tgt), 2, 1000);
       if (r) { noteEngineOk('custom'); return mapOk(r, 'Custom'); }
     } catch (e) { log('Provider custom gagal (' + e.message + ') — lanjut ke Google.', 'w'); noteEngineFail('custom', e); }
   }
-  if (!CB.google.down) {
+  if (engineEnabled('google') && !CB.google.down) {
     setEngine('Google');
     try {
       const r = await tryWithRetry(() => googleBatch(texts, src, tgt), 3, 1000);
@@ -7582,20 +7654,23 @@ async function translateBatch(texts, src, tgt) {
       noteEngineFail('google');
     } catch (e) { log('Google gagal: ' + e.message, 'w'); noteEngineFail('google', e); }
   }
-  if (!CB.dict.down) {
+  if (engineEnabled('dict') && !CB.dict.down) {
     setEngine('Google Dict');
     try {
       const r = await tryWithRetry(() => googleDictBatch(texts, src, tgt), 2, 1200);
       if (r) { noteEngineOk('dict'); return mapOk(r, 'Google Dict'); }
     } catch (e) { log('Google Dict gagal: ' + e.message, 'w'); noteEngineFail('dict', e); }
   }
-  if (!CB.edge.down) {
+  if (engineEnabled('edge') && !CB.edge.down) {
     setEngine('Edge');
     try {
       const r = await tryWithRetry(() => edgeBatch(texts, src, tgt), 2, 1200);
       if (r) { noteEngineOk('edge'); return mapOk(r, 'Edge'); }
     } catch (e) { log('Edge gagal: ' + e.message, 'w'); noteEngineFail('edge', e); }
   }
+  // (v3.4.4) MyMemory yang tidak dicentang dilewati — kembalikan null
+  // semua (teks jadi gagal, bisa diselamatkan Translator Chrome bila aktif).
+  if (!engineEnabled('mymemory')) return texts.map(() => null);
   setEngine('MyMemory');
   const out = [];
   for (const t of texts) {
@@ -7640,8 +7715,11 @@ function restoreTranslated(text, prep, original) {
 /* (v3.4) Pola placeholder perlindungan yang tersisa: {{{GLn}}} / {{{GTn}}}
    dalam huruf apa pun. Google sering mengecilkan hurufnya ({{{GL0}}} →
    {{{gl0}}}) dan pemulihan case-sensitive lama tidak mengenalinya, sehingga
-   placeholder bocor ke file hasil sebagai "terjemahan sukses". */
-const LEFTOVER_PLACEHOLDER_RE = /\{\{\{(?:GL|GT)\d+\}\}\}/i;
+   placeholder bocor ke file hasil sebagai "terjemahan sukses".
+   (v3.4.4) Dilonggarkan: mesin juga menghilangkan kurung ({{{GL1}}} →
+   {{GL1}}}) — bentuk cacat itu harus ikut tertangkap. Pola tetap spesifik
+   ke GL/GT + angka supaya teks biasa tidak kena. */
+const LEFTOVER_PLACEHOLDER_RE = /\{{1,3}\s*(?:GL|GT)\d+\s*\}{1,3}/i;
 function hasLeftoverPlaceholder(text) { return !!text && LEFTOVER_PLACEHOLDER_RE.test(text); }
 /* (v3.4) Bersihkan terjemahan tersimpan yang masih mengandung placeholder
    bocor (mis. {{{gl0}}} dari sebelum v3.4): tandai gagal supaya bisa
@@ -7711,7 +7789,9 @@ async function translateSegments(queue) {
      (di perangkat, tanpa kuota). Bila API tidak tersedia, teks tetap gagal
      — tidak error, bisa "Ulangi yang gagal" nanti. */
   const failedSegs = queue.filter((seg) => { const t = S.translations.get(seg.id); return t && t.failed; });
-  if (failedSegs.length && !S.cancelled) {
+  // (v3.4.4) Penyelamatan Chrome hanya jalan bila Translator Chrome
+  // dicentang di "Mesin yang dipakai".
+  if (failedSegs.length && !S.cancelled && engineEnabled('chrome')) {
     setEngine('Chrome');
     const bPreps = failedSegs.map((seg) => prepareForTranslate(seg.text));
     const bOut = await builtinBatch(bPreps.map((p) => p.send), SRC, TGT);
@@ -7726,6 +7806,8 @@ async function translateSegments(queue) {
     } else {
       log('Translator bawaan Chrome tidak bisa dipakai di browser ini — sisa ' + failedSegs.length + ' teks tetap gagal (coba "Ulangi yang gagal" nanti).', 'w');
     }
+  } else if (failedSegs.length && !S.cancelled) {
+    log('Translator Chrome tidak dicentang di "Mesin yang dipakai" — sisa ' + failedSegs.length + ' teks tetap gagal (centang Translator Chrome atau pakai "Ulangi yang gagal" nanti).', 'w');
   }
   return done;
 }
@@ -8033,6 +8115,8 @@ window.__GTHTML_V341__ = { recentAvgSeconds, updateStats, renderList, state: S }
 window.__GTHTML_V342__ = { doBuild, buildOutput, verifyOutput, qaAll, qaAllChunked, repairTranslations, setBuildButtonsDisabled, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V343__ (v3.4.3) */
 window.__GTHTML_V343__ = { protectPlaceholders, getMissingVars, parseLinkToken, validateOne, hasLinkBody, doBuild, buildOutput, verifyOutput, qaAll, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V344__ (v3.4.4) */
+window.__GTHTML_V344__ = { engineEnabled, allEnginesOff, enabledEngineLabels, setEngineSel, applyEngineSelToUI, readEngineSelFromUI, loadEngineSel, saveEngineSel, listFilterMatches, filteredSegs, renderList, unprotectGlossary, unprotectPlaceholders, hasLeftoverPlaceholder, LEFTOVER_PLACEHOLDER_RE, validateOne, cleanPlaceholderTranslations, verifyOutput, translateBatch, translateSegments, runTranslate, doBuild, buildOutput, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8146,7 +8230,9 @@ function verifyOutput(outText) {
   if (origLink) ok('Link [[...]] utuh (' + origLink + ')', origLink === outLink, 'hasil: ' + outLink);
   // (v3.4) Tidak ada placeholder perlindungan yang tersisa di file hasil
   // (mis. {{{gl0}}} dari mesin yang mengecilkan hurufnya).
-  const leftover = (outText.match(/\{\{\{(?:GL|GT)\d+\}\}\}/gi) || []).length;
+  // (v3.4.4) Pakai pola yang sama dengan LEFTOVER_PLACEHOLDER_RE — bentuk
+  // cacat ({{GL1}}}) ikut terhitung.
+  const leftover = (outText.match(new RegExp(LEFTOVER_PLACEHOLDER_RE.source, 'gi')) || []).length;
   ok('Tidak ada placeholder {{{...}}} tersisa di file hasil', leftover === 0, leftover ? leftover + ' placeholder tersisa (mis. {{{gl0}}})' : '');
   // Struktur segmen: pindai ulang file hasil, jumlah segmen harus sama.
   try {
@@ -8251,7 +8337,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.3\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.4\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8353,6 +8439,25 @@ function parseTmJson(text) {
 
 /* ---------------- UI: statistik & daftar teks ---------------- */
 function translatableSegs() { return S.segments.filter((s) => s.translatable); }
+/* (v3.4.4) Pencarian di Daftar Teks: cocokkan query (substring biasa,
+   bukan regex — supaya {{GL1}}} dicari harfiah) ke teks asli dan/atau
+   terjemahan, tidak peduli huruf besar/kecil. Cakupan: 'all' (keduanya),
+   'orig' (teks asli saja), 'tr' (terjemahan saja). */
+function listFilterMatches(seg, q, scope) {
+  if (!q || !String(q).trim()) return true;
+  const needle = String(q).trim().toLowerCase();
+  const tr = S.translations.get(seg.id);
+  const trText = tr && tr.text ? tr.text : '';
+  if (scope === 'orig') return seg.text.toLowerCase().includes(needle);
+  if (scope === 'tr') return trText.toLowerCase().includes(needle);
+  return seg.text.toLowerCase().includes(needle) || trText.toLowerCase().includes(needle);
+}
+function filteredSegs() {
+  const all = translatableSegs();
+  const q = (S.listQuery || '').trim();
+  if (!q) return all;
+  return all.filter((s) => listFilterMatches(s, q, S.listScope || 'all'));
+}
 function doneCount() {
   let n = 0;
   for (const s of S.segments) {
@@ -8405,12 +8510,16 @@ function statusPill(seg) {
 function renderList() {
   const body = $('listBody');
   const keepScroll = body.scrollTop; // (v3.4.1) daftar di-scroll di kotaknya sendiri — render ulang jangan lompat ke atas
-  const segs = translatableSegs();
+  const segs = filteredSegs(); // (v3.4.4) hormati pencarian Daftar Teks
   const pages = Math.max(1, Math.ceil(segs.length / S.perPage));
   if (S.page >= pages) S.page = pages - 1;
   if (S.page < 0) S.page = 0;
-  $('pageInfo').textContent = segs.length ? ('Halaman ' + (S.page + 1) + '/' + pages + ' — ' + segs.length + ' teks') : '';
-  if (!segs.length) { body.innerHTML = '<p class="mut">Belum ada teks. Upload file dulu.</p>'; body.scrollTop = keepScroll; return; }
+  const q = (S.listQuery || '').trim();
+  $('pageInfo').textContent = segs.length ? ('Halaman ' + (S.page + 1) + '/' + pages + ' — ' + (q ? segs.length + ' cocok dari ' + translatableSegs().length + ' teks' : segs.length + ' teks')) : '';
+  if (!segs.length) {
+    body.innerHTML = q ? '<p class="mut">Tidak ada yang cocok dengan “' + esc(q) + '”. Hapus pencarian untuk melihat semua teks.</p>' : '<p class="mut">Belum ada teks. Upload file dulu.</p>';
+    body.scrollTop = keepScroll; return;
+  }
   const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
   const html = [];
   slice.forEach((seg, i) => {
@@ -8447,6 +8556,8 @@ function renderList() {
     b.addEventListener('click', async () => {
       const seg = S.segments.find((s) => s.id === b.dataset.id);
       if (!seg) return;
+      // (v3.4.4) Semua mesin tidak dicentang — jangan diam-diam gagal.
+      if (allEnginesOff()) { log('Semua mesin tidak dicentang — centang minimal satu mesin di "Mesin yang dipakai" (Langkah 2).', 'w'); return; }
       b.disabled = true;
       const prep = prepareForTranslate(seg.text);
       resetCircuitBreaker(); // sekali klik = percobaan baru (pemutus dari proses lama tidak ikut)
@@ -8586,6 +8697,7 @@ function collectProjectData() {
     glossary: S.glossary, skipPassages: [...S.skipPassages],
     includeScript: S.includeScript, translateNames: S.translateNames,
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
+    engineSel: S.engineSel, // (v3.4.4) mesin yang dipakai ikut tersimpan
   };
 }
 /* Fallback lama (localStorage) — dipakai bila IndexedDB tidak ada/gagal. */
@@ -8650,6 +8762,9 @@ function restoreProject(d) {
   S.glossary = d.glossary || []; S.skipPassages = new Set(d.skipPassages || []);
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
   S.engine = d.engine || null; S.encodeStyle = d.encodeStyle || { quote: false, apos: false, nbsp: false };
+  // (v3.4.4) Pilihan mesin dari proyek tersimpan (proyek lama tanpa
+  // engineSel tetap memakai default semua aktif).
+  if (d.engineSel) { S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, d.engineSel); applyEngineSelToUI(); }
   S.needsReupload = !S.originalText;
   // (v3.4) Bersihkan terjemahan lama yang masih mengandung placeholder bocor.
   cleanPlaceholderTranslations();
@@ -8703,6 +8818,7 @@ async function loadFile(file) {
   S.fileHash = djb2(text);
   S.translations = new Map(); S.tm = new Map(); S.skipPassages = new Set();
   S.outputText = ''; S.page = 0; S.selected.clear();
+  S.listQuery = ''; const ls = $('listSearch'); if (ls) ls.value = ''; // (v3.4.4) file baru = pencarian baru
   S.stats = { totalMs: 0, doneCount: 0, recent: [] };
   segCounter = 0;
   doScan();
@@ -8723,6 +8839,8 @@ function origFileName() {
 async function runTranslate(which) {
   if (!S.fileName) { log('Upload file dulu.', 'w'); return; }
   if (S.running) return;
+  // (v3.4.4) Semua mesin tidak dicentang — beri peringatan, jangan mulai run.
+  if (allEnginesOff()) { log('Semua mesin tidak dicentang — centang minimal satu mesin di "Mesin yang dipakai" (Langkah 2) sebelum menerjemahkan.', 'w'); return; }
   const tmN = applyTM();
   let queue = queueForTranslate(which);
   if (!queue.length) { log(tmN ? 'Semua teks sudah diterjemahkan (TM: ' + tmN + ').' : 'Tidak ada teks yang perlu diterjemahkan.'); updateStats(); renderList(); return; }
@@ -8730,7 +8848,7 @@ async function runTranslate(which) {
   S.running = true; S.cancelled = false;
   $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
   $('btnRetryFailed').disabled = true; $('btnStop').disabled = false;
-  log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + (customCfg.enabled ? 'custom → ' : '') + 'Google → Edge → MyMemory)');
+  log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + ')');
   const done = await translateSegments(queue);
   const failed = queue.filter((s) => { const t = S.translations.get(s.id); return t && t.failed; }).length;
   log('Selesai: ' + done + ' teks diproses, ' + failed + ' gagal. ' + (failed ? 'Pakai "Ulangi yang gagal" atau perbaiki manual di Daftar Teks.' : ''));
@@ -8917,7 +9035,7 @@ function init() {
   $('btnRetryFailed').addEventListener('click', () => runTranslate('failed'));
   $('btnStop').addEventListener('click', () => { S.cancelled = true; $('transStatus').textContent = 'Menghentikan…'; });
   $('chkAll').addEventListener('change', () => {
-    const segs = translatableSegs();
+    const segs = filteredSegs(); // (v3.4.4) pilih yang terlihat saat mencari
     const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
     for (const s of slice) { if (!s.skipped) { if ($('chkAll').checked) S.selected.add(s.id); else S.selected.delete(s.id); } }
     renderList();
@@ -8968,6 +9086,15 @@ function init() {
   });
   // Provider custom
   loadCustomProvider();
+  // (v3.4.4) Pilihan mesin: default lintas proyek dari localStorage,
+  // lalu proyek tersimpan (restoreProject) menimpanya bila ada.
+  loadEngineSel();
+  applyEngineSelToUI();
+  document.querySelectorAll('.engChk').forEach((cb) => cb.addEventListener('change', () => { readEngineSelFromUI(); saveEngineSel(); }));
+  // (v3.4.4) Pencarian di Daftar Teks.
+  $('listSearch').addEventListener('input', () => { S.listQuery = $('listSearch').value; S.page = 0; renderList(); });
+  $('listSearchScope').addEventListener('change', () => { S.listScope = $('listSearchScope').value; S.page = 0; renderList(); });
+  $('btnClearSearch').addEventListener('click', () => { $('listSearch').value = ''; S.listQuery = ''; S.page = 0; renderList(); $('listSearch').focus(); });
   ['optCustom', 'customBaseUrl', 'customApiKey', 'customModel'].forEach((id) => {
     $(id).addEventListener('change', saveCustomProvider);
   });
