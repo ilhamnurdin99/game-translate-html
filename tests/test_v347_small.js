@@ -16,7 +16,7 @@ async function waitFor(fn, tries = 60) {
   return false;
 }
 async function main() {
-  check('A0 hook v3.4.7 tersedia', html.includes('Game Translate HTML v3.4.7') && !html.includes('Game Translate HTML v3.4.6'));
+  check('A0 label versi v3.4.8', html.includes('Game Translate HTML v3.4.8') && !html.includes('Game Translate HTML v3.4.7'));
 
   /* ---------- F10: hapus simpanan menunggu idbDelete ---------- */
   // Seed proyek tersimpan di localStorage SEBELUM init jalan, supaya
