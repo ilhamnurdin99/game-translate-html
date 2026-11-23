@@ -126,6 +126,7 @@ body.simple .adv{display:none!important}
       <li><b>Label tautan satu argumen (v3.4.6):</b> ceklis "Terjemahkan label tautan satu argumen [[...]]" di Langkah 2 — default MATI, supaya game lain tidak terpengaruh. Bila hidup, label tautan <code>[[Home]]</code> dan <code>&lt;&lt;link "Home"&gt;&gt;</code> tanpa badan ikut diterjemahkan; Timpa menulis balik <code>[[Rumah|Home]]</code> (target asli dipertahankan, jadi tautan tidak rusak). Tautan di dalam argumen macro (mis. <code>&lt;&lt;addToLoc "[[Home]]"&gt;&gt;</code>) tetap tidak disentuh.</li>
       <li><b>Pratinjau aman, isi widget &amp; label kapital (v3.4.7):</b> Pratinjau kini selalu dibangun ulang dari terjemahan terbaru (edit setelah Timpa terakhir langsung terlihat) dan berjalan di iframe sandbox terisolasi, jadi kode game tidak bisa membaca kunci provider atau mengubah aplikasi. Isi <code>&lt;&lt;widget&gt;&gt;</code> ikut dipindai — hanya teks tampilnya yang jadi segmen, kode di dalamnya tetap dilindungi. Label tautan kapital semua (<code>[[SUNDAY]]</code>) ikut jadi segmen. Verifikasi memeriksa nama passage, target tautan, dan keseimbangan <code>&lt;&lt; &gt;&gt;</code>; Harlowe menulis balik <code>[[label-&gt;target]]</code>.</li>
       <li><b>Salin teks asli ke terjemahan (v3.4.8):</b> di Daftar Teks, ceklis segmen yang memang harus tetap Inggris (mis. nama karakter), lalu klik <b>Salin teks asli ke terjemahan</b> — teks asli disalin ke kolom terjemahan dengan tanda "salin", supaya terhitung selesai dan tidak diterjemahkan mesin. Hanya mengisi yang masih kosong/gagal; terjemahan yang sudah bagus tidak ditimpa. Baris "salin" tidak ditandai "sama persis dengan aslinya" di Laporan QA.</li>
+      <li><b>Ceklis dibersihkan setelah salin (v3.4.9):</b> setelah klik <b>Salin teks asli ke terjemahan</b>, ceklis di Daftar Teks dibersihkan supaya tidak nempel ke pilihan sebelumnya.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -263,7 +264,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.8 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.9 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6443,7 +6444,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.8 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.9 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -8625,7 +8626,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.8\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.9\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8824,7 +8825,8 @@ function copySelectedOriginals() {
     S.translations.set(seg.id, { text: seg.text, via: 'salin' });
     n++;
   }
-  if (n) log('Disalin ' + n + ' teks asli ke terjemahan.');
+  // (v3.4.9) Ceklis dibersihkan setelah salin — tidak nempel ke pilihan awal.
+  if (n) { S.selected.clear(); log('Disalin ' + n + ' teks asli ke terjemahan.'); }
   refreshAfterMutation();
   return n;
 }

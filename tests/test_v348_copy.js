@@ -41,7 +41,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.8 tersedia', !!V348 && typeof V348.copySelectedOriginals === 'function' && typeof V348.qaSegment === 'function' && typeof V348.untranslatedList === 'function', 'hook: ' + typeof V348);
-  check('A0 label versi v3.4.8', html.includes('Game Translate HTML v3.4.8') && !html.includes('Game Translate HTML v3.4.7'));
+  check('A0 label versi v3.4.9', html.includes('Game Translate HTML v3.4.9') && !html.includes('Game Translate HTML v3.4.8'));
   check('A0 Cara pakai menyebut v3.4.8', html.includes('Salin teks asli ke terjemahan (v3.4.8)'));
   if (!V348 || typeof V348.copySelectedOriginals !== 'function') { console.log('\nV348_COPY: copySelectedOriginals belum diekspos di hook v3.4.8 — RED'); process.exit(1); }
 
@@ -146,6 +146,25 @@ async function main() {
   check('B5 run tidak mengubah baris salin', !!roseAfter && roseAfter.text === 'Rose' && roseAfter.via === 'salin', JSON.stringify(roseAfter));
   const helloAfter = trOf(S, 'Hello world.');
   check('B5 run tetap menerjemahkan yang belum disalin', !!helloAfter && helloAfter.text === 'ID:Hello world.' && helloAfter.failed !== true, JSON.stringify(helloAfter));
+
+  /* ---------- 6 (v3.4.9): ceklis dibersihkan setelah salin ---------- */
+  S = setupState();
+  const r6 = segByText(S, 'Rose'), j6 = segByText(S, 'John went home.');
+  w.eval('S.selected = new Set(' + JSON.stringify([r6.id, j6.id]) + '); renderList();');
+  check('B6 pra-syarat: 2 diceklis, tombol aktif', S.selected.size === 2 && $('btnCopyOrig').disabled === false, 'selected: ' + S.selected.size);
+  const n6 = V348.copySelectedOriginals();
+  check('B6 salin berhasil (n=2)', n6 === 2, 'dapat: ' + n6);
+  check('B6 ceklis dibersihkan setelah salin', S.selected.size === 0, 'selected: ' + S.selected.size);
+  check('B6 "Pilih semua di halaman" tidak tercentang lagi', $('chkAll').checked === false, 'checked: ' + $('chkAll').checked);
+  check('B6 tombol salin nonaktif lagi setelah salin', $('btnCopyOrig').disabled === true, 'disabled: ' + $('btnCopyOrig').disabled);
+  // Bila tidak ada yang disalin (semua sudah bagus), ceklis dipertahankan.
+  S = setupState();
+  const h6 = segByText(S, 'Hello world.');
+  S.translations.set(h6.id, { text: 'Halo dunia.', via: 'Google' });
+  w.eval('S.selected = new Set(' + JSON.stringify([h6.id]) + '); renderList();');
+  const n6b = V348.copySelectedOriginals();
+  check('B6 tidak ada yang disalin (n=0)', n6b === 0, 'dapat: ' + n6b);
+  check('B6 ceklis dipertahankan bila tidak ada yang disalin', S.selected.size === 1 && S.selected.has(h6.id), 'selected: ' + S.selected.size);
 
   console.log('\nV348_COPY: ' + pass + ' PASS, ' + fail + ' FAIL');
   process.exit(fail ? 1 : 0);
