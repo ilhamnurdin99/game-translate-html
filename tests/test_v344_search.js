@@ -26,7 +26,7 @@ const V344 = w.__GTHTML_V344__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.4 tersedia', !!V344 && typeof V344.listFilterMatches === 'function' && typeof V344.filteredSegs === 'function' && typeof V344.renderList === 'function');
-check('A0 label versi v3.4.10', html.includes('Game Translate HTML v3.4.10') && !html.includes('Game Translate HTML v3.4.9'));
+check('A0 label versi v3.4.11', html.includes('Game Translate HTML v3.4.11') && !html.includes('Game Translate HTML v3.4.10'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
   + '<tw-storydata name="T" startnode="1" creator="Twine" creator-version="2.3.0" ifid="X" zoom="1" format="SugarCube" format-version="2.37.3" options="" hidden>\n'
@@ -66,7 +66,7 @@ async function main() {
 
   /* ---------- (a) elemen UI ---------- */
   check('A2 kotak pencarian ada', !!$('listSearch') && $('listSearch').placeholder.indexOf('Cari') !== -1);
-  check('A2 pilihan cakupan ada (Semua/Teks asli/Terjemahan)', !!$('listSearchScope') && [...$('listSearchScope').options].map((o) => o.value).join(',') === 'all,orig,tr');
+  check('A2 pilihan cakupan ada (Semua/Teks asli/Terjemahan + mesin v3.4.11)', !!$('listSearchScope') && [...$('listSearchScope').options].map((o) => o.value).join(',') === 'all,orig,tr,via:Custom,via:Google,via:Google Dict,via:Edge,via:MyMemory,via:Chrome,via:TM,via:salin');
   check('A2 cakupan default Semua', $('listSearchScope').value === 'all');
   check('A2 tombol hapus pencarian ada', !!$('btnClearSearch'));
 
