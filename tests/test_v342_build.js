@@ -24,11 +24,11 @@ const V342 = w.__GTHTML_V342__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.2 tersedia', !!V342 && typeof V342.doBuild === 'function' && typeof V342.buildOutput === 'function' && typeof V342.qaAllChunked === 'function' && typeof V342.repairTranslations === 'function');
-check('A0 label versi v3.4.6', html.includes('Game Translate HTML v3.4.6') && !html.includes('Game Translate HTML v3.4.5'));
+check('A0 label versi v3.4.7', html.includes('Game Translate HTML v3.4.7') && !html.includes('Game Translate HTML v3.4.6'));
 check('A0 Cara pakai menyebut v3.4.2', html.includes('Bangun file tanpa macet (v3.4.2)'));
 check('A0 GTHTML tersedia', !!G && typeof G.buildOutput === 'function' && typeof G.verifyOutput === 'function' && typeof G.encodePassageText === 'function');
 
-/* ---------- algoritma lama (slice mundur) vs join satu lintasan ---------- */
+/* ---------- referensi independen: algoritma lama (slice mundur) ---------- */
 function oldBuildOutput(text, reps) {
   let out = text;
   for (let i = reps.length - 1; i >= 0; i--) {
@@ -36,35 +36,39 @@ function oldBuildOutput(text, reps) {
   }
   return out;
 }
-function newJoin(text, reps) {
-  const parts = [];
-  let pos = 0;
-  for (const r of reps) { parts.push(text.slice(pos, r.start), r.replacement); pos = r.end; }
-  parts.push(text.slice(pos));
-  return parts.join('');
-}
+/* ---------- (A1) buildOutput asli vs algoritma slice mundur (20 kasus acak) ----------
+   Dulu A1 membandingkan dua fungsi milik tes sendiri (oldBuildOutput vs
+   newJoin) tanpa pernah mengeksekusi buildOutput aplikasi — lolos bahkan
+   bila join aplikasi rusak (F16). Kini: jalankan G.buildOutput() asli
+   pada segmen sintetis acak, bandingkan dengan referensi independen
+   (slice mundur). */
 {
-  // 20 kasus acak: join satu lintasan harus sama persis dengan slice mundur.
   let seed = 42;
   const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };
-  let allOk = true;
+  let allOk = true, totalReps = 0;
   for (let t = 0; t < 20; t++) {
     const len = 200 + rnd(800);
     let text = '';
     for (let i = 0; i < len; i++) text += String.fromCharCode(97 + rnd(26));
-    const reps = [];
+    const segs = [], trans = new Map(), reps = [];
     let pos = 0;
     const nReps = rnd(30);
     for (let k = 0; k < nReps; k++) {
       const start = pos + rnd(20);
       const end = Math.min(start + 1 + rnd(10), len);
       if (start >= len) break;
-      reps.push({ start, end, replacement: 'R' + k + '_' + 'x'.repeat(rnd(5)) });
+      const replacement = 'R' + k + '_' + 'x'.repeat(rnd(5));
+      segs.push({ id: 'r' + k, text: text.slice(start, end), translatable: true, skipped: false, passage: 'P1', kind: 'text', rawStart: start, rawEnd: end });
+      trans.set('r' + k, { text: replacement, via: 'test' });
+      reps.push({ start, end, replacement: G.encodePassageText(replacement, V342.state.encodeStyle) });
       pos = end;
     }
-    if (oldBuildOutput(text, reps) !== newJoin(text, reps)) { allOk = false; break; }
+    G._setState({ segments: segs, translations: trans, originalText: text, passages: [{ name: 'P1' }], outputText: '', page: 0, origDownloaded: false, needsReupload: false });
+    const built = G.buildOutput();
+    totalReps += reps.length;
+    if (built.text !== oldBuildOutput(text, reps) || built.replaced !== reps.length) { allOk = false; break; }
   }
-  check('A1 join satu lintasan == slice mundur (20 kasus acak)', allOk);
+  check('A1 buildOutput asli == slice mundur (20 kasus acak)', allOk, 'totalReps=' + totalReps);
 }
 
 /* ---------- fixture kecil Twine 2 (scan nyata) ---------- */

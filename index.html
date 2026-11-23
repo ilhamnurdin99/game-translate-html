@@ -123,7 +123,8 @@ body.simple .adv{display:none!important}
       <li><b>Variabel &amp; tautan lebih aman (v3.4.3):</b> variabel sementara (<code>_var</code>), properti (<code>$Player.name</code>) dan <code>[...]</code> yang menempel pada <code>$var</code> kini dilindungi sebelum dikirim ke mesin, dan validasi menolak terjemahan yang kehilangan variabel; tautan setter <code>[[label|tujuan][setter]]</code> kini dikenali — labelnya diterjemahkan, tujuan dan setter-nya (warna rambut, uang, waktu) tidak disentuh; label <code>&lt;&lt;link&gt;&gt;</code>/<code>&lt;&lt;button&gt;&gt;</code> satu argumen yang ber-badan kini diterjemahkan; bila Timpa ditolak (mis. teks asli tidak tersimpan), alasannya tampil di dekat tombol, bukan cuma di Log.</li>
       <li><b>Pilih mesin &amp; cari di Daftar Teks (v3.4.4):</b> di Langkah 2 ada ceklis "Mesin yang dipakai" — matikan mesin yang sedang bermasalah (mis. Google yang mengembalikan kosong) supaya run langsung mulai dari mesin berikutnya; Translator Chrome yang tidak dicentang tidak dipakai sebagai penyelamat. Placeholder yang kurungnya dirusak mesin (mis. <code>{{GL1}}}</code>) kini ikut dipulihkan dan ditangkap validasi. Kotak pencarian di atas Daftar Teks mencari teks asli dan/atau terjemahan, supaya kebocoran bisa ditemukan dan diedit manual.</li>
       <li><b>Ringkasan QA selalu segar &amp; filter belum diterjemahkan (v3.4.5):</b> ringkasan "Laporan — Verifikasi &amp; QA" kini diperbarui setiap ada perubahan terjemahan — habis TM dipakai, terjemahan per baris, atau edit manual (edit manual diperbarui 500 ms setelah berhenti mengetik, supaya tidak melambat di file besar). Ceklis "Hanya yang belum diterjemahkan" di atas Daftar Teks menampilkan hanya teks yang belum ada terjemahannya, bisa digabung dengan pencarian — untuk melihat apakah yang tertinggal itu masalah mesin atau kode bocor.</li>
-      <li><b>Label tautan satu argumen (v3.4.6):</b> ceklis "Terjemahkan label tautan satu argumen [[...]]" di Langkah 2 — default MATI, supaya game lain tidak terpengaruh. Bila hidup, label tautan <code>[[Home]]</code> dan <code>&lt;&lt;link "Home"&gt;&gt;</code> tanpa badan ikut diterjemahkan; Timpa menulis balik <code>[[Rumah|Home]]</code> (target asli dipertahankan, jadi tautan tidak rusak). Tautan di dalam argumen macro (mis. <code>&lt;&lt;addToLoc "[[Home]]"&gt;&gt;</code>) dan isi <code>&lt;&lt;widget&gt;&gt;</code> tetap tidak disentuh.</li>
+      <li><b>Label tautan satu argumen (v3.4.6):</b> ceklis "Terjemahkan label tautan satu argumen [[...]]" di Langkah 2 — default MATI, supaya game lain tidak terpengaruh. Bila hidup, label tautan <code>[[Home]]</code> dan <code>&lt;&lt;link "Home"&gt;&gt;</code> tanpa badan ikut diterjemahkan; Timpa menulis balik <code>[[Rumah|Home]]</code> (target asli dipertahankan, jadi tautan tidak rusak). Tautan di dalam argumen macro (mis. <code>&lt;&lt;addToLoc "[[Home]]"&gt;&gt;</code>) tetap tidak disentuh.</li>
+      <li><b>Pratinjau aman, isi widget &amp; label kapital (v3.4.7):</b> Pratinjau kini selalu dibangun ulang dari terjemahan terbaru (edit setelah Timpa terakhir langsung terlihat) dan berjalan di iframe sandbox terisolasi, jadi kode game tidak bisa membaca kunci provider atau mengubah aplikasi. Isi <code>&lt;&lt;widget&gt;&gt;</code> ikut dipindai — hanya teks tampilnya yang jadi segmen, kode di dalamnya tetap dilindungi. Label tautan kapital semua (<code>[[SUNDAY]]</code>) ikut jadi segmen. Verifikasi memeriksa nama passage, target tautan, dan keseimbangan <code>&lt;&lt; &gt;&gt;</code>; Harlowe menulis balik <code>[[label-&gt;target]]</code>.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -260,7 +261,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.6 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.7 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6440,7 +6441,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.6 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.7 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6596,7 +6597,7 @@ function looksLikeSelector(s) {
   }
   return false;
 }
-function looksTranslatable(s) {
+function looksTranslatable(s, opts) {
   if (!s) return false;
   const t = s.trim();
   if (t.length < 2 || t.length > 3000) return false;
@@ -6608,7 +6609,9 @@ function looksTranslatable(s) {
   if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)+$/.test(t)) return false;
   if (/^[\W_]+$/.test(t)) return false;
   if (/^[a-z]+_[a-z_]+$/.test(t) && !/\s/.test(t)) return false;
-  if (/^[A-Z_]{3,}$/.test(t) && t.length > 4 && !/\s/.test(t)) return false;
+  // (v3.4.7) Aturan kapital semua dilewati hanya bila opts.allowAllCaps
+  // (label tautan satu argumen) — teks biasa tetap ditolak.
+  if (!(opts && opts.allowAllCaps) && /^[A-Z_]{3,}$/.test(t) && t.length > 4 && !/\s/.test(t)) return false;
   if (/^[a-z]+[A-Z]/.test(t) && !/\s/.test(t)) return false;
   if (/^data-[a-z0-9-]+$/i.test(t)) return false;
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(t)) return false;
@@ -6624,6 +6627,10 @@ function looksTranslatable(s) {
   if (!/\s/.test(t) && /[\w$]+\s*\(/.test(t)) return false;
   if (/[\w$]+\s*\([^)]*\)\s*;\s*$/.test(t)) return false;
   if (/^[a-zA-Z]\d+$/.test(t)) return false;
+  // (v3.4.7) String yang isinya HANYA rujukan variabel ($nama, $args[0],
+  // $planet.atmosphere) — bukan teks tampil, nilainya baru ada saat main.
+  // Penanda tebal '' di tepi tidak mengubahnya (''$args[0]'' tetap variabel).
+  if (/^\$[A-Za-z_][\w$]*(\[[^\]]*\])?(\.[A-Za-z_$][\w$]*(\[[^\]]*\])?)*$/.test(t) || /^\$[A-Za-z_][\w$]*(\[[^\]]*\])?(\.[A-Za-z_$][\w$]*(\[[^\]]*\])?)*$/.test(t.replace(/''/g, ''))) return false;
   if (/(?:\(\?:|\(\?=|\(\?!|\\[dDsSwWbB]|\\u[0-9a-fA-F]{4}|\\x[0-9a-fA-F]{2})/.test(t)) return false;
   if (looksLikeSelector(t)) return false;
   const dec = decodeEntities(t);
@@ -6634,30 +6641,45 @@ function looksTranslatable(s) {
   if (tagLen > 0 && tagLen / dec.length > 0.7) return false;
   return true;
 }
+/* (v3.4.7) looksLikeText mengembalikan boolean (F07) — dulu 0/1/2,
+   tapi satu-satunya pemakai (scanAccepts) hanya memakai "> 0", jadi
+   beda 1 vs 2 tidak pernah dibaca. Penghitungan huruf/spasi/underscore
+   yang hanya membedakan 1 vs 2 ikut dihapus; batas terima tidak berubah:
+   kosong, >8000 rune, res://, user://, karakter pengganti/kontrol. */
 function looksLikeText(s) {
-  if (!s) return 0;
+  if (!s) return false;
   const t = s.trim();
-  if (!t) return 0;
+  if (!t) return false;
   const runes = [...t];
-  if (runes.length - 2 > 7998) return 0;
-  if (t.includes('res://') || t.includes('user://')) return 0;
+  if (runes.length - 2 > 7998) return false;
+  if (t.includes('res://') || t.includes('user://')) return false;
   for (const ch of runes) {
     const cp = ch.codePointAt(0);
-    if (cp === 0xFFFD) return 0;
-    if ((cp < 0x20 && cp !== 0x0A && cp !== 0x09 && cp !== 0x0D) || cp === 0x7F) return 0;
+    if (cp === 0xFFFD) return false;
+    if ((cp < 0x20 && cp !== 0x0A && cp !== 0x09 && cp !== 0x0D) || cp === 0x7F) return false;
   }
-  const underscores = (t.match(/_/g) || []).length;
-  const spaces = (t.match(/ /g) || []).length;
-  if (underscores < 2 && spaces > 1) return 2;
-  let letters = 0;
-  for (const ch of runes) if (/\p{L}/u.test(ch)) letters++;
-  if (letters * 3 >= runes.length) return 2;
-  return 1;
+  return true;
 }
-function scanAccepts(s) {
+function scanAccepts(s, opts) {
   if (!s) return false;
-  if (!looksTranslatable(s) && !twLabelLike(s)) return false;
-  return looksLikeText(s) > 0;
+  // (v3.4.7) Sinyal kode keras: bila SETIAP baris bukan-kosong memuat
+  // '=' dan ';' bersamaan, itu kode — jangan biarkan twLabelLike/
+  // twProseArg menyelamatkannya (baris kode di badan widget maupun teks
+  // biasa tidak pernah jadi segmen). Syarat "setiap baris" penting:
+  // paragraf campuran (kalimat + satu baris kode) tetap lolos seperti
+  // v3.4.6 — memecahnya per baris di luar lingkup v3.4.7.
+  const codeLines = s.split('\n').map((l) => l.trim()).filter(Boolean);
+  if (codeLines.length && codeLines.every((l) => /=/.test(l) && /;/.test(l))) return false;
+  // (v3.4.7) Fragmen markup SugarCube/HTML — bukan teks tampil, dan
+  // jangan biarkan twLabelLike menyelamatkannya:
+  // - '@@' di mana pun (sisa span @@ yang terbelah antar token);
+  // - tag pembuka tanpa '>' penutup ("<span style='color: rgb(");
+  // - ekor tag tanpa '<' tapi berpola atribut ("' target='_blank'>").
+  if (s.includes('@@')) return false;
+  if (/<[a-zA-Z/]/.test(s) && !s.includes('>')) return false;
+  if (!s.includes('<') && s.includes('>') && /[\w-]+\s*=\s*['"]/.test(s)) return false;
+  if (!looksTranslatable(s, opts) && !twLabelLike(s)) return false;
+  return looksLikeText(s);
 }
 
 /* ---------------- perlindungan placeholder & glossary ---------------- */
@@ -6680,13 +6702,6 @@ function unprotectPlaceholders(text, slots) {
   // (v3.4.4) toleran terhadap kurung yang rusak, sama seperti
   // unprotectGlossary: 1-3 kurung tiap sisi, plus spasi di dalam.
   return text.replace(/\{{1,3}\s*GT(\d+)\s*\}{1,3}/gi, (m, n) => (slots[+n] !== undefined ? slots[+n] : m));
-}
-function extractPlaceholders(text) {
-  const found = new Set();
-  PLACEHOLDER_RE.lastIndex = 0;
-  let m;
-  while ((m = PLACEHOLDER_RE.exec(text))) found.add(m[0]);
-  return found;
 }
 function getMissingVars(orig, trans) {
   // (v3.4.3) Juga memeriksa $Var (dengan .properti dan [...] menempel)
@@ -6747,6 +6762,11 @@ function isHallucinatedOutput(out, srcText) {
 }
 
 /* ---------------- state ---------------- */
+/* (v3.4.7) Default mesin (F05) — dulu literal yang sama tersebar di 5
+   tempat (state awal + 4 Object.assign); sekarang satu konstanta.
+   Selalu disalin (Object.assign({}, ...)) supaya tidak ada yang
+   mengubah objek default ini. */
+const ENGINE_SEL_DEFAULT = { custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true };
 const S = {
   fileName: '', originalText: '', outputText: '', fileHash: '',
   engine: null, segments: [], passages: [], // passages: {name, kind, nameRawStart, nameRawEnd}
@@ -6761,7 +6781,7 @@ const S = {
   running: false, cancelled: false,
   page: 0, perPage: 100, selected: new Set(),
   // (v3.4.4) Mesin yang dipakai (ceklis Langkah 2) + pencarian Daftar Teks.
-  engineSel: { custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true },
+  engineSel: Object.assign({}, ENGINE_SEL_DEFAULT),
   listQuery: '', listScope: 'all', listOnlyUntr: false, // (v3.4.5) filter "hanya yang belum diterjemahkan"
   stats: { totalMs: 0, doneCount: 0, recent: [] },
   origDownloaded: false, needsReupload: false,
@@ -6828,7 +6848,14 @@ function detectEngine(text) {
      tidak diekstrak, dan celah berikutnya dibuang sampai penutup @@.
    Dipakai semua jalur: SugarCube, Harlowe (komentar JS saja — Harlowe
    tidak pakai @@), dan HTML biasa. */
-function emitPlainRun(parts, runText, runDecStart, map, baseRaw, ctx) {
+/* (v3.4.7) Batas kedalaman rekursi pemindai — SCAN_MAX_DEPTH. Hook
+   Harlowe bersarang ([x[x[...]]]) dan span @@ bersarang diselami secara
+   rekursif; file jahat/salah bentuk dengan ribuan sarang menumpuk stack
+   (RangeError) dan meruntuhkan handler pemanggil. Lebih dalam dari batas
+   diperlakukan sebagai teks biasa, bukan diselami lagi. */
+const SCAN_MAX_DEPTH = 50;
+function emitPlainRun(parts, runText, runDecStart, map, baseRaw, ctx, depth) {
+  depth = depth || 0;
   const atEnabled = ctx.engineKind !== 'harlowe';
   const flush = (a, b) => { if (b > a) emitPlainRunCore(parts, runText.slice(a, b), runDecStart + a, map, baseRaw, ctx); };
   let i = 0;
@@ -6863,7 +6890,10 @@ function emitPlainRun(parts, runText, runDecStart, map, baseRaw, ctx) {
       if (!cls || (cls[1] !== 'debug-text' && cls[1] !== 'error')) {
         const body = cls ? inner.slice(cls[0].length) : inner;
         const bodyStart = next + 2 + (cls ? cls[0].length : 0);
-        emitPlainRun(parts, body, runDecStart + bodyStart, map, baseRaw, ctx);
+        // (v3.4.7) Batas kedalaman (F20): span @@ bersarang lebih dalam
+        // dari batas diperlakukan sebagai teks biasa (tanpa rekursi lagi).
+        if (depth >= SCAN_MAX_DEPTH) emitPlainRunCore(parts, body, runDecStart + bodyStart, map, baseRaw, ctx);
+        else emitPlainRun(parts, body, runDecStart + bodyStart, map, baseRaw, ctx, depth + 1);
       }
       i = close + 2;
     }
@@ -7002,7 +7032,50 @@ function hasLinkBody(text, from, name) {
   const open = openRe.exec(text);
   return !open || close.index < open.index;
 }
-function segmentSugarCube(decoded, map, baseRaw, ctx) {
+/* (v3.4.7) Cari penutup blok macro yang namanya bisa bersarang dengan
+   argumen (<<widget "nama">>) — regex penutup lama hanya mengenali
+   <<widget>> tanpa argumen, sehingga widget bersarang tertutup di
+   penutup DALAM yang pertama (teks sesudahnya bocor sebagai segmen).
+   Berjalan per token <<...>> dari `from`, hitung kedalaman: buka
+   (tanpa garis miring) +1, tutup (dengan garis miring) -1. Kembalikan
+   {closeStart, endPos} atau null bila tidak ada penutup. */
+function findBlockEnd(decoded, from, name) {
+  const tokRe = /<<[\s\S]*?>>/g;
+  tokRe.lastIndex = from;
+  let depth = 1, m;
+  while ((m = tokRe.exec(decoded))) {
+    const head = /^<<\s*(\/?)\s*([A-Za-z0-9_=\-]+)/.exec(m[0]);
+    if (!head || head[2].toLowerCase() !== name) continue;
+    if (head[1] === '/') {
+      depth--;
+      if (depth === 0) return { closeStart: m.index, endPos: m.index + m[0].length };
+    } else depth++;
+  }
+  return null;
+}
+/* (v3.4.7) Kupas pembungkus span @@ dari argumen ber-tanda-kutip macro:
+   <<print "@@.baik;Teks@@">> — yang tampil hanya "Teks". Argumen yang
+   tinggal pembuka/penutup span saja ("@@.baik;", " teks@@") bukan teks
+   tampil. start/end disesuaikan supaya Timpa tetap mengganti tepat di
+   dalam tanda kutip. Bila tidak ada yang dikupas, objek dikembalikan
+   apa adanya (start/end sama). */
+function stripAtSpanArg(a) {
+  let { text, start, end } = a;
+  const pre = /^@@(?:\.[A-Za-z0-9_-]+;)?/.exec(text);
+  let stripped = false;
+  if (pre) { start += pre[0].length; text = text.slice(pre[0].length); stripped = true; }
+  if (text.endsWith('@@')) { end -= 2; text = text.slice(0, -2); stripped = true; }
+  if (stripped) {
+    // Pangkas spasi tepi seperti segmen teks biasa — spasi di luar
+    // rentang segmen, jadi Timpa tidak menghilangkannya.
+    const lead = /^[ \t\r\n]+/.exec(text);
+    if (lead) { start += lead[0].length; text = text.slice(lead[0].length); }
+    const trail = /[ \t\r\n]+$/.exec(text);
+    if (trail) { end -= trail[0].length; text = text.slice(0, text.length - trail[0].length); }
+  }
+  return { text, start, end, quote: a.quote };
+}
+function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
   const parts = [];
   // Tag HTML: quote-aware + multi-baris — <[^>\n]+> yang lama gagal pada tag
   // yang atributnya membentang ke baris berikut (mis. <img ...\n style=...>)
@@ -7028,7 +7101,7 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
       // harus menghitung sama.
       if (p.label !== null && p.label.trim() && scanAccepts(p.label) && (p.label.trim() !== p.target.trim() || ctx.linkLabels)) {
         parts.push(mkSeg(ctx, p.label, map[ts + 2 + p.labelStart] + baseRaw, map[ts + 2 + p.labelEnd] + baseRaw, { linkLabel: true }));
-      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target)) {
+      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target, { allowAllCaps: true })) {
         // (v3.4.6) Tautan satu argumen [[X]] — label = target; jadi segmen bila ceklis hidup.
         parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { linkLabel: true, singleLink: true }));
       }
@@ -7040,6 +7113,24 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
       const name = head ? head[1].toLowerCase() : '';
       // (v2) Blok kode: lewati sampai penutup <</nama>> — isinya tidak
       // disegmen sama sekali. Hitung kedalaman untuk nama yang sama.
+      // (v3.4.7) Pengecualian: isi definisi <<widget>> ikut dipindai —
+      // teks tampil di dalamnya adalah teks game (kasus nyata: tujuh nama
+      // hari di dalam <<if $day = N>>), jadi badannya dipindai ulang
+      // dengan pemindai passage yang sama (macro/variabel/tautan tetap
+      // dilindungi). Bila tidak ada penutup atau sarang terlalu dalam
+      // (batas 10), kembali ke perilaku lama (lewati utuh) supaya aman.
+      if (name === 'widget') {
+        const span = findBlockEnd(decoded, te, name);
+        if (span && (widgetDepth || 0) < 10) {
+          // Irisan peta +1: sertakan penjaga (sentinel) di ujung badan —
+          // tanpa itu, segmen yang berakhir tepat di ujung badan mendapat
+          // rawEnd undefined dan Timpa menggandakan file.
+          parts.push(...segmentSugarCube(decoded.slice(te, span.closeStart), map.slice(te, span.closeStart + 1), baseRaw, ctx, (widgetDepth || 0) + 1));
+        }
+        const endPos = span ? span.endPos : decoded.length;
+        last = endPos; re.lastIndex = endPos;
+        continue;
+      }
       if (BLOCK_CODE_MACROS.has(name)) {
         const closeRe = new RegExp('<<\\s*(/?)\\s*' + name + '\\s*>>', 'g');
         closeRe.lastIndex = te;
@@ -7069,7 +7160,10 @@ function segmentSugarCube(decoded, map, baseRaw, ctx) {
           else if (name === 'link') { (ctx.linkNoBodyTargets = ctx.linkNoBodyTargets || []).push(args[0].text); }
         }
         for (const a of take) {
-          if (scanAccepts(a.text)) parts.push(mkSeg(ctx, a.text, map[ts + a.start] + baseRaw, map[ts + a.end] + baseRaw, a === singleLinkArg ? { macro: name, singleLink: true, quote: a.quote } : { macro: name }));
+          const sa = stripAtSpanArg(a);
+          // (v3.4.7) Label tautan satu argumen (singleLink) boleh kapital
+          // semua; label lain tetap pakai aturan biasa.
+          if (scanAccepts(sa.text, a === singleLinkArg ? { allowAllCaps: true } : undefined)) parts.push(mkSeg(ctx, sa.text, map[ts + sa.start] + baseRaw, map[ts + sa.end] + baseRaw, a === singleLinkArg ? { macro: name, singleLink: true, quote: a.quote } : { macro: name }));
         }
         if ((rule === 'first-if-two' || rule === 'first') && ctx.translateNames && args.length >= 2) {
           const t = args[1];
@@ -7128,7 +7222,8 @@ function segmentHarlowe(decoded, map, baseRaw, ctx) {
    berurutan; celah antar token diproses harlowePlainGap yang mengenali
    hook [...] dan MENYELAM ke isinya (teks di dalam hook ADALAH teks
    tampil — mis. (if: $x)[Teks ini harus diterjemahkan]). */
-function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
+function harloweWalk(text, decStart, map, baseRaw, ctx, parts, depth) {
+  depth = depth || 0;
   const tokens = [];
   const linkRe = new RegExp(LINK_TOKEN_RE.source, 'g'); // (v3.4.3) kenal setter [[...][...]]
   let m;
@@ -7157,7 +7252,7 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
   let last = 0;
   for (const t of tokens) {
     if (t.start < last) continue; // tumpang tindih — lewati
-    if (t.start > last) harlowePlainGap(text.slice(last, t.start), decStart + last, map, baseRaw, ctx, parts);
+    if (t.start > last) harlowePlainGap(text.slice(last, t.start), decStart + last, map, baseRaw, ctx, parts, depth);
     const ts = decStart + t.start; // offset absolut dalam teks hasil-decode
     if (t.kind === 'link') {
       const inner = t.text.slice(2, -2);
@@ -7165,7 +7260,7 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
       // (v3.4.6) Lihat catatan yang sama di segmentSugarCube.
       if (p.label !== null && p.label.trim() && scanAccepts(p.label) && (p.label.trim() !== p.target.trim() || ctx.linkLabels)) {
         parts.push(mkSeg(ctx, p.label, map[ts + 2 + p.labelStart] + baseRaw, map[ts + 2 + p.labelEnd] + baseRaw, { linkLabel: true }));
-      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target)) {
+      } else if (p.label === null && ctx.linkLabels && p.target.trim() && scanAccepts(p.target, { allowAllCaps: true })) {
         // (v3.4.6) Tautan satu argumen [[X]] — label = target; jadi segmen bila ceklis hidup.
         parts.push(mkSeg(ctx, p.target, map[ts + 2 + p.targetStart] + baseRaw, map[ts + 2 + p.targetEnd] + baseRaw, { linkLabel: true, singleLink: true }));
       }
@@ -7192,31 +7287,41 @@ function harloweWalk(text, decStart, map, baseRaw, ctx, parts) {
     // tag: dilindungi utuh
     last = t.end;
   }
-  if (last < text.length) harlowePlainGap(text.slice(last), decStart + last, map, baseRaw, ctx, parts);
+  if (last < text.length) harlowePlainGap(text.slice(last), decStart + last, map, baseRaw, ctx, parts, depth);
 }
 /* Celah teks Harlowe: kenali hook [...], selam ke isinya secara rekursif.
    '[' tanpa penutup di celah ini = buka hook yang isinya berlanjut sampai
    token berikutnya; ']' lepas = sisa penutup hook — dibuang, bukan teks. */
-function harlowePlainGap(text, decStart, map, baseRaw, ctx, parts) {
+function harlowePlainGap(text, decStart, map, baseRaw, ctx, parts, depth) {
+  depth = depth || 0;
   let i = 0, plainStart = 0;
   const flushPlain = (a, b) => { if (b > a) emitPlainRun(parts, text.slice(a, b), decStart + a, map, baseRaw, ctx); };
   while (i < text.length) {
     if (text[i] === '[') {
-      let depth = 0, j = i, q = null, close = -1;
+      // (v3.4.7) Penghitung kurung lokal bernama bdepth — JANGAN depth,
+      // supaya tidak membayangi parameter kedalaman rekursi (F20).
+      let bdepth = 0, j = i, q = null, close = -1;
       while (j < text.length) {
         const c = text[j];
         if (q) { if (c === '\\') j += 2; else { if (c === q) q = null; j++; } continue; }
         if (c === '"' || c === "'") { q = c; j++; continue; }
-        if (c === '[') depth++;
-        else if (c === ']') { depth--; if (depth === 0) { close = j; break; } }
+        if (c === '[') bdepth++;
+        else if (c === ']') { bdepth--; if (bdepth === 0) { close = j; break; } }
         j++;
       }
       flushPlain(plainStart, i);
-      if (close >= 0) {
-        harloweWalk(text.slice(i + 1, close), decStart + i + 1, map, baseRaw, ctx, parts);
+      // (v3.4.7) Batas kedalaman (F20): hook bersarang lebih dalam dari
+      // batas diperlakukan sebagai teks biasa — isinya diemisikan tanpa
+      // diselami lagi, supaya tumpukan tidak penuh.
+      if (depth >= SCAN_MAX_DEPTH) {
+        if (close >= 0) { flushPlain(i + 1, close); i = close + 1; }
+        else { flushPlain(i + 1, text.length); i = text.length; }
+        plainStart = i;
+      } else if (close >= 0) {
+        harloweWalk(text.slice(i + 1, close), decStart + i + 1, map, baseRaw, ctx, parts, depth + 1);
         i = close + 1; plainStart = i;
       } else {
-        harloweWalk(text.slice(i + 1), decStart + i + 1, map, baseRaw, ctx, parts);
+        harloweWalk(text.slice(i + 1), decStart + i + 1, map, baseRaw, ctx, parts, depth + 1);
         i = text.length; plainStart = i;
       }
     } else if (text[i] === ']') {
@@ -7437,12 +7542,21 @@ function parseGoogleResponse(data, n) {
   }
   return out;
 }
+/* (v3.4.7) Satu helper cek status HTTP (F02) — dulu 6 situs memakai
+   pola yang sama dengan variasi kecil. Google/GoogleDict melampirkan
+   e.status (dipakai pemutus sirkuit); yang lain cukup melempar Error
+   dengan kode di pesan, seperti sebelumnya. */
+function fetchOk(res, label, withStatus) {
+  if (res.ok) return res;
+  if (withStatus) { const e = new Error(label + ' HTTP ' + res.status); e.status = res.status; throw e; }
+  throw new Error(label + ' HTTP ' + res.status);
+}
 async function googleBatch(texts, src, tgt) {
   const params = new URLSearchParams();
   params.append('client', 'gtx'); params.append('sl', src); params.append('tl', tgt); params.append('dt', 't');
   for (const t of texts) params.append('q', t);
   const res = await fetch('https://translate.googleapis.com/translate_a/single?' + params.toString());
-  if (!res.ok) { const e = new Error('Google HTTP ' + res.status); e.status = res.status; throw e; }
+  fetchOk(res, 'Google', true);
   return parseGoogleResponse(await res.json(), texts.length);
 }
 const MARKER = (i) => 'ZXQSEP' + String(i).padStart(5, '0') + 'QXZ';
@@ -7454,7 +7568,7 @@ async function googleBatchMarkers(texts, src, tgt) {
   params.append('client', 'gtx'); params.append('sl', src); params.append('tl', tgt); params.append('dt', 't');
   params.append('q', parts.join('\n'));
   const res = await fetch('https://translate.googleapis.com/translate_a/single?' + params.toString());
-  if (!res.ok) { const e = new Error('Google HTTP ' + res.status); e.status = res.status; throw e; }
+  fetchOk(res, 'Google', true);
   const data = await res.json();
   const arr = data && data[0];
   if (!Array.isArray(arr)) throw new Error('GoogleMarkers: format balasan tidak dikenal');
@@ -7474,7 +7588,7 @@ async function googleBatchMarkers(texts, src, tgt) {
 async function edgeBatch(texts, src, tgt) {
   const url = 'https://edge.microsoft.com/translate/translatetext?from=' + encodeURIComponent(src) + '&to=' + encodeURIComponent(tgt) + '&api-version=3.0';
   const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(texts) });
-  if (!res.ok) throw new Error('Edge HTTP ' + res.status);
+  fetchOk(res, 'Edge');
   const data = await res.json();
   if (!Array.isArray(data) || data.length !== texts.length) throw new Error('Edge: format balasan tidak dikenal');
   const out = [];
@@ -7488,7 +7602,7 @@ async function edgeBatch(texts, src, tgt) {
 async function mymemoryOne(text, src, tgt) {
   const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=' + src + '|' + tgt;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('MyMemory HTTP ' + res.status);
+  fetchOk(res, 'MyMemory');
   const data = await res.json();
   const t = data && data.responseData && data.responseData.translatedText;
   if (!t || /QUERY LENGTH LIMIT|MYMEMORY WARNING|INVALID/i.test(t)) throw new Error('MyMemory: ' + t);
@@ -7524,7 +7638,7 @@ async function customBatch(texts, src, tgt) {
       ],
     }),
   });
-  if (!res.ok) throw new Error('Custom HTTP ' + res.status);
+  fetchOk(res, 'Custom');
   const data = await res.json();
   const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
   const out = parseCustomResponse(content, texts.length);
@@ -7551,8 +7665,6 @@ const CB = {
   dict: { down: false, streak: 0 },
   edge: { down: false, streak: 0 },
 };
-const CB_LABEL = { custom: 'Provider custom', google: 'Google', dict: 'Google Dict', edge: 'Edge' };
-const CB_NEXT = { custom: 'Google', google: 'Google Dict', dict: 'Edge', edge: 'Translator Chrome' };
 let curEngine = '';
 let retrySleep = sleep;
 function setRetrySleep(fn) { retrySleep = fn; }
@@ -7576,7 +7688,14 @@ function noteEngineFail(name, e) {
   CB[name].streak++;
   if (CB[name].streak >= 3 && !CB[name].down) {
     CB[name].down = true;
-    log('[Pemutus sirkuit] ' + CB_LABEL[name] + ' dimatikan untuk sisa proses (3 gagal beruntun) — pindah ke ' + CB_NEXT[name] + '.', 'w');
+    // (v3.4.7) Label mesin berikutnya diturunkan dari urutan rantai
+    // (ENGINE_KEYS) + ENGINE_LABELS — dulu ada peta CB_NEXT kedua yang
+    // bisa usang (untuk Edge ia menulis 'Translator Chrome' padahal
+    // berikutnya adalah MyMemory). Bila tidak ada berikutnya, tulis
+    // 'Translator Chrome' (penyelamat akhir di translateSegments).
+    const nextKey = ENGINE_KEYS[ENGINE_KEYS.indexOf(name) + 1];
+    const nextLabel = nextKey ? ENGINE_LABELS[nextKey] : 'Translator Chrome';
+    log('[Pemutus sirkuit] ' + ENGINE_LABELS[name] + ' dimatikan untuk sisa proses (3 gagal beruntun) — pindah ke ' + nextLabel + '.', 'w');
   }
 }
 function setEngine(name) {
@@ -7606,7 +7725,7 @@ function enabledEngineLabels() {
   return out;
 }
 function setEngineSel(patch) {
-  S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, S.engineSel, patch);
+  S.engineSel = Object.assign({}, ENGINE_SEL_DEFAULT, S.engineSel, patch);
   applyEngineSelToUI();
   saveEngineSel();
 }
@@ -7615,7 +7734,7 @@ function loadEngineSel() {
     const raw = localStorage.getItem(ENGINES_KEY);
     if (!raw) return;
     const v = JSON.parse(raw);
-    S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, v);
+    S.engineSel = Object.assign({}, ENGINE_SEL_DEFAULT, v);
   } catch (e) { /* abaikan */ }
 }
 function saveEngineSel() {
@@ -7639,7 +7758,7 @@ function applyLinkLabelsToUI() { const cb = $('optLinkLabels'); if (cb) cb.check
 function readEngineSelFromUI() {
   const sel = {};
   document.querySelectorAll('.engChk').forEach((cb) => { sel[cb.dataset.eng] = cb.checked; });
-  S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, sel);
+  S.engineSel = Object.assign({}, ENGINE_SEL_DEFAULT, sel);
 }
 async function tryWithRetry(fn, attempts, baseMs) {
   let lastErr = null;
@@ -7666,51 +7785,51 @@ async function googleDictBatch(texts, src, tgt) {
   params.append('client', 'dict-chrome-ex'); params.append('sl', src); params.append('tl', tgt);
   for (const t of texts) params.append('q', t);
   const res = await fetch('https://clients5.google.com/translate_a/t?' + params.toString());
-  if (!res.ok) { const e = new Error('GoogleDict HTTP ' + res.status); e.status = res.status; throw e; }
+  fetchOk(res, 'GoogleDict', true);
   const out = parseDictResponse(await res.json(), texts.length);
   if (!out) throw new Error('GoogleDict: format balasan tidak dikenal');
   return out;
 }
 /* Rantai fallback per batch (v3.1): custom → Google (+marker bila semua
    null) → Google Dict → Edge → MyMemory (satu per satu). Tiap mesin
-   dijaga pemutus sirkuit (lihat di atas). Kembalikan array {text, via}|null. */
+   dijaga pemutus sirkuit (lihat di atas). Kembalikan array {text, via}|null.
+   (v3.4.7) Empat mesin retry-nya dulu empat blok if nyaris identik (F02);
+   sekarang satu tabel + satu loop. Perbedaan yang dipertahankan persis:
+   custom = guard konfigurasi + 2 retry/1000ms + sukses = r apa adanya;
+   Google = 3 retry/1000ms + sukses = ada satu saja yang non-null, bila
+   kosong semua coba mode marker lalu catat gagal; Dict/Edge = 2 retry/1200ms
+   + sukses = r apa adanya; gagal di tiap mesin = log + noteEngineFail. */
+const ENGINE_CHAIN = [
+  { key: 'custom', label: 'Custom', retries: 2, delay: 1000, fn: customBatch,
+    guard: () => customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model,
+    failLog: (e) => 'Provider custom gagal (' + e.message + ') — lanjut ke Google.' },
+  { key: 'google', label: 'Google', retries: 3, delay: 1000, fn: googleBatch, marker: true,
+    failLog: (e) => 'Google gagal: ' + e.message },
+  { key: 'dict', label: 'Google Dict', retries: 2, delay: 1200, fn: googleDictBatch,
+    failLog: (e) => 'Google Dict gagal: ' + e.message },
+  { key: 'edge', label: 'Edge', retries: 2, delay: 1200, fn: edgeBatch,
+    failLog: (e) => 'Edge gagal: ' + e.message },
+];
 async function translateBatch(texts, src, tgt) {
   const n = texts.length;
   const mapOk = (r, via) => r.map((x) => (x ? { text: x, via } : null));
-  if (engineEnabled('custom') && customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model && !CB.custom.down) {
-    setEngine('Custom');
+  for (const step of ENGINE_CHAIN) {
+    if (!engineEnabled(step.key) || CB[step.key].down) continue;
+    if (step.guard && !step.guard()) continue;
+    setEngine(step.label);
     try {
-      const r = await tryWithRetry(() => customBatch(texts, src, tgt), 2, 1000);
-      if (r) { noteEngineOk('custom'); return mapOk(r, 'Custom'); }
-    } catch (e) { log('Provider custom gagal (' + e.message + ') — lanjut ke Google.', 'w'); noteEngineFail('custom', e); }
-  }
-  if (engineEnabled('google') && !CB.google.down) {
-    setEngine('Google');
-    try {
-      const r = await tryWithRetry(() => googleBatch(texts, src, tgt), 3, 1000);
-      if (r && r.some((x) => x)) { noteEngineOk('google'); return mapOk(r, 'Google'); }
-      log('Google mengembalikan kosong semua — coba mode marker.', 'w');
-      try {
-        const r2 = await googleBatchMarkers(texts, src, tgt);
-        if (r2 && r2.some((x) => x)) { noteEngineOk('google'); return mapOk(r2, 'Google'); }
-        log('Google marker mengembalikan kosong semua.', 'w');
-      } catch (e2) { log('Google marker gagal: ' + e2.message, 'w'); }
-      noteEngineFail('google');
-    } catch (e) { log('Google gagal: ' + e.message, 'w'); noteEngineFail('google', e); }
-  }
-  if (engineEnabled('dict') && !CB.dict.down) {
-    setEngine('Google Dict');
-    try {
-      const r = await tryWithRetry(() => googleDictBatch(texts, src, tgt), 2, 1200);
-      if (r) { noteEngineOk('dict'); return mapOk(r, 'Google Dict'); }
-    } catch (e) { log('Google Dict gagal: ' + e.message, 'w'); noteEngineFail('dict', e); }
-  }
-  if (engineEnabled('edge') && !CB.edge.down) {
-    setEngine('Edge');
-    try {
-      const r = await tryWithRetry(() => edgeBatch(texts, src, tgt), 2, 1200);
-      if (r) { noteEngineOk('edge'); return mapOk(r, 'Edge'); }
-    } catch (e) { log('Edge gagal: ' + e.message, 'w'); noteEngineFail('edge', e); }
+      const r = await tryWithRetry(() => step.fn(texts, src, tgt), step.retries, step.delay);
+      if (step.marker) {
+        if (r && r.some((x) => x)) { noteEngineOk('google'); return mapOk(r, 'Google'); }
+        log('Google mengembalikan kosong semua — coba mode marker.', 'w');
+        try {
+          const r2 = await googleBatchMarkers(texts, src, tgt);
+          if (r2 && r2.some((x) => x)) { noteEngineOk('google'); return mapOk(r2, 'Google'); }
+          log('Google marker mengembalikan kosong semua.', 'w');
+        } catch (e2) { log('Google marker gagal: ' + e2.message, 'w'); }
+        noteEngineFail('google');
+      } else if (r) { noteEngineOk(step.key); return mapOk(r, step.label); }
+    } catch (e) { log(step.failLog(e), 'w'); noteEngineFail(step.key, e); }
   }
   // (v3.4.4) MyMemory yang tidak dicentang dilewati — kembalikan null
   // semua (teks jadi gagal, bisa diselamatkan Translator Chrome bila aktif).
@@ -7783,12 +7902,18 @@ function cleanPlaceholderTranslations() {
   }
   return n;
 }
+/* (v3.4.7) Satu aturan "tanpa '|' di label tautan" (F03) — dipakai
+   validateOne, qaSegment, dan buildOutput. '|' di terjemahan label
+   satu argumen merusak tautan [[...|...]] / <<link "a" "b">> saat Timpa. */
+function labelHasPipe(seg, text) {
+  return !!(seg && seg.singleLink && typeof text === 'string' && text.includes('|'));
+}
 function validateOne(clean, original, seg) {
   if (!clean || !clean.trim()) return 'kosong';
   if (hasLeftoverPlaceholder(clean)) return 'placeholder tersisa';
   // (v3.4.6) Label tautan satu argumen: '|' di terjemahan akan merusak
   // tautan [[...|...]] / <<link "a" "b">> saat Timpa — tolak seperti penjaga placeholder/variabel.
-  if (seg && seg.singleLink && clean.includes('|')) return 'label mengandung |';
+  if (labelHasPipe(seg, clean)) return 'label mengandung |';
   if (isHallucinatedOutput(clean, original)) return 'halusinasi';
   if (getMissingVars(original, clean).length > 0) return 'variabel hilang';
   if (clean === original) return 'sama';
@@ -7826,7 +7951,14 @@ async function translateSegments(queue) {
     S.stats.recent.push({ ms: bms, n: chunk.length });
     if (S.stats.recent.length > 10) S.stats.recent.shift();
     S.stats.doneCount = done;
-    updateStats(); renderList(); saveProject();
+    updateStats(); renderList();
+    // (v3.4.7) Simpan proyek penuh hanya tiap batch ke-10 + batch akhir
+    // (F19) — dulu tiap batch menyimpan seluruh dokumen JSON (IndexedDB +
+    // localStorage), yang di file besar memperlambat tiap batch. UI tetap
+    // segar tiap batch; bila proses berhenti mendadak, kehilangan paling
+    // banyak 9 batch terakhir — runTranslate juga menyimpan di akhir,
+    // dan blok penyelamatan Chrome menyimpan bila ada yang diselamatkan.
+    if ((i / BATCH + 1) % 10 === 0 || i + BATCH >= queue.length) saveProject();
     $('transStatus').textContent = 'Menerjemahkan ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
     $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
     if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
@@ -8168,6 +8300,8 @@ window.__GTHTML_V344__ = { engineEnabled, allEnginesOff, enabledEngineLabels, se
 window.__GTHTML_V345__ = { renderReport, applyTM, runTranslate, filteredSegs, listFilterMatches, untranslatedList, renderList, scheduleReportRefresh, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V346__ (v3.4.6) */
 window.__GTHTML_V346__ = { parseLinkToken, hasLinkBody, validateOne, buildOutput, verifyOutput, doBuild, scanFile, readLinkLabelsDefault, saveLinkLabels, applyLinkLabelsToUI, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V347__ (v3.4.7) */
+window.__GTHTML_V347__ = { buildPreviewWrapper, previewGameHtml, previewStorageShim, validateOne, labelHasPipe, refreshUI, refreshAfterMutation, translateBatch, emitPlainRun, harloweWalk, buildOutput, verifyOutput, doBuild, scanFile, runTranslate, translateSegments, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8216,7 +8350,14 @@ function singleLinkReplacement(seg, labelText, targetText, targetIsOriginal) {
     const q = seg.quote || '"';
     return escapeJsString(labelText, q) + q + ' ' + q + escapeJsString(targetText, q);
   }
-  return encodePassageText(labelText, S.encodeStyle) + '|' + (targetIsOriginal ? S.originalText.slice(seg.rawStart, seg.rawEnd) : encodePassageText(targetText, S.encodeStyle));
+  // (v3.4.7) Pemisah kanonis Harlowe adalah '->' (manual resmi 3.3.8);
+  // '|' hanya pemisah SugarCube — menulis '|' di Harlowe membuat tautan
+  // rusak (mesin menganggap seluruh "label|target" sebagai nama passage).
+  // S.engine diisi doScan dari format file. Aturan tanpa '|' di label
+  // (validateOne/qaSegment/buildOutput) tetap berlaku untuk semua engine
+  // — melindungi paritas pindai ulang aplikasi sendiri.
+  const sep = (S.engine && S.engine.kind === 'harlowe') ? '->' : '|';
+  return encodePassageText(labelText, S.encodeStyle) + sep + (targetIsOriginal ? S.originalText.slice(seg.rawStart, seg.rawEnd) : encodePassageText(targetText, S.encodeStyle));
 }
 function buildOutput() {
   const reps = []; // {start, end, replacement}
@@ -8231,7 +8372,7 @@ function buildOutput() {
       const targetText = nt || seg.text;
       let labelText = null;
       if (tr && tr.text && !tr.failed) {
-        if (tr.text.includes('|')) pipeSkipped++; // terjemahan label dibuang — '|' merusak tautan
+        if (labelHasPipe(seg, tr.text)) pipeSkipped++; // terjemahan label dibuang — '|' merusak tautan
         else labelText = tr.text;
       }
       if (labelText !== null && !(labelText === seg.text && targetText === seg.text)) {
@@ -8315,6 +8456,59 @@ function verifyOutput(outText) {
   const origLink = countRe(new RegExp(LINK_TOKEN_RE.source, 'g'), S.originalText); // (v3.4.3) setter ikut terhitung
   const outLink = countRe(new RegExp(LINK_TOKEN_RE.source, 'g'), outText);
   if (origLink) ok('Link [[...]] utuh (' + origLink + ')', origLink === outLink, 'hasil: ' + outLink);
+  // (v3.4.7) §8 — daftar nama passage (Twine 2 name= / Twine 1 tiddler).
+  const namesOf = (s) => {
+    const out = [];
+    for (const m of s.matchAll(/<tw-passagedata\b[^>]*\bname\s*=\s*"([^"]*)"/g)) out.push(m[1]);
+    for (const m of s.matchAll(/<tw-passagedata\b[^>]*\bname\s*=\s*'([^']*)'/g)) out.push(m[1]);
+    for (const m of s.matchAll(/<div\b[^>]*\btiddler\s*=\s*"([^"]*)"/g)) out.push(m[1]);
+    return out.sort();
+  };
+  // (1) Nama passage hasil = nama passage asli (kecuali mode nama passage
+  // aktif — di sana nama memang sengaja diganti).
+  if (!S.translateNames) {
+    const origNames = namesOf(S.originalText), outNames = namesOf(outText);
+    if (origNames.length) {
+      const same = origNames.length === outNames.length && origNames.every((n, i) => n === outNames[i]);
+      ok('Nama passage hasil sama dengan asli (' + origNames.length + ')', same, same ? '' : ('asli: ' + origNames.join(', ') + ' | hasil: ' + outNames.join(', ')));
+    }
+  }
+  // (2) Setiap target tautan statis ada sebagai passage di file hasil.
+  // Target dinamis dilewati: mengandung $ (variabel), _ (variabel
+  // sementara), atau ( ) (ekspresi).
+  {
+    const outNames = new Set(namesOf(outText));
+    const targets = [];
+    // Tautan [[...]] di teks passage saja — yang di dalam argumen macro
+    // (mis. <<addToLoc "[[Home]]">>) bukan tautan navigasi dan memang
+    // sengaja tidak diganti nama saat mode nama passage aktif (v3.4.6 D1).
+    const textNoMacro = outText.replace(/<<[\s\S]*?>>/g, ' ');
+    for (const m of textNoMacro.matchAll(new RegExp(LINK_TOKEN_RE.source, 'g'))) {
+      const p = parseLinkToken(m[0].slice(2, -2));
+      if (p.target && p.target.trim()) targets.push(p.target.trim());
+    }
+    for (const m of outText.matchAll(/<<\s*(?:link|button)\b[\s\S]*?>>/g)) {
+      const args = quotedArgs(m[0]);
+      if (args.length >= 2) targets.push(args[1].text);
+    }
+    const statics = [...new Set(targets)].filter((t) => !/[$_()]/.test(t));
+    if (statics.length && outNames.size) {
+      const missing = statics.filter((t) => !outNames.has(t));
+      ok('Target tautan statis ada sebagai passage (' + statics.length + ')', missing.length === 0, missing.length ? ('tidak ada: ' + missing.slice(0, 5).join(', ')) : '');
+    }
+  }
+  // (3) Keseimbangan buka/tutup << ... >>.
+  {
+    const origLt = countRe(/<</g, S.originalText), outLt = countRe(/<</g, outText);
+    const origGt = countRe(/>>/g, S.originalText), outGt = countRe(/>>/g, outText);
+    if (origLt + origGt) ok('Tanda << dan >> seimbang (' + origLt + '/' + origGt + ')', origLt === outLt && origGt === outGt, 'hasil: ' + outLt + '/' + outGt);
+  }
+  // (4) Jumlah tag <script> buka/tutup.
+  {
+    const origOpen = countRe(/<script\b/gi, S.originalText), outOpen = countRe(/<script\b/gi, outText);
+    const origClose = countRe(/<\/script\s*>/gi, S.originalText), outClose = countRe(/<\/script\s*>/gi, outText);
+    if (origOpen + origClose) ok('Tag <script> buka/tutup sama (' + origOpen + '/' + origClose + ')', origOpen === outOpen && origClose === outClose, 'hasil: ' + outOpen + '/' + outClose);
+  }
   // (v3.4) Tidak ada placeholder perlindungan yang tersisa di file hasil
   // (mis. {{{gl0}}} dari mesin yang mengecilkan hurufnya).
   // (v3.4.4) Pakai pola yang sama dengan LEFTOVER_PLACEHOLDER_RE — bentuk
@@ -8336,7 +8530,7 @@ function qaSegment(seg) {
   if (tr.failed) { issues.push('gagal diterjemahkan'); return issues; }
   if (tr.text === seg.text) issues.push('sama persis dengan aslinya');
   // (v3.4.6) Label tautan satu argumen dengan '|' — Timpa akan membuang terjemahan ini supaya tautan tidak rusak.
-  if (seg.singleLink && tr.text.includes('|')) issues.push('label mengandung | (merusak tautan)');
+  if (labelHasPipe(seg, tr.text)) issues.push('label mengandung | (merusak tautan)');
   const missing = getMissingVars(seg.text, tr.text);
   if (missing.length) issues.push('variabel hilang: ' + missing.join(', '));
   const extra = getMissingVars(tr.text, seg.text);
@@ -8351,13 +8545,18 @@ function qaSegment(seg) {
   }
   return issues;
 }
-function qaAll() {
-  const rows = [];
-  for (const seg of S.segments) {
+/* (v3.4.7) Loop QA bersama (F04) — dulu qaAll dan qaAllChunked berisi
+   salinan loop yang sama; sekarang satu sumber kebenaran. */
+function qaCollect(segs, rows) {
+  for (const seg of segs) {
     if (!seg.translatable || seg.skipped) continue;
     const issues = qaSegment(seg);
     if (issues.length) rows.push({ seg, issues });
   }
+}
+function qaAll() {
+  const rows = [];
+  qaCollect(S.segments, rows);
   return rows;
 }
 /* (v3.4.2) QA per potongan 1000 segmen dengan jeda — hasil identik
@@ -8367,13 +8566,7 @@ async function qaAllChunked() {
   const rows = [];
   const segs = S.segments;
   for (let i = 0; i < segs.length; i += 1000) {
-    const end = Math.min(i + 1000, segs.length);
-    for (let j = i; j < end; j++) {
-      const seg = segs[j];
-      if (!seg.translatable || seg.skipped) continue;
-      const issues = qaSegment(seg);
-      if (issues.length) rows.push({ seg, issues });
-    }
+    qaCollect(segs.slice(i, Math.min(i + 1000, segs.length)), rows);
     await sleep(0);
   }
   return rows;
@@ -8426,7 +8619,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.6\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.7\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8578,6 +8771,12 @@ function recentAvgSeconds() {
   if (S.stats.doneCount > 0 && S.stats.totalMs > 0) return S.stats.totalMs / S.stats.doneCount / 1000;
   return 0.8;
 }
+/* (v3.4.7) Mantra refresh UI (F01) — satu sumber kebenaran untuk
+   urutan yang diulang di 8 tempat (dulu bug v3.4.5 lahir karena satu
+   titik lupa memanggil renderReport). refreshUI() hanya menyegarkan
+   tampilan; refreshAfterMutation() = refreshUI() + simpan proyek. */
+function refreshUI() { updateStats(); renderList(); renderReport(null, null); }
+function refreshAfterMutation() { refreshUI(); saveProject(); }
 function updateStats() {
   const segs = translatableSegs().filter((s) => !s.skipped);
   const total = segs.length, done = doneCount(), left = total - done;
@@ -8677,7 +8876,7 @@ function renderList() {
         else S.translations.set(seg.id, { text: clean, via: res[0].via });
       } else S.translations.set(seg.id, { text: '', via: 'gagal', failed: true });
       b.disabled = false;
-      updateStats(); renderList(); renderReport(null, null); saveProject(); // (v3.4.5) ringkasan QA ikut segar
+      refreshAfterMutation(); // (v3.4.5) ringkasan QA ikut segar
     });
   });
   $('chkAll').checked = slice.length > 0 && slice.every((s) => S.selected.has(s.id));
@@ -8703,7 +8902,7 @@ function renderSkipList() {
     cb.addEventListener('change', () => {
       if (cb.checked) S.skipPassages.add(cb.dataset.p); else S.skipPassages.delete(cb.dataset.p);
       for (const seg of S.segments) if (seg.passage === cb.dataset.p) seg.skipped = cb.checked;
-      updateStats(); renderList(); renderReport(null, null); saveProject(); updateSkipAll(); // (v3.4.5) lewati passage mengubah daftar belum diterjemahkan
+      refreshAfterMutation(); updateSkipAll(); // (v3.4.5) lewati passage mengubah daftar belum diterjemahkan
     });
   });
   updateSkipAll();
@@ -8881,7 +9080,7 @@ function restoreProject(d) {
   S.engine = d.engine || null; S.encodeStyle = d.encodeStyle || { quote: false, apos: false, nbsp: false };
   // (v3.4.4) Pilihan mesin dari proyek tersimpan (proyek lama tanpa
   // engineSel tetap memakai default semua aktif).
-  if (d.engineSel) { S.engineSel = Object.assign({ custom: true, google: true, dict: true, edge: true, mymemory: true, chrome: true }, d.engineSel); applyEngineSelToUI(); }
+  if (d.engineSel) { S.engineSel = Object.assign({}, ENGINE_SEL_DEFAULT, d.engineSel); applyEngineSelToUI(); }
   S.needsReupload = !S.originalText;
   // (v3.4) Bersihkan terjemahan lama yang masih mengandung placeholder bocor.
   cleanPlaceholderTranslations();
@@ -8891,7 +9090,7 @@ function restoreProject(d) {
   $('optNames').checked = S.translateNames;
   $('optLinkLabels').checked = S.linkLabels; // (v3.4.6)
   showFileInfo();
-  renderSkipList(); renderGlossary(); updateStats(); renderList(); renderReport(null, null);
+  renderSkipList(); renderGlossary(); refreshUI();
 }
 function showFileInfo() {
   $('fileInfo').classList.remove('hidden');
@@ -8913,16 +9112,34 @@ async function readFileAsText(file) {
 }
 function doScan() {
   const keep = new Map();
+  // (v3.4.7) Kunci ikut rawStart (F09) — dulu segmen sejenis + se-passage
+  // + se-teks bertabrakan (mis. teks biasa "Home" vs label [[Home]]):
+  // terjemahan yang terakhir ditulis menimpa yang pertama, lalu pindai
+  // ulang menerapkan terjemahan yang sama ke keduanya. rawStart stabil
+  // antar pindai ulang karena teks asli yang dipindai selalu sama.
+  const keepKey = (seg) => seg.kind + '|' + (seg.passage || '') + '|' + seg.rawStart + '|' + seg.text;
   for (const seg of S.segments) {
     const t = S.translations.get(seg.id);
-    if (t) keep.set(seg.kind + '|' + (seg.passage || '') + '|' + seg.text, t);
+    if (t) keep.set(keepKey(seg), t);
   }
-  const res = scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames, linkLabels: S.linkLabels });
+  const res = (() => {
+    // (v3.4.7) Pindai dibungkus try/catch (F20) — bila scanFile melempar
+    // (file salah bentuk), handler pemanggil (ceklis, Pulihkan, Pindai
+    // Ulang) tidak runtuh: segmen + terjemahan lama dipertahankan dan
+    // kegagalan dicatat di log.
+    try {
+      return scanFile(S.originalText, { includeScript: S.includeScript, translateNames: S.translateNames, linkLabels: S.linkLabels });
+    } catch (e) {
+      log('Pindai gagal: ' + (e && e.message || e) + ' — segmen lama dipertahankan.', 'e');
+      return null;
+    }
+  })();
+  if (!res) return;
   S.engine = res.engine; S.segments = res.segments; S.passages = res.passages; S.encodeStyle = res.encodeStyle;
   S.linkNoBodyTargets = res.linkNoBodyTargets || [];
   S.translations = new Map();
   for (const seg of S.segments) {
-    const t = keep.get(seg.kind + '|' + (seg.passage || '') + '|' + seg.text);
+    const t = keep.get(keepKey(seg));
     if (t) S.translations.set(seg.id, t);
     seg.skipped = S.skipPassages.has(seg.passage);
   }
@@ -8944,8 +9161,7 @@ async function loadFile(file) {
   segCounter = 0;
   doScan();
   showFileInfo();
-  renderSkipList(); updateStats(); renderList(); renderReport(null, null);
-  saveProject();
+  renderSkipList(); refreshAfterMutation();
   log('File dimuat: ' + file.name + ' (' + fmtBytes(file.size) + '). Mesin terdeteksi: ' + S.engine.name + '.');
   if (S.engine.kind === 'unknown') log('Mesin tidak dikenali — file diperlakukan sebagai HTML biasa.', 'w');
 }
@@ -8964,7 +9180,7 @@ async function runTranslate(which) {
   if (allEnginesOff()) { log('Semua mesin tidak dicentang — centang minimal satu mesin di "Mesin yang dipakai" (Langkah 2) sebelum menerjemahkan.', 'w'); return; }
   const tmN = applyTM();
   let queue = queueForTranslate(which);
-  if (!queue.length) { log(tmN ? 'Semua teks sudah diterjemahkan (TM: ' + tmN + ').' : 'Tidak ada teks yang perlu diterjemahkan.'); updateStats(); renderList(); renderReport(null, null); return; }
+  if (!queue.length) { log(tmN ? 'Semua teks sudah diterjemahkan (TM: ' + tmN + ').' : 'Tidak ada teks yang perlu diterjemahkan.'); refreshUI(); return; }
   if (tmN) log('TM memakai ulang ' + tmN + ' teks; ' + queue.length + ' teks dikirim ke mesin.');
   S.running = true; S.cancelled = false;
   $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
@@ -8977,7 +9193,7 @@ async function runTranslate(which) {
   $('btnTranslateAll').disabled = false; $('btnTranslateSel').disabled = false;
   $('btnRetryFailed').disabled = false; $('btnStop').disabled = true;
   $('transStatus').textContent = '';
-  updateStats(); renderList(); renderReport(null, null); saveProject();
+  refreshAfterMutation();
 }
 /* (v3.4.2) Build bertahap tanpa macet: doBuild kini async — tiap fase
    memberi jeda (await sleep(0)) supaya browser bisa repaint dan tab
@@ -9060,6 +9276,33 @@ async function doBuild(downloadFiles) {
     buildRunning = false;
     setBuildButtonsDisabled(false);
   }
+}
+/* (v3.4.7) Pratinjau aman + segar (F13 Critical + F4 Important).
+   Shim penyimpanan memori untuk salinan pratinjau: di dalam <iframe
+   sandbox> tanpa allow-same-origin, origin-nya opaque sehingga
+   localStorage / sessionStorage asli melempar SecurityError — SugarCube
+   menganggap semua API penyimpanan hilang dan fatal. Shim ini berjalan
+   SEBELUM script game apa pun (disisip setelah <head>) dan mengganti
+   storage yang melempar dengan implementasi memori. Bila storage asli
+   jalan, shim tidak mengubah apa pun. Hanya untuk salinan pratinjau —
+   file hasil Timpa tidak disentuh. */
+function previewStorageShim() {
+  return '<script>(function(){function mem(){var s={};return{getItem:function(k){return k in s?s[k]:null},setItem:function(k,v){s[k]=String(v)},removeItem:function(k){delete s[k]},clear:function(){s={}},key:function(i){var ks=Object.keys(s);return ks[i]||null},get length(){return Object.keys(s).length}};}try{localStorage.setItem("__gt_pv__","1");localStorage.removeItem("__gt_pv__");}catch(e){try{Object.defineProperty(window,"localStorage",{value:mem(),configurable:true});}catch(e2){}}try{sessionStorage.setItem("__gt_pv__","1");sessionStorage.removeItem("__gt_pv__");}catch(e){try{Object.defineProperty(window,"sessionStorage",{value:mem(),configurable:true});}catch(e2){}}})();<\/script>';
+}
+function previewGameHtml(outText) {
+  const shim = previewStorageShim();
+  const m = /<head[^>]*>/i.exec(outText);
+  if (m) return outText.slice(0, m.index + m[0].length) + shim + outText.slice(m.index + m[0].length);
+  return shim + outText;
+}
+function buildPreviewWrapper(gameHtml) {
+  // Halaman wrapper tepercaya (hanya bootstrap): game berjalan di dalam
+  // <iframe sandbox="allow-scripts" srcdoc> — origin opaque, tanpa
+  // allow-same-origin, jadi JS game tidak bisa membaca localStorage
+  // aplikasi, window.opener, atau DOM aplikasi. '<' di-escape jadi \u003c
+  // di dalam JSON supaya tidak ada literal penutup-script di dalam string.
+  const payload = JSON.stringify(gameHtml).replace(/</g, '\\u003c');
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Pratinjau — Game Translate HTML</title><style>html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#fff}iframe{border:0;width:100%;height:100%;display:block}</style></head><body><iframe id="pv" sandbox="allow-scripts" title="Pratinjau game"></iframe><script>document.getElementById("pv").srcdoc=' + payload + ';<\/script></body></html>';
 }
 /* ---------------- provider custom ---------------- */
 function loadCustomProvider() {
@@ -9161,7 +9404,7 @@ function init() {
       $('tmInfo').textContent = 'TM dimuat: ' + map.size + ' pasangan dari ' + f.name + ' (total tersimpan: ' + S.tm.size + ').';
       const n = applyTM();
       log('TM: ' + map.size + ' pasangan dimuat, ' + n + ' teks langsung terisi.');
-      updateStats(); renderList(); renderReport(null, null); saveProject(); // (v3.4.5) ringkasan QA ikut segar
+      refreshAfterMutation(); // (v3.4.5) ringkasan QA ikut segar
     } catch (e) { log('Gagal membaca TM: ' + e.message, 'e'); }
   });
   // Terjemahkan
@@ -9187,10 +9430,17 @@ function init() {
   // Aksi file (v3.4.2: doBuild async — handler menunggu build selesai)
   $('btnBuild').addEventListener('click', async () => { await doBuild(true); });
   $('btnPreview').addEventListener('click', async () => {
-    if (!S.outputText) { if (!await doBuild(false)) return; }
-    const blob = new Blob([S.outputText], { type: 'text/html;charset=utf-8' });
-    window.open(URL.createObjectURL(blob), '_blank');
-    log('Pratinjau dibuka di tab baru. (Simpanan di pratinjau mungkin tidak bertahan — itu normal untuk file blob.)');
+    // (v3.4.7) Pratinjau selalu dibangun ulang dari terjemahan terbaru (F4)
+    // dan dibuka di origin opaque lewat wrapper + iframe sandbox (F13).
+    // Tidak ada lagi window.open(blob game) — blob game mewarisi origin
+    // aplikasi dan JS game bisa membaca API key di localStorage.
+    const built = await doBuild(false);
+    if (!built) return;
+    const wrapper = buildPreviewWrapper(previewGameHtml(built.text));
+    const url = URL.createObjectURL(new Blob([wrapper], { type: 'text/html;charset=utf-8' }));
+    window.open(url, '_blank');
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) { /* abaikan */ } }, 60000);
+    log('Pratinjau dibuka di tab baru (sandbox — JS game tidak bisa membaca data aplikasi). Simpanan di pratinjau tidak bertahan.');
   });
   $('btnDownloadOrig').addEventListener('click', () => {
     if (!S.originalText) { log('Belum ada file.', 'w'); return; }
@@ -9200,7 +9450,7 @@ function init() {
     if (!S.fileName) return;
     if (!window.confirm('Pulihkan ke file asli? Semua terjemahan di sesi ini akan dihapus.')) return;
     S.translations = new Map(); S.outputText = ''; S.origDownloaded = false;
-    doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); renderReport(null, null); saveProject();
+    doScan(); showFileInfo(); renderSkipList(); refreshAfterMutation();
     log('Dipulihkan ke file asli.', 'g');
   });
   $('btnExportPo').addEventListener('click', () => {
@@ -9265,8 +9515,11 @@ function init() {
       $('savedBanner').classList.add('hidden');
       log('Proyek tersimpan dilanjutkan: ' + saved.fileName + (S.needsReupload ? ' (upload ulang file yang sama untuk Timpa).' : '.'));
     });
-    $('btnDeleteSaved').addEventListener('click', () => {
-      idbDelete();
+    // (v3.4.7) Tunggu hapus IndexedDB selesai dulu (F10) — dulu
+    // idbDelete() fire-and-forget: banner langsung hilang padahal hapus
+    // belum tentu selesai, sehingga banner bisa muncul lagi.
+    $('btnDeleteSaved').addEventListener('click', async () => {
+      await idbDelete();
       try { localStorage.removeItem(LS_KEY); } catch (e) { /* abaikan */ }
       $('savedBanner').classList.add('hidden');
       log('Simpanan proyek dihapus.');

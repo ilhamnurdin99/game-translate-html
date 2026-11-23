@@ -39,7 +39,7 @@ const $ = (id) => w.document.getElementById(id);
 const fireChange = (el) => el.dispatchEvent(new w.Event('change', { bubbles: true }));
 
 check('A0 hook v3.4.6 tersedia', !!V346 && typeof V346.buildOutput === 'function' && typeof V346.verifyOutput === 'function' && typeof V346.doBuild === 'function' && typeof V346.validateOne === 'function' && typeof V346.readLinkLabelsDefault === 'function' && typeof V346.scanFile === 'function');
-check('A0 label versi v3.4.6', html.includes('Game Translate HTML v3.4.6') && !html.includes('Game Translate HTML v3.4.5'));
+check('A0 label versi v3.4.7', html.includes('Game Translate HTML v3.4.7') && !html.includes('Game Translate HTML v3.4.6'));
 check('A0 Cara pakai menyebut v3.4.6', html.includes('Label tautan satu argumen (v3.4.6)'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
@@ -52,6 +52,7 @@ const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></
   + '<<link "Keep walking">>Walk on.<</link>>\n'
   + '[[Go Home|Home][$Money -= 8]]</tw-passagedata>\n'
   + '<tw-passagedata pid="3" name="StoryMenu" tags="" position="0,100" size="100,100"><<if visited("Home")>><<link "Player Wears">>Outfit here.<</link>></tw-passagedata>\n'
+  + '<tw-passagedata pid="4" name="Shop Buy" tags="" position="400,100" size="100,100"></tw-passagedata>\n' // (v3.4.7) passage target [[Buy Sword|Shop Buy]] — fixture harus utuh agar cek target lolos
   + '</tw-storydata></body></html>';
 const FIXH = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
   + '<tw-storydata name="T" startnode="1" creator="Twine" creator-version="2.3.0" ifid="X" zoom="1" format="Harlowe" format-version="3.3.0" options="" hidden>\n'
@@ -130,7 +131,7 @@ async function main() {
   /* ---------- (e) doBuild 6/6 ---------- */
   const res = await V346.doBuild(false);
   check('E1 doBuild(false) mengembalikan built', !!res && res.replaced === 10, 'replaced=' + (res && res.replaced));
-  check('E1 buildInfo verifikasi 6/6', $('buildInfo').textContent.includes('Verifikasi: 6/6 cek lolos'), $('buildInfo').textContent);
+  check('E1 buildInfo verifikasi 9/9', $('buildInfo').textContent.includes('Verifikasi: 9/9 cek lolos'), $('buildInfo').textContent);
 
   /* ---------- (f) validateOne menolak '|' pada label tautan ---------- */
   const v = V346.validateOne;
@@ -169,7 +170,7 @@ async function main() {
     check('H-A [[Pulang|Rumah][$Money -= 8]] (target dua argumen ikut diganti nama)', bA.text.includes('[[Pulang|Rumah][$Money -= 8]]'));
     check('H-A tanpa peringatan tumpang tindih', !$('logBox').textContent.slice(logBeforeA.length).includes('tumpang tindih'));
     const checksA = V346.verifyOutput(bA.text);
-    check('H-A verifikasi 6/6', checksA.length === 6 && checksA.every((c) => c.ok), checksA.map((c) => (c.ok ? 'OK ' : 'FAIL ') + c.label + (c.detail ? ' (' + c.detail + ')' : '')).join(' | '));
+    check('H-A verifikasi 8/8', checksA.length === 8 && checksA.every((c) => c.ok), checksA.map((c) => (c.ok ? 'OK ' : 'FAIL ') + c.label + (c.detail ? ' (' + c.detail + ')' : '')).join(' | '));
   }
   // H-B: label TIDAK diterjemahkan, nama passage diterjemahkan.
   S = setupState(true, true);
@@ -186,7 +187,7 @@ async function main() {
     check('H-B [[Shop|Toko]] + <<link "Shop" "Toko">>', bB.text.includes('[[Shop|Toko]]') && bB.text.includes('<<link "Shop" "Toko">>'));
     check('H-B name= diganti nama', bB.text.includes('name="Rumah"') && bB.text.includes('name="Toko"'));
     const checksB = V346.verifyOutput(bB.text);
-    check('H-B verifikasi 6/6', checksB.length === 6 && checksB.every((c) => c.ok), checksB.map((c) => (c.ok ? 'OK ' : 'FAIL ') + c.label + (c.detail ? ' (' + c.detail + ')' : '')).join(' | '));
+    check('H-B verifikasi 8/8', checksB.length === 8 && checksB.every((c) => c.ok), checksB.map((c) => (c.ok ? 'OK ' : 'FAIL ') + c.label + (c.detail ? ' (' + c.detail + ')' : '')).join(' | '));
   }
 
   /* ---------- (i) peringatan: nama passage AKTIF + label tautan MATI ---------- */
@@ -200,7 +201,7 @@ async function main() {
     const delta = $('logBox').textContent.slice(before.length);
     check('I1 doBuild tetap selesai', !!resI);
     check('I1 peringatan <<link>> tanpa badan tercatat', delta.includes('tidak ikut diganti nama') && delta.includes('"Shop" → "Toko"'), delta.slice(0, 300));
-    check('I1 verifikasi tetap 6/6', $('buildInfo').textContent.includes('Verifikasi: 6/6 cek lolos'), $('buildInfo').textContent);
+    check('I1 verifikasi tetap 8/8', $('buildInfo').textContent.includes('Verifikasi: 8/8 cek lolos'), $('buildInfo').textContent);
   }
 
   /* ---------- (j) persistensi + default + reset file baru ---------- */
@@ -245,7 +246,7 @@ async function main() {
   check('K1 Harlowe ceklis hidup: [[Home]] jadi segmen singleLink', segsByText(S, 'Home').length === 1 && segsByText(S, 'Home')[0].singleLink === true);
   setTranslations(S, { 'Home': 'Rumah' });
   const builtH = V346.buildOutput();
-  check('K1 Harlowe Timpa: [[Rumah|Home]]', builtH.text.includes('[[Rumah|Home]]'));
+  check('K1 Harlowe Timpa: [[Rumah->Home]]', builtH.text.includes('[[Rumah->Home]]')); // (v3.4.7) pemisah Harlowe '->', bukan '|'
 
   console.log('\nV346_LINKLABEL: ' + pass + ' PASS, ' + fail + ' FAIL');
   process.exit(fail ? 1 : 0);

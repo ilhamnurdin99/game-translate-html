@@ -69,7 +69,7 @@ const TW2_DMG = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Test Ga
   const bad = scan.segments.filter((s) => /if \(x\)|a\(\);|tampilkan|setPageElement|myFlag|helper|State\.variables/.test(s.text));
   check('B3 scan: isi <<script>> tidak masuk Daftar Teks', bad.length === 0, JSON.stringify(bad.map((s) => s.text)));
   check('B3 scan: Story JavaScript tidak disegmen', scan.segments.filter((s) => s.passage === 'Story JavaScript').length === 0);
-  check('B3 scan: isi <<widget>> tidak disegmen', scan.segments.filter((s) => /var q = 1|State\.variables/.test(s.text)).length === 0);
+  check('B3 scan: baris kode di isi <<widget>> tidak disegmen', scan.segments.filter((s) => /var q = 1|State\.variables/.test(s.text)).length === 0); // (v3.4.7) isi widget kini dipindai, tapi baris kode ditolak filter (scanAccepts: '=' + ';')
   check('B3 scan: dialog biasa tetap ketemu', scan.segments.some((s) => s.text.includes('Hello world')) && scan.segments.some((s) => s.text.includes('You arrive')));
   const scanDmg = w.scanFile(TW2_DMG, { includeScript: false, translateNames: false });
   check('B3 scan file rusak: tidak ada segmen kode', scanDmg.segments.filter((s) => /jika \(x\)|kalau tidak|tampilkan/.test(s.text)).length === 0);
