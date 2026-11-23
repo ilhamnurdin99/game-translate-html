@@ -127,6 +127,7 @@ body.simple .adv{display:none!important}
       <li><b>Pratinjau aman, isi widget &amp; label kapital (v3.4.7):</b> Pratinjau kini selalu dibangun ulang dari terjemahan terbaru (edit setelah Timpa terakhir langsung terlihat) dan berjalan di iframe sandbox terisolasi, jadi kode game tidak bisa membaca kunci provider atau mengubah aplikasi. Isi <code>&lt;&lt;widget&gt;&gt;</code> ikut dipindai — hanya teks tampilnya yang jadi segmen, kode di dalamnya tetap dilindungi. Label tautan kapital semua (<code>[[SUNDAY]]</code>) ikut jadi segmen. Verifikasi memeriksa nama passage, target tautan, dan keseimbangan <code>&lt;&lt; &gt;&gt;</code>; Harlowe menulis balik <code>[[label-&gt;target]]</code>.</li>
       <li><b>Salin teks asli ke terjemahan (v3.4.8):</b> di Daftar Teks, ceklis segmen yang memang harus tetap Inggris (mis. nama karakter), lalu klik <b>Salin teks asli ke terjemahan</b> — teks asli disalin ke kolom terjemahan dengan tanda "salin", supaya terhitung selesai dan tidak diterjemahkan mesin. Hanya mengisi yang masih kosong/gagal; terjemahan yang sudah bagus tidak ditimpa. Baris "salin" tidak ditandai "sama persis dengan aslinya" di Laporan QA.</li>
       <li><b>Ceklis dibersihkan setelah salin (v3.4.9):</b> setelah klik <b>Salin teks asli ke terjemahan</b>, ceklis di Daftar Teks dibersihkan supaya tidak nempel ke pilihan sebelumnya.</li>
+      <li><b>Terjemahan custom (v3.4.10):</b> di Daftar Teks, ceklis baris yang sudah diterjemahkan lalu klik <b>Terjemahan custom</b> — baris itu diterjemahkan ulang memakai mesin yang dicentang di "Mesin yang dipakai". Kalau mesin gagal atau hasilnya tidak lolos validasi, terjemahan lama dibiarkan apa adanya.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -196,6 +197,7 @@ body.simple .adv{display:none!important}
     <div style="display:flex;gap:8px;align-items:center;margin:10px 0">
       <label class="inline"><input type="checkbox" id="chkAll"> Pilih semua di halaman</label>
       <button id="btnCopyOrig" disabled>Salin teks asli ke terjemahan</button>
+      <button id="btnRetranslate" disabled>Terjemahan custom</button>
       <span class="mut" id="pageInfo"></span>
       <button id="btnPrevPage">‹ Sebelumnya</button>
       <button id="btnNextPage">Berikutnya ›</button>
@@ -264,7 +266,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.9 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.10 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6444,7 +6446,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.9 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.10 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -8307,6 +8309,8 @@ window.__GTHTML_V346__ = { parseLinkToken, hasLinkBody, validateOne, buildOutput
 window.__GTHTML_V347__ = { buildPreviewWrapper, previewGameHtml, previewStorageShim, validateOne, labelHasPipe, refreshUI, refreshAfterMutation, translateBatch, emitPlainRun, harloweWalk, buildOutput, verifyOutput, doBuild, scanFile, runTranslate, translateSegments, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V348__ (v3.4.8) */
 window.__GTHTML_V348__ = { copySelectedOriginals, updateCopyButton, qaSegment, untranslatedList, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3410__ (v3.4.10) */
+window.__GTHTML_V3410__ = { retranslateSelected, updateRetranslateButton, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8626,7 +8630,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.9\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.10\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8835,6 +8839,102 @@ function updateCopyButton() {
   const b = $('btnCopyOrig');
   if (b) b.disabled = S.selected.size === 0;
 }
+/* (v3.4.10) Tombol Terjemahan custom hanya aktif bila ada yang diceklis. */
+function updateRetranslateButton() {
+  const b = $('btnRetranslate');
+  if (b) b.disabled = S.selected.size === 0;
+}
+/* (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan (ide
+   Ilham): hanya segmen yang diceklis DAN sudah punya terjemahan bagus
+   yang diterjemahkan ulang, memakai rantai mesin yang dicentang di
+   "Mesin yang dipakai" — bukan hardcode custom. Aturan simpan: sukses +
+   lolos validasi -> ganti dengan terjemahan baru (via mesin yang
+   mengembalikan hasil); gagal / tidak lolos validasi -> terjemahan lama
+   dibiarkan apa adanya (tidak dikosongkan, tidak ditandai gagal). */
+async function retranslateSelected() {
+  if (!S.fileName) { log('Upload file dulu.', 'w'); return { replaced: 0, kept: 0 }; }
+  if (S.running) return { replaced: 0, kept: 0 };
+  // (v3.4.4) Semua mesin tidak dicentang — beri peringatan, jangan mulai run.
+  if (allEnginesOff()) { log('Semua mesin tidak dicentang — centang minimal satu mesin di "Mesin yang dipakai" (Langkah 2) sebelum menerjemahkan ulang.', 'w'); return { replaced: 0, kept: 0 }; }
+  const queue = S.segments.filter((s) => {
+    if (!S.selected.has(s.id)) return false;
+    if (!s.translatable || s.skipped) return false;
+    const t = S.translations.get(s.id);
+    return !!(t && t.text && !t.failed);
+  });
+  if (!queue.length) { log('Tidak ada teks yang diceklis dan sudah diterjemahkan untuk diterjemahkan ulang.', 'w'); return { replaced: 0, kept: 0 }; }
+  S.running = true; S.cancelled = false;
+  $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
+  $('btnRetryFailed').disabled = true; $('btnStop').disabled = false;
+  const btnR = $('btnRetranslate'); if (btnR) btnR.disabled = true;
+  log('Mulai menerjemahkan ulang ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + ')');
+  let replaced = 0, kept = 0;
+  const keptSegs = [];
+  const BATCH = 10; // (v3.1) 10 teks/batch, sama seperti translateSegments
+  try {
+    resetCircuitBreaker();
+    let done = 0;
+    let bt0 = Date.now();
+    for (let i = 0; i < queue.length; i += BATCH) {
+      if (S.cancelled) { log('Terjemahan ulang dihentikan oleh pengguna.', 'w'); break; }
+      const chunk = queue.slice(i, i + BATCH);
+      const preps = chunk.map((seg) => prepareForTranslate(seg.text));
+      const results = await translateBatch(preps.map((p) => p.send), SRC, TGT);
+      for (let j = 0; j < chunk.length; j++) {
+        const seg = chunk[j];
+        const r = results[j];
+        if (r) {
+          const clean = restoreTranslated(r.text, preps[j], seg.text);
+          const bad = validateOne(clean, seg.text, seg);
+          if (bad) { kept++; keptSegs.push(seg); /* tidak lolos validasi: terjemahan lama dibiarkan */ }
+          else { S.translations.set(seg.id, { text: clean, via: r.via }); replaced++; }
+        } else { kept++; keptSegs.push(seg); /* mesin gagal: terjemahan lama dibiarkan */ }
+      }
+      done += chunk.length;
+      const bms = Date.now() - bt0 + (i + BATCH < queue.length ? 1200 : 0);
+      S.stats.totalMs += bms;
+      if (!Array.isArray(S.stats.recent)) S.stats.recent = [];
+      S.stats.recent.push({ ms: bms, n: chunk.length });
+      if (S.stats.recent.length > 10) S.stats.recent.shift();
+      S.stats.doneCount = done;
+      updateStats(); renderList();
+      // (v3.4.7) Simpan proyek penuh hanya tiap batch ke-10 + batch akhir.
+      if ((i / BATCH + 1) % 10 === 0 || i + BATCH >= queue.length) saveProject();
+      $('transStatus').textContent = 'Menerjemahkan ulang ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
+      $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
+      if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
+      bt0 = Date.now();
+    }
+    /* Penyelamatan Chrome (pola translateSegments): bila Translator Chrome
+       dicentang, coba selamatkan yang belum terganti — sukses + lolos
+       validasi baru diganti, sisanya tetap memakai terjemahan lama. */
+    if (keptSegs.length && !S.cancelled && engineEnabled('chrome')) {
+      setEngine('Chrome');
+      const bPreps = keptSegs.map((seg) => prepareForTranslate(seg.text));
+      const bOut = await builtinBatch(bPreps.map((p) => p.send), SRC, TGT);
+      if (bOut) {
+        let rescued = 0;
+        for (let j = 0; j < keptSegs.length; j++) {
+          const seg = keptSegs[j];
+          const clean = restoreTranslated(bOut[j], bPreps[j], seg.text);
+          if (!validateOne(clean, seg.text, seg)) { S.translations.set(seg.id, { text: clean, via: 'Chrome' }); rescued++; replaced++; kept--; }
+        }
+        if (rescued) { log('Translator Chrome menyelamatkan ' + rescued + ' dari ' + keptSegs.length + ' teks yang gagal diterjemahkan ulang.'); updateStats(); renderList(); saveProject(); }
+      } else {
+        log('Translator bawaan Chrome tidak bisa dipakai di browser ini — ' + keptSegs.length + ' teks tetap memakai terjemahan lama.', 'w');
+      }
+    }
+    log('Terjemah ulang: ' + replaced + ' diganti, ' + kept + ' dipertahankan.');
+  } finally {
+    S.running = false;
+    $('btnTranslateAll').disabled = false; $('btnTranslateSel').disabled = false;
+    $('btnRetryFailed').disabled = false; $('btnStop').disabled = true;
+    $('transStatus').textContent = '';
+    updateRetranslateButton();
+    refreshAfterMutation();
+  }
+  return { replaced, kept };
+}
 function renderList() {
   const body = $('listBody');
   const keepScroll = body.scrollTop; // (v3.4.1) daftar di-scroll di kotaknya sendiri — render ulang jangan lompat ke atas
@@ -8857,7 +8957,7 @@ function renderList() {
     body.innerHTML = q ? '<p class="mut">Tidak ada yang cocok dengan “' + esc(q) + '”. Hapus pencarian untuk melihat semua teks.</p>'
       : onlyUntr ? '<p class="mut">Semua teks sudah diterjemahkan.</p>'
       : '<p class="mut">Belum ada teks. Upload file dulu.</p>';
-    body.scrollTop = keepScroll; updateCopyButton(); return;
+    body.scrollTop = keepScroll; updateCopyButton(); updateRetranslateButton(); return;
   }
   const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
   const html = [];
@@ -8890,6 +8990,7 @@ function renderList() {
     cb.addEventListener('change', () => {
       if (cb.checked) S.selected.add(cb.dataset.id); else S.selected.delete(cb.dataset.id);
       updateCopyButton(); // (v3.4.8) ceklis per baris tidak me-render ulang
+      updateRetranslateButton(); // (v3.4.10) tombol Terjemahan custom ikut ceklis
     });
   });
   body.querySelectorAll('.tr-one').forEach((b) => {
@@ -8914,6 +9015,7 @@ function renderList() {
   });
   $('chkAll').checked = slice.length > 0 && slice.every((s) => S.selected.has(s.id));
   updateCopyButton(); // (v3.4.8) tombol salin aktif hanya bila ada yang diceklis
+  updateRetranslateButton(); // (v3.4.10) tombol Terjemahan custom aktif hanya bila ada yang diceklis
 }
 /* Status ceklis utama "Pilih semua" (v3.1): checked bila semua passage
    dilewati, indeterminate bila sebagian, nonaktif bila belum ada file. */
@@ -9454,6 +9556,8 @@ function init() {
   });
   // (v3.4.8) Salin teks asli yang diceklis ke kolom terjemahan.
   $('btnCopyOrig').addEventListener('click', () => { copySelectedOriginals(); });
+  // (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan.
+  $('btnRetranslate').addEventListener('click', () => { retranslateSelected(); });
   // v3.1: ceklis utama skip-passage — centang semua / hapus semua.
   $('skipAll').addEventListener('change', () => {
     const all = $('skipAll').checked;

@@ -26,7 +26,7 @@ const V343 = w.__GTHTML_V343__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.3 tersedia', !!V343 && typeof V343.parseLinkToken === 'function' && typeof V343.hasLinkBody === 'function' && typeof V343.doBuild === 'function');
-check('A0 label versi v3.4.9', html.includes('Game Translate HTML v3.4.9') && !html.includes('Game Translate HTML v3.4.8'));
+check('A0 label versi v3.4.10', html.includes('Game Translate HTML v3.4.10') && !html.includes('Game Translate HTML v3.4.9'));
 
 function setupState(fix) {
   w.eval('S.fileName = "test.html"; S.originalText = ' + JSON.stringify(fix) + '; S.translations = new Map(); S.tm = new Map(); S.glossary = []; S.skipPassages = new Set(); S.outputText = ""; S.page = 0; S.selected = new Set(); S.stats = { totalMs: 0, doneCount: 0, recent: [] }; S.translateNames = false; S.includeScript = false; S.origDownloaded = false; S.needsReupload = false;');

@@ -26,7 +26,7 @@ const $ = (id) => w.document.getElementById(id);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 check('A0 hook v3.4.5 tersedia', !!V345 && typeof V345.filteredSegs === 'function' && typeof V345.listFilterMatches === 'function' && typeof V345.untranslatedList === 'function' && typeof V345.renderList === 'function');
-check('A0 label versi v3.4.9', html.includes('Game Translate HTML v3.4.9') && !html.includes('Game Translate HTML v3.4.8'));
+check('A0 label versi v3.4.10', html.includes('Game Translate HTML v3.4.10') && !html.includes('Game Translate HTML v3.4.9'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
   + '<tw-storydata name="T" startnode="1" creator="Twine" creator-version="2.3.0" ifid="X" zoom="1" format="SugarCube" format-version="2.37.3" options="" hidden>\n'
