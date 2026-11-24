@@ -52,7 +52,7 @@ async function main() {
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.12 tersedia', !!V3412 && typeof V3412.updateSelCount === 'function', 'hook: ' + typeof V3412);
   check('A0 hook v3.4.12 mengekspos clearSelection', !!V3412 && typeof V3412.clearSelection === 'function', 'hook: ' + typeof V3412);
-  check('A0 label versi v3.4.17', html.includes('Game Translate HTML v3.4.17') && !html.includes('Game Translate HTML v3.4.13'));
+  check('A0 label versi v3.4.18', html.includes('Game Translate HTML v3.4.18') && !html.includes('Game Translate HTML v3.4.13'));
   check('A0 Cara pakai menyebut v3.4.12', html.includes('(v3.4.12)'));
   if (!V3412 || typeof V3412.updateSelCount !== 'function') { console.log('\nV3412_SELECTION: updateSelCount belum diekspos di hook v3.4.12 — RED'); process.exit(1); }
 

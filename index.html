@@ -132,6 +132,7 @@ body.simple .adv{display:none!important}
       <li><b>Jeda batch custom lebih panjang (v3.4.13):</b> bila provider custom dicentang, jeda antar batch menjadi 2,5 detik (dari 1,2 detik) supaya tidak menabrak batas ~30 permintaan/menit Groq gratis. Bila server membalas 429 dengan header Retry-After, aplikasi menunggu selama yang diminta server (maksimal 60 detik).</li>
       <li><b>reasoning_effort low untuk gpt-oss (v3.4.16):</b> bila model custom mengandung 'gpt-oss', aplikasi mengirim reasoning_effort 'low' supaya token penalaran (yang ikut dihitung dalam jatah token per menit Groq) dipangkas; model lain tidak dikirimi field ini.</li>
       <li><b>Parser custom tahan penalaran (v3.4.17):</b> model thinking (Qwen3, gpt-oss) kadang menaruh penalaran ber-kurung-siku sebelum array jawaban, sehingga jawaban tidak terbaca ("format balasan tidak dikenal"). Parser kini membuang blok <code>&lt;think&gt;...&lt;/think&gt;</code> dulu, lalu mencari array JSON valid yang terakhir (jawaban selalu di akhir balasan). Bila tetap gagal parse, potongan awal balasan mentah dicatat di Log supaya penyebabnya terlihat.</li>
+      <li><b>Pecah batch saat custom menolak (v3.4.18):</b> bila provider custom menolak satu batch ("format balasan tidak dikenal" — mis. model menolak isinya), batch itu dipecah jadi teks satuan dan tiap teks dicoba lewat rantai mesin penuh, supaya hanya teks yang benar-benar ditolak yang tertinggal. 429, kunci ditolak, dan gangguan jaringan tidak memecah batch.</li>
       <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
@@ -273,7 +274,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.17 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.18 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6453,7 +6454,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.17 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.18 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -7880,7 +7881,16 @@ function batchDelayMs() {
   const customWillRun = engineEnabled('custom') && customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model;
   return customWillRun ? 2500 : 1200;
 }
-async function translateBatch(texts, src, tgt) {
+/* (v3.4.18) Penolakan model bersifat per batch: satu teks yang ditolak
+   membuat seluruh batch gagal format ("I'm sorry, but I can't help with
+   that." — log Ilham 19:08, gpt-oss-120b). Pemicu pecah HANYA error format
+   custom ini — bukan 429, 401/403, atau network error. */
+function isCustomFormatError(e) { return !!e && e.message === 'Custom: format balasan tidak dikenal'; }
+const SPLIT_DELAY_MS = 400; // (v3.4.18) jeda antar percobaan satuan di dalam pecahan (300–500 ms, < 1000 ms)
+async function translateBatch(texts, src, tgt, opts) {
+  // (v3.4.18) Percobaan satuan di dalam pecahan (inSplit) tidak menyentuh
+  // pemutus sirkuit sama sekali: penolakan satuan bukan bukti mesin mati.
+  const inSplit = !!(opts && opts.inSplit);
   const n = texts.length;
   const mapOk = (r, via) => r.map((x) => (x ? { text: x, via } : null));
   for (const step of ENGINE_CHAIN) {
@@ -7890,16 +7900,39 @@ async function translateBatch(texts, src, tgt) {
     try {
       const r = await tryWithRetry(() => step.fn(texts, src, tgt), step.retries, step.delay);
       if (step.marker) {
-        if (r && r.some((x) => x)) { noteEngineOk('google'); return mapOk(r, 'Google'); }
+        if (r && r.some((x) => x)) { if (!inSplit) noteEngineOk('google'); return mapOk(r, 'Google'); }
         log('Google mengembalikan kosong semua — coba mode marker.', 'w');
         try {
           const r2 = await googleBatchMarkers(texts, src, tgt);
-          if (r2 && r2.some((x) => x)) { noteEngineOk('google'); return mapOk(r2, 'Google'); }
+          if (r2 && r2.some((x) => x)) { if (!inSplit) noteEngineOk('google'); return mapOk(r2, 'Google'); }
           log('Google marker mengembalikan kosong semua.', 'w');
         } catch (e2) { log('Google marker gagal: ' + e2.message, 'w'); }
-        noteEngineFail('google');
-      } else if (r) { noteEngineOk(step.key); return mapOk(r, step.label); }
-    } catch (e) { log(step.failLog(e), 'w'); noteEngineFail(step.key, e); }
+        if (!inSplit) noteEngineFail('google');
+      } else if (r) { if (!inSplit) noteEngineOk(step.key); return mapOk(r, step.label); }
+    } catch (e) {
+      // (v3.4.18) Custom menolak batch (format tidak dikenal — mis. model
+      // menolak isinya: "I'm sorry, but I can't help with that.") -> pecah
+      // batch jadi teks satuan dan jalankan tiap teks lewat rantai mesin
+      // penuh, supaya hanya teks yang benar-benar ditolak yang tertinggal.
+      // Satu batch = satu kegagalan untuk pemutus sirkuit (dicatat sekali
+      // di sini). Pemicu pecah HANYA error format: 429 / 401 / 403 /
+      // network error tetap memakai perilaku lama (jatuh ke mesin
+      // berikutnya tanpa pecah). Satuan yang gagal format tidak dipecah
+      // lagi (inSplit) — langsung jatuh ke mesin berikutnya.
+      if (step.key === 'custom' && !inSplit && texts.length > 1 && isCustomFormatError(e)) {
+        log('Custom menolak batch (format tidak dikenal) — pecah jadi ' + texts.length + ' teks satuan.', 'w');
+        noteEngineFail('custom', e);
+        const out = [];
+        for (let i = 0; i < texts.length; i++) {
+          if (i > 0) await retrySleep(SPLIT_DELAY_MS);
+          const one = await translateBatch([texts[i]], src, tgt, { inSplit: true });
+          out.push(one[0]);
+        }
+        return out;
+      }
+      log(step.failLog(e), 'w');
+      if (!inSplit) noteEngineFail(step.key, e);
+    }
   }
   // (v3.4.4) MyMemory yang tidak dicentang dilewati — kembalikan null
   // semua (teks jadi gagal, bisa diselamatkan Translator Chrome bila aktif).
@@ -8705,7 +8738,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.17\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.18\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
