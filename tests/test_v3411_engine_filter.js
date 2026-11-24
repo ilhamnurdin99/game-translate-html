@@ -40,7 +40,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.11 tersedia', !!V3411 && typeof V3411.filteredSegs === 'function' && typeof V3411.listFilterMatches === 'function', 'hook: ' + typeof V3411);
-  check('A0 label versi v3.4.11', html.includes('Game Translate HTML v3.4.11') && !html.includes('Game Translate HTML v3.4.10'));
+  check('A0 label versi v3.4.12', html.includes('Game Translate HTML v3.4.12') && !html.includes('Game Translate HTML v3.4.11'));
   check('A0 Cara pakai menyebut v3.4.11', html.includes('Filter mesin di Daftar Teks (v3.4.11)'));
   if (!V3411 || typeof V3411.filteredSegs !== 'function') { console.log('\nV3411_ENGINE_FILTER: filteredSegs belum diekspos di hook v3.4.11 — RED'); process.exit(1); }
 

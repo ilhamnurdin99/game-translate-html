@@ -129,6 +129,7 @@ body.simple .adv{display:none!important}
       <li><b>Ceklis dibersihkan setelah salin (v3.4.9):</b> setelah klik <b>Salin teks asli ke terjemahan</b>, ceklis di Daftar Teks dibersihkan supaya tidak nempel ke pilihan sebelumnya.</li>
       <li><b>Terjemahan custom (v3.4.10):</b> di Daftar Teks, ceklis baris yang sudah diterjemahkan lalu klik <b>Terjemahan custom</b> — baris itu diterjemahkan ulang memakai mesin yang dicentang di "Mesin yang dipakai". Kalau mesin gagal atau hasilnya tidak lolos validasi, terjemahan lama dibiarkan apa adanya.</li>
       <li><b>Filter mesin di Daftar Teks (v3.4.11):</b> dropdown di samping kotak pencarian Daftar Teks kini berisi mesin (Custom, Google, Google Dict, Edge, MyMemory, Chrome) dan sumber lain (TM, salin) — pilih satu untuk menampilkan hanya baris yang diterjemahkan mesin/sumber itu, walau kotak pencarian kosong. Bila kata pencarian juga diketik, keduanya digabung.</li>
+      <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
   </section>
@@ -199,6 +200,8 @@ body.simple .adv{display:none!important}
       <label class="inline"><input type="checkbox" id="chkAll"> Pilih semua di halaman</label>
       <button id="btnCopyOrig" disabled>Salin teks asli ke terjemahan</button>
       <button id="btnRetranslate" disabled>Terjemahan custom</button>
+      <button id="btnClearSel" disabled>Hapus pilihan</button>
+      <span class="mut" id="selCount"></span>
       <span class="mut" id="pageInfo"></span>
       <button id="btnPrevPage">‹ Sebelumnya</button>
       <button id="btnNextPage">Berikutnya ›</button>
@@ -267,7 +270,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.11 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.12 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6447,7 +6450,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.11 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.12 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -8314,6 +8317,8 @@ window.__GTHTML_V348__ = { copySelectedOriginals, updateCopyButton, qaSegment, u
 window.__GTHTML_V3410__ = { retranslateSelected, updateRetranslateButton, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3411__ (v3.4.11) */
 window.__GTHTML_V3411__ = { filteredSegs, listFilterMatches, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3412__ (v3.4.12) */
+window.__GTHTML_V3412__ = { updateSelCount, clearSelection, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8633,7 +8638,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.11\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.12\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8851,15 +8856,35 @@ function copySelectedOriginals() {
   refreshAfterMutation();
   return n;
 }
+/* (v3.4.12) Jumlah pilihan terlihat — ceklis di S.selected berlaku
+   global (semua halaman + filter pencarian), bukan cuma halaman yang
+   terlihat. Tanpa angka ini pengguna mengira tidak ada yang dipilih
+   padahal pilihan di halaman/filter lain masih tersimpan, lalu tombol
+   Terjemahan custom tetap jalan. */
+function updateSelCount() {
+  const el = $('selCount');
+  if (el) el.textContent = S.selected.size ? S.selected.size + ' teks dipilih' : '';
+  const cb = $('btnClearSel');
+  if (cb) cb.disabled = S.selected.size === 0;
+}
+/* (v3.4.12) Hapus semua pilihan di semua halaman sekaligus — tanpa ini
+   pilihan di halaman lain hanya bisa dihilangkan satu halaman demi satu
+   halaman. */
+function clearSelection() {
+  S.selected.clear();
+  renderList();
+}
 /* (v3.4.8) Tombol salin hanya aktif bila ada yang diceklis. */
 function updateCopyButton() {
   const b = $('btnCopyOrig');
   if (b) b.disabled = S.selected.size === 0;
+  updateSelCount(); // (v3.4.12) jumlah pilihan ikut ceklis
 }
 /* (v3.4.10) Tombol Terjemahan custom hanya aktif bila ada yang diceklis. */
 function updateRetranslateButton() {
   const b = $('btnRetranslate');
   if (b) b.disabled = S.selected.size === 0;
+  updateSelCount(); // (v3.4.12) jumlah pilihan ikut ceklis
 }
 /* (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan (ide
    Ilham): hanya segmen yang diceklis DAN sudah punya terjemahan bagus
@@ -8944,6 +8969,11 @@ async function retranslateSelected() {
     log('Terjemah ulang: ' + replaced + ' diganti, ' + kept + ' dipertahankan.');
   } finally {
     S.running = false;
+    // (v3.4.12) Ceklis dibersihkan setelah terjemah ulang selesai — seperti
+    // salin di v3.4.9 — supaya klik berikutnya tidak mengulang teks yang
+    // sama. Bila dibatalkan (Berhenti), pilihan dipertahankan agar sisa
+    // antrean masih bisa diulang.
+    if (!S.cancelled) S.selected.clear();
     $('btnTranslateAll').disabled = false; $('btnTranslateSel').disabled = false;
     $('btnRetryFailed').disabled = false; $('btnStop').disabled = true;
     $('transStatus').textContent = '';
@@ -9577,6 +9607,8 @@ function init() {
   $('btnCopyOrig').addEventListener('click', () => { copySelectedOriginals(); });
   // (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan.
   $('btnRetranslate').addEventListener('click', () => { retranslateSelected(); });
+  // (v3.4.12) Hapus semua pilihan di semua halaman sekaligus.
+  $('btnClearSel').addEventListener('click', () => { clearSelection(); });
   // v3.1: ceklis utama skip-passage — centang semua / hapus semua.
   $('skipAll').addEventListener('change', () => {
     const all = $('skipAll').checked;

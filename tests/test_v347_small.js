@@ -16,7 +16,7 @@ async function waitFor(fn, tries = 60) {
   return false;
 }
 async function main() {
-  check('A0 label versi v3.4.11', html.includes('Game Translate HTML v3.4.11') && !html.includes('Game Translate HTML v3.4.10'));
+  check('A0 label versi v3.4.12', html.includes('Game Translate HTML v3.4.12') && !html.includes('Game Translate HTML v3.4.11'));
 
   /* ---------- F10: hapus simpanan menunggu idbDelete ---------- */
   // Seed proyek tersimpan di localStorage SEBELUM init jalan, supaya

@@ -41,7 +41,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.8 tersedia', !!V348 && typeof V348.copySelectedOriginals === 'function' && typeof V348.qaSegment === 'function' && typeof V348.untranslatedList === 'function', 'hook: ' + typeof V348);
-  check('A0 label versi v3.4.11', html.includes('Game Translate HTML v3.4.11') && !html.includes('Game Translate HTML v3.4.10'));
+  check('A0 label versi v3.4.12', html.includes('Game Translate HTML v3.4.12') && !html.includes('Game Translate HTML v3.4.11'));
   check('A0 Cara pakai menyebut v3.4.8', html.includes('Salin teks asli ke terjemahan (v3.4.8)'));
   if (!V348 || typeof V348.copySelectedOriginals !== 'function') { console.log('\nV348_COPY: copySelectedOriginals belum diekspos di hook v3.4.8 — RED'); process.exit(1); }
 
