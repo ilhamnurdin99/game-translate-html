@@ -129,6 +129,7 @@ body.simple .adv{display:none!important}
       <li><b>Ceklis dibersihkan setelah salin (v3.4.9):</b> setelah klik <b>Salin teks asli ke terjemahan</b>, ceklis di Daftar Teks dibersihkan supaya tidak nempel ke pilihan sebelumnya.</li>
       <li><b>Terjemahan custom (v3.4.10):</b> di Daftar Teks, ceklis baris yang sudah diterjemahkan lalu klik <b>Terjemahan custom</b> — baris itu diterjemahkan ulang memakai mesin yang dicentang di "Mesin yang dipakai". Kalau mesin gagal atau hasilnya tidak lolos validasi, terjemahan lama dibiarkan apa adanya.</li>
       <li><b>Filter mesin di Daftar Teks (v3.4.11):</b> dropdown di samping kotak pencarian Daftar Teks kini berisi mesin (Custom, Google, Google Dict, Edge, MyMemory, Chrome) dan sumber lain (TM, salin) — pilih satu untuk menampilkan hanya baris yang diterjemahkan mesin/sumber itu, walau kotak pencarian kosong. Bila kata pencarian juga diketik, keduanya digabung.</li>
+      <li><b>Jeda batch custom lebih panjang (v3.4.13):</b> bila provider custom dicentang, jeda antar batch menjadi 2,5 detik (dari 1,2 detik) supaya tidak menabrak batas ~30 permintaan/menit Groq gratis. Bila server membalas 429 dengan header Retry-After, aplikasi menunggu selama yang diminta server (maksimal 60 detik).</li>
       <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
@@ -270,7 +271,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.12 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.13 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6450,7 +6451,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.12 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.13 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -7557,8 +7558,17 @@ function parseGoogleResponse(data, n) {
    dengan kode di pesan, seperti sebelumnya. */
 function fetchOk(res, label, withStatus) {
   if (res.ok) return res;
-  if (withStatus) { const e = new Error(label + ' HTTP ' + res.status); e.status = res.status; throw e; }
-  throw new Error(label + ' HTTP ' + res.status);
+  const e = new Error(label + ' HTTP ' + res.status);
+  e.status = res.status;
+  // (v3.4.13) Tempelkan Retry-After (bila ada) supaya tryWithRetry bisa
+  // menunggu selama yang diminta server. Akses header dijaga: mock tes
+  // tidak punya headers, dan nilai yang tidak valid diabaikan.
+  try {
+    const h = res.headers && typeof res.headers.get === 'function' ? res.headers.get('retry-after') : null;
+    const n = h == null ? NaN : parseInt(String(h).trim(), 10);
+    if (!Number.isNaN(n) && n >= 0) e.retryAfterMs = n * 1000;
+  } catch (err) { /* abaikan */ }
+  throw e;
 }
 async function googleBatch(texts, src, tgt) {
   const params = new URLSearchParams();
@@ -7776,7 +7786,12 @@ async function tryWithRetry(fn, attempts, baseMs) {
     catch (e) {
       lastErr = e;
       if (!isRetryable(e) || a === attempts - 1) break;
-      await retrySleep(baseMs * (a + 1));
+      // (v3.4.13) Hormati Retry-After pada 429: tunggu selama yang diminta
+      // server (dibatasi 60 detik), bukan backoff biasa. Error retryable
+      // lain tetap memakai backoff lama.
+      const is429 = e && (e.status === 429 || /HTTP 429/.test(e.message || ''));
+      if (is429 && typeof e.retryAfterMs === 'number') await retrySleep(Math.min(e.retryAfterMs, 60000));
+      else await retrySleep(baseMs * (a + 1));
     }
   }
   throw lastErr;
@@ -7819,6 +7834,16 @@ const ENGINE_CHAIN = [
   { key: 'edge', label: 'Edge', retries: 2, delay: 1200, fn: edgeBatch,
     failLog: (e) => 'Edge gagal: ' + e.message },
 ];
+/* (v3.4.13) Jeda antar batch: 2500 ms bila custom akan dipakai pada run
+   ini (dicentang di "Mesin yang dipakai" DAN guard konfigurasinya lolos —
+   sama seperti guard ENGINE_CHAIN custom), karena tiap batch mencoba custom
+   dulu sehingga tiap batch menyentuh Groq (~30/menit gratis). Selain itu
+   1200 ms seperti sebelumnya. Dipakai untuk jeda antar batch DAN akuntansi
+   bms di translateSegments + retranslateSelected. */
+function batchDelayMs() {
+  const customWillRun = engineEnabled('custom') && customCfg.enabled && customCfg.apiKey && customCfg.baseUrl && customCfg.model;
+  return customWillRun ? 2500 : 1200;
+}
 async function translateBatch(texts, src, tgt) {
   const n = texts.length;
   const mapOk = (r, via) => r.map((x) => (x ? { text: x, via } : null));
@@ -7954,7 +7979,7 @@ async function translateSegments(queue) {
     done += chunk.length;
     /* (v3.4.1) Catat durasi batch ini (waktu terjemah + jeda antar batch)
        untuk ETA: hanya kecepatan batch terakhir yang dipakai. */
-    const bms = Date.now() - bt0 + (i + BATCH < queue.length ? 1200 : 0);
+    const bms = Date.now() - bt0 + (i + BATCH < queue.length ? batchDelayMs() : 0);
     S.stats.totalMs += bms;
     if (!Array.isArray(S.stats.recent)) S.stats.recent = [];
     S.stats.recent.push({ ms: bms, n: chunk.length });
@@ -7970,7 +7995,7 @@ async function translateSegments(queue) {
     if ((i / BATCH + 1) % 10 === 0 || i + BATCH >= queue.length) saveProject();
     $('transStatus').textContent = 'Menerjemahkan ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
     $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
-    if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
+    if (i + BATCH < queue.length) await sleep(batchDelayMs()); // jeda antar batch (anti-429)
     bt0 = Date.now();
   }
   /* v3.1: sisa yang gagal di semua mesin online -> Translator bawaan Chrome
@@ -8319,6 +8344,8 @@ window.__GTHTML_V3410__ = { retranslateSelected, updateRetranslateButton, state:
 window.__GTHTML_V3411__ = { filteredSegs, listFilterMatches, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3412__ (v3.4.12) */
 window.__GTHTML_V3412__ = { updateSelCount, clearSelection, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3413__ (v3.4.13) */
+window.__GTHTML_V3413__ = { batchDelayMs, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8638,7 +8665,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.12\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.13\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8933,7 +8960,7 @@ async function retranslateSelected() {
         } else { kept++; keptSegs.push(seg); /* mesin gagal: terjemahan lama dibiarkan */ }
       }
       done += chunk.length;
-      const bms = Date.now() - bt0 + (i + BATCH < queue.length ? 1200 : 0);
+      const bms = Date.now() - bt0 + (i + BATCH < queue.length ? batchDelayMs() : 0);
       S.stats.totalMs += bms;
       if (!Array.isArray(S.stats.recent)) S.stats.recent = [];
       S.stats.recent.push({ ms: bms, n: chunk.length });
@@ -8944,7 +8971,7 @@ async function retranslateSelected() {
       if ((i / BATCH + 1) % 10 === 0 || i + BATCH >= queue.length) saveProject();
       $('transStatus').textContent = 'Menerjemahkan ulang ' + Math.min(done, queue.length) + '/' + queue.length + (curEngine ? ' (mesin: ' + curEngine + ')' : '') + '…';
       $('transBar').style.width = Math.round((done / queue.length) * 100) + '%';
-      if (i + BATCH < queue.length) await sleep(1200); // jeda antar batch (anti-429)
+      if (i + BATCH < queue.length) await sleep(batchDelayMs()); // jeda antar batch (anti-429)
       bt0 = Date.now();
     }
     /* Penyelamatan Chrome (pola translateSegments): bila Translator Chrome

@@ -42,7 +42,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.10 tersedia', !!V3410 && typeof V3410.retranslateSelected === 'function', 'hook: ' + typeof V3410);
-  check('A0 label versi v3.4.12', html.includes('Game Translate HTML v3.4.12') && !html.includes('Game Translate HTML v3.4.11'));
+  check('A0 label versi v3.4.13', html.includes('Game Translate HTML v3.4.13') && !html.includes('Game Translate HTML v3.4.12'));
   check('A0 Cara pakai menyebut v3.4.10', html.includes('Terjemahan custom (v3.4.10)'));
   if (!V3410 || typeof V3410.retranslateSelected !== 'function') { console.log('\nV3410_RETRANSLATE: retranslateSelected belum diekspos di hook v3.4.10 — RED'); process.exit(1); }
 
