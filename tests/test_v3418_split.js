@@ -46,7 +46,7 @@ async function main() {
   const V344 = w.__GTHTML_V344__;
 
   /* ---------- A0: label versi ---------- */
-  check('A0 label versi v3.4.19', html.includes('Game Translate HTML v3.4.19') && !html.includes('Game Translate HTML v3.4.17'));
+  check('A0 label versi v3.4.20', html.includes('Game Translate HTML v3.4.20') && !html.includes('Game Translate HTML v3.4.17'));
   check('A0 Cara pakai menyebut v3.4.18', html.includes('(v3.4.18)'));
 
   /* ---------- mock fetch ---------- */
@@ -164,8 +164,11 @@ async function main() {
     Array.isArray(out7a) && out7a[0] && out7a[0].via === 'Custom' &&
     out7a[1] && out7a[1].via === 'Google Dict' &&
     out7a[2] && out7a[2].via === 'Custom', JSON.stringify(out7a));
+  /* (v3.4.20) Harapan berubah: satuan A1/A3 yang selamat via Custom kini
+     mereset streak (noteEngineOk tanpa penjaga !inSplit), jadi streak
+     kembali 0 — dulu 1 karena keberhasilan satuan tidak dihitung. */
   check('D7 pemutus sirkuit: custom TIDAK dimatikan oleh penolakan satuan',
-    V31.circuitBreaker.custom.down === false && V31.circuitBreaker.custom.streak === 1,
+    V31.circuitBreaker.custom.down === false && V31.circuitBreaker.custom.streak === 0,
     'down=' + V31.circuitBreaker.custom.down + ' streak=' + V31.circuitBreaker.custom.streak);
   customBehavior = (texts) => translateAll(texts);
   const out7b = await V31.translateBatch(['Teks B1.', 'Teks B2.'], 'en', 'id');

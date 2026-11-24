@@ -44,8 +44,8 @@ async function main() {
   const V344 = w.__GTHTML_V344__;
 
   /* ---------- A0: label versi ---------- */
-  check('A0 label versi v3.4.19', html.includes('Game Translate HTML v3.4.19') && !html.includes('Game Translate HTML v3.4.18'));
-  check('A0 Cara pakai menyebut v3.4.19', html.includes('(v3.4.19)'));
+  check('A0 label versi v3.4.20', html.includes('Game Translate HTML v3.4.20') && !html.includes('Game Translate HTML v3.4.18'));
+  check('A0 Cara pakai menyebut v3.4.20', html.includes('(v3.4.20)'));
 
   /* ---------- mock fetch ---------- */
   const okRes = (data) => ({ ok: true, status: 200, json: async () => data });

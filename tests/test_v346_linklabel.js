@@ -39,7 +39,7 @@ const $ = (id) => w.document.getElementById(id);
 const fireChange = (el) => el.dispatchEvent(new w.Event('change', { bubbles: true }));
 
 check('A0 hook v3.4.6 tersedia', !!V346 && typeof V346.buildOutput === 'function' && typeof V346.verifyOutput === 'function' && typeof V346.doBuild === 'function' && typeof V346.validateOne === 'function' && typeof V346.readLinkLabelsDefault === 'function' && typeof V346.scanFile === 'function');
-check('A0 label versi v3.4.19', html.includes('Game Translate HTML v3.4.19') && !html.includes('Game Translate HTML v3.4.13'));
+check('A0 label versi v3.4.20', html.includes('Game Translate HTML v3.4.20') && !html.includes('Game Translate HTML v3.4.13'));
 check('A0 Cara pakai menyebut v3.4.6', html.includes('Label tautan satu argumen (v3.4.6)'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
