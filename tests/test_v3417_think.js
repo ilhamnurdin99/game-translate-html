@@ -44,7 +44,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.17 tersedia', !!V3417 && typeof V3417.parseCustomResponse === 'function', 'hook: ' + typeof V3417);
-  check('A0 label versi v3.4.20', html.includes('Game Translate HTML v3.4.20') && !html.includes('Game Translate HTML v3.4.16'));
+  check('A0 label versi v3.4.21', html.includes('Game Translate HTML v3.4.21') && !html.includes('Game Translate HTML v3.4.20'));
   check('A0 Cara pakai menyebut v3.4.17', html.includes('(v3.4.17)'));
   if (!V3417 || typeof V3417.parseCustomResponse !== 'function') { console.log('\nV3417_THINK: parseCustomResponse belum diekspos di hook v3.4.17 — RED'); process.exit(1); }
 
@@ -103,7 +103,9 @@ async function main() {
   setCustomOnly();
   customContent = null;
   await V31.translateBatch(['Teks 1.'], 'en', 'id');
-  check('D4 konten bukan string -> log mencatat tipenya', logText().includes('bukan string') && logText().includes('object'), logText().slice(-300));
+  // (v3.4.21) Baris log lama 'isi balasan bukan string (...)' SENGAJA
+  // diganti baris diagnostik 'balasan tanpa content (...)' — cek diubah.
+  check('D4 konten bukan string -> log diagnostik mencatat tipenya', logText().includes('balasan tanpa content') && logText().includes('(object)'), logText().slice(-300));
 
   console.log('\nV3417_THINK: ' + pass + ' PASS, ' + fail + ' FAIL');
   process.exit(fail ? 1 : 0);

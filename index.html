@@ -135,6 +135,7 @@ body.simple .adv{display:none!important}
       <li><b>Pecah batch saat custom menolak (v3.4.18):</b> bila provider custom menolak satu batch ("format balasan tidak dikenal" — mis. model menolak isinya), batch itu dipecah jadi teks satuan dan tiap teks dicoba lewat rantai mesin penuh, supaya hanya teks yang benar-benar ditolak yang tertinggal. 429, kunci ditolak, dan gangguan jaringan tidak memecah batch.</li>
       <li><b>Penolakan tidak mematikan custom di Terjemahan custom (v3.4.19):</b> bila provider custom menolak isi teks ("format balasan tidak dikenal"), penolakan itu tidak lagi dihitung sebagai kegagalan pemutus sirkuit saat memakai tombol <b>Terjemahan custom</b> — custom tetap dicoba di batch berikutnya. Pemutus untuk Custom HTTP 429 (3 kali beruntun) tetap dipertahankan persis seperti sebelumnya, begitu juga pemutus untuk gangguan jaringan dan error server.</li>
       <li><b>Keberhasilan teks satuan mereset pemutus sirkuit (v3.4.20):</b> bila satu teks berhasil diterjemahkan — termasuk teks satuan di dalam pecahan batch yang ditolak — streak pemutus sirkuit mesin itu kembali ke 0. Kegagalan satuan tetap tidak dihitung sebagai kegagalan pemutus.</li>
+      <li><b>Balasan custom kosong bisa didiagnosis &amp; reasoning_effort untuk Gemini (v3.4.21):</b> bila provider custom membalas tanpa isi teks (balasan kosong dari model Gemini), Log kini mencatat bentuk balasannya — kunci balasan, alasan selesai, dan awal penalaran — supaya penyebabnya terlihat. Model Gemini kini juga dikirimi reasoning_effort 'low' (seperti gpt-oss sejak v3.4.16) supaya berpikir sebentar saja; bila isi balasan kosong tapi penalarannya berisi array terjemahan yang valid, penalaran itu dipakai sebagai jawaban.</li>
       <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
@@ -276,7 +277,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.20 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.21 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6456,7 +6457,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.20 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.21 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -7666,9 +7667,16 @@ function parseCustomResponse(content, n) {
    ikut dihitung dalam jatah token per menit, jadi run 100 teks kena 429
    padahal hanya ~10 permintaan/menit. Kirim reasoning_effort 'low' supaya
    token berpikir dipangkas (menerjemahkan string game pendek tidak butuh
-   penalaran dalam). Hanya untuk model gpt-oss: parameter ini khusus
-   Groq/GPT-OSS dan field tak dikenal berisiko 400 di upstream lain. */
-function gptOssEffort(model) { return /gpt-oss/i.test(model || '') ? 'low' : null; }
+   penalaran dalam).
+   (v3.4.21) Diperluas ke Gemini: docs Google mengonfirmasi reasoning_effort
+   dipetakan ke thinking level/budget Gemini, dan semua model Gemini yang
+   tidak pensiun adalah model thinking — jadi pola /gemini/i aman. HANYA
+   untuk gpt-oss + gemini: field tak dikenal berisiko 400 di upstream lain
+   (keputusan Ilham 20:56), dan model non-reasoning tidak mendapat manfaat. */
+function reasoningEffort(model) {
+  const m = model || '';
+  return (/gpt-oss/i.test(m) || /gemini/i.test(m)) ? 'low' : null;
+}
 async function customBatch(texts, src, tgt) {
   if (!customCfg.enabled || !customCfg.apiKey || !customCfg.baseUrl || !customCfg.model) throw new Error('Provider custom belum lengkap');
   const srcName = LANG_NAMES[src] || src, tgtName = LANG_NAMES[tgt] || tgt;
@@ -7682,7 +7690,7 @@ async function customBatch(texts, src, tgt) {
       { role: 'user', content: JSON.stringify(texts) },
     ],
   };
-  const effort = gptOssEffort(customCfg.model);
+  const effort = reasoningEffort(customCfg.model);
   if (effort) payload.reasoning_effort = effort;
   const res = await fetch(customCfg.baseUrl.replace(/\/+$/, '') + '/chat/completions', {
     method: 'POST',
@@ -7691,14 +7699,31 @@ async function customBatch(texts, src, tgt) {
   });
   fetchOk(res, 'Custom');
   const data = await res.json();
-  const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-  const out = parseCustomResponse(content, texts.length);
+  const msg = data && data.choices && data.choices[0] && data.choices[0].message;
+  const content = msg && msg.content;
+  // (v3.4.21) Bila content kosong tapi reasoning_content ada (balasan model
+  // thinking yang hanya berisi penalaran), coba parse penalaran itu dengan
+  // validator yang sama — bila isinya prosa, parse gagal seperti biasa.
+  let out = parseCustomResponse(content, texts.length);
+  if (!out && typeof content !== 'string' && msg && typeof msg.reasoning_content === 'string') {
+    out = parseCustomResponse(msg.reasoning_content, texts.length);
+  }
   if (!out) {
     // (v3.4.17) Catat awal balasan mentah supaya kegagalan parse berikutnya
     // punya bukti, bukan kotak hitam. Isi balasan adalah teks model (bukan
     // kredensial) — aman dicatat; dibatasi 300 karakter.
     if (typeof content === 'string') log('Custom: balasan tidak dikenal — awal balasan: ' + content.slice(0, 300), 'w');
-    else log('Custom: balasan tidak dikenal — isi balasan bukan string (' + typeof content + ')', 'w');
+    else {
+      // (v3.4.21) Catat bentuk balasan supaya penyebab balasan kosong bisa
+      // ditentukan (safety filter? length? hanya-penalaran?) — isi balasan
+      // adalah teks model, bukan kredensial; dibatasi panjangnya.
+      const choice = data && data.choices && data.choices[0];
+      const keys = data ? (Object.keys(data).join(', ') || '-') : '-';
+      const msgKeys = msg ? (Object.keys(msg).join(', ') || '-') : '-';
+      const finish = (choice && choice.finish_reason) || '-';
+      const reasoning = (msg && typeof msg.reasoning_content === 'string') ? msg.reasoning_content.slice(0, 200) : '-';
+      log('Custom: balasan tanpa content (' + typeof content + ') — kunci: ' + keys + '; finish: ' + finish + '; message keys: ' + msgKeys + '; reasoning awal: ' + reasoning, 'w');
+    }
     throw new Error('Custom: format balasan tidak dikenal');
   }
   return out;
@@ -8434,7 +8459,7 @@ window.__GTHTML_V3412__ = { updateSelCount, clearSelection, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3413__ (v3.4.13) */
 window.__GTHTML_V3413__ = { batchDelayMs, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3416__ (v3.4.16) */
-window.__GTHTML_V3416__ = { gptOssEffort, state: S };
+window.__GTHTML_V3416__ = { reasoningEffort, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3417__ (v3.4.17) */
 window.__GTHTML_V3417__ = { parseCustomResponse, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
@@ -8756,7 +8781,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.20\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.21\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);

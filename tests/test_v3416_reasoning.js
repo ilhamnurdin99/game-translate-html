@@ -9,6 +9,9 @@
    1. customBatch mengirim reasoning_effort: 'low' HANYA bila model
       mengandung 'gpt-oss' (case-insensitive); model lain (qwen, gemini)
       TIDAK dikirimi field itu sama sekali.
+   (v3.4.21: diperluas — model 'gemini' JUGA dikirimi 'low'; lihat
+   ide-balasan-kosong-gemini-v3421.md. Cek D1 gemini di bawah diubah
+   sesuai perilaku baru itu.)
    2. Terjemahan tetap kembali normal untuk gpt-oss (mock 200). */
 const fs = require('fs');
 const path = require('path');
@@ -36,10 +39,10 @@ async function main() {
   const V31 = w.__GTHTML_V31__;
 
   /* ---------- A0: hook + label versi ---------- */
-  check('A0 hook v3.4.16 tersedia', !!V3416 && typeof V3416.gptOssEffort === 'function', 'hook: ' + typeof V3416);
-  check('A0 label versi v3.4.20', html.includes('Game Translate HTML v3.4.20') && !html.includes('Game Translate HTML v3.4.13'));
+  check('A0 hook v3.4.16 tersedia', !!V3416 && typeof V3416.reasoningEffort === 'function', 'hook: ' + typeof V3416);
+  check('A0 label versi v3.4.21', html.includes('Game Translate HTML v3.4.21') && !html.includes('Game Translate HTML v3.4.20'));
   check('A0 Cara pakai menyebut v3.4.16', html.includes('(v3.4.16)'));
-  if (!V3416 || typeof V3416.gptOssEffort !== 'function') { console.log('\nV3416_REASONING: gptOssEffort belum diekspos di hook v3.4.16 — RED'); process.exit(1); }
+  if (!V3416 || typeof V3416.reasoningEffort !== 'function') { console.log('\nV3416_REASONING: reasoningEffort belum diekspos di hook v3.4.16 — RED'); process.exit(1); }
 
   /* ---------- mock fetch: tangkap body custom ---------- */
   const okRes = (data) => ({ ok: true, status: 200, json: async () => data });
@@ -78,11 +81,14 @@ async function main() {
   check('D1 GPT-OSS-20B (huruf besar): body memuat reasoning_effort low', r.body && r.body.reasoning_effort === 'low', 'body: ' + JSON.stringify(r.body && r.body.reasoning_effort));
   r = await bodyFor('qwen/qwen3.6-27b');
   check('D1 qwen: body TIDAK memuat reasoning_effort', r.body && !('reasoning_effort' in r.body), 'body: ' + JSON.stringify(Object.keys(r.body || {})));
+  // (v3.4.21) Perilaku ini SENGAJA diubah: Gemini kini dikirimi
+  // reasoning_effort 'low' juga (docs Google mengonfirmasi pemetaan ke
+  // thinking level/budget) — cek lama 'TIDAK memuat' diganti.
   r = await bodyFor('gemini-2.5-flash');
-  check('D1 gemini: body TIDAK memuat reasoning_effort', r.body && !('reasoning_effort' in r.body), 'body: ' + JSON.stringify(Object.keys(r.body || {})));
+  check('D1 gemini (v3.4.21): body memuat reasoning_effort low', r.body && r.body.reasoning_effort === 'low', 'body: ' + JSON.stringify(r.body && r.body.reasoning_effort));
   r = await bodyFor('llama-3.3-70b-versatile');
   check('D1 llama: body TIDAK memuat reasoning_effort', r.body && !('reasoning_effort' in r.body), 'body: ' + JSON.stringify(Object.keys(r.body || {})));
-  check('D1 helper gptOssEffort langsung', V3416.gptOssEffort('openai/gpt-oss-120b') === 'low' && V3416.gptOssEffort('qwen/qwen3.6-27b') === null && V3416.gptOssEffort('') === null && V3416.gptOssEffort(null) === null, 'helper: ' + typeof V3416.gptOssEffort);
+  check('D1 helper reasoningEffort langsung', V3416.reasoningEffort('openai/gpt-oss-120b') === 'low' && V3416.reasoningEffort('gemini-3.5-flash-lite') === 'low' && V3416.reasoningEffort('qwen/qwen3.6-27b') === null && V3416.reasoningEffort('') === null && V3416.reasoningEffort(null) === null, 'helper: ' + typeof V3416.reasoningEffort);
 
   /* ---------- 2: terjemahan tetap kembali normal (gpt-oss) ---------- */
   r = await bodyFor('openai/gpt-oss-120b');
