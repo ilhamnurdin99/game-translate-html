@@ -40,7 +40,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.16 tersedia', !!V3416 && typeof V3416.reasoningEffort === 'function', 'hook: ' + typeof V3416);
-  check('A0 label versi v3.4.21', html.includes('Game Translate HTML v3.4.21') && !html.includes('Game Translate HTML v3.4.20'));
+  check('A0 label versi v3.4.22', html.includes('Game Translate HTML v3.4.22') && !html.includes('Game Translate HTML v3.4.21'));
   check('A0 Cara pakai menyebut v3.4.16', html.includes('(v3.4.16)'));
   if (!V3416 || typeof V3416.reasoningEffort !== 'function') { console.log('\nV3416_REASONING: reasoningEffort belum diekspos di hook v3.4.16 — RED'); process.exit(1); }
 

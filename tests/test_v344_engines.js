@@ -28,7 +28,7 @@ const $ = (id) => w.document.getElementById(id);
 const logText = () => ($('logBox') || { textContent: '' }).textContent;
 
 check('A0 hook v3.4.4 tersedia', !!V344 && typeof V344.engineEnabled === 'function' && typeof V344.allEnginesOff === 'function' && typeof V344.setEngineSel === 'function' && typeof V344.translateBatch === 'function' && typeof V344.translateSegments === 'function');
-check('A0 label versi v3.4.21', html.includes('Game Translate HTML v3.4.21') && !html.includes('Game Translate HTML v3.4.20'));
+check('A0 label versi v3.4.22', html.includes('Game Translate HTML v3.4.22') && !html.includes('Game Translate HTML v3.4.21'));
 check('A0 Cara pakai menyebut v3.4.4', html.includes('Pilih mesin &amp; cari di Daftar Teks (v3.4.4)'));
 
 /* ---------- mock fetch + Translator (pola v3.1) ---------- */

@@ -103,7 +103,7 @@ function setSeedshipState(w, fileName) {
   check('A0 hook v3.3 tersedia', !!V33 && typeof V33.saveProject === 'function' && typeof V33.loadSavedProject === 'function'
     && typeof V33.idbSave === 'function' && typeof V33.idbLoad === 'function' && typeof V33.migrateFromLocalStorage === 'function');
   check('A0 idbAvailable() true dengan IndexedDB palsu', V33.idbAvailable() === true);
-  check('A0 label versi v3.4.21', html.includes('Game Translate HTML v3.4.21') && !html.includes('Game Translate HTML v3.4.20'));
+  check('A0 label versi v3.4.22', html.includes('Game Translate HTML v3.4.22') && !html.includes('Game Translate HTML v3.4.21'));
   check('A0 Cara pakai menyebut IndexedDB v3.3', html.includes('IndexedDB (v3.3)'));
 
   // (a) Round-trip proyek besar (Seedship ~1 MB)

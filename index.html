@@ -57,6 +57,7 @@ th{font-size:13px;color:var(--mut)}
 .pill.tm{background:#e8eefc;color:#23408f;border-color:#c3d2f5}
 .pill.fail{background:#fdecea;color:var(--bad);border-color:#f3c1bd}
 .pill.edit{background:#fff4d6;color:var(--warn);border-color:#ecd28a}
+.dl-mark{color:#c00;font-weight:700}
 #logBox{background:#0f1c26;color:#cfe3ef;border-radius:10px;padding:12px;font:12.5px/1.6 ui-monospace,Consolas,monospace;max-height:220px;overflow:auto;white-space:pre-wrap}
 #logBox .e{color:#ffb4ab}#logBox .w{color:#ffd479}#logBox .g{color:#8fe3a8}
 ul.check{list-style:none;padding:0;margin:6px 0}
@@ -136,6 +137,7 @@ body.simple .adv{display:none!important}
       <li><b>Penolakan tidak mematikan custom di Terjemahan custom (v3.4.19):</b> bila provider custom menolak isi teks ("format balasan tidak dikenal"), penolakan itu tidak lagi dihitung sebagai kegagalan pemutus sirkuit saat memakai tombol <b>Terjemahan custom</b> — custom tetap dicoba di batch berikutnya. Pemutus untuk Custom HTTP 429 (3 kali beruntun) tetap dipertahankan persis seperti sebelumnya, begitu juga pemutus untuk gangguan jaringan dan error server.</li>
       <li><b>Keberhasilan teks satuan mereset pemutus sirkuit (v3.4.20):</b> bila satu teks berhasil diterjemahkan — termasuk teks satuan di dalam pecahan batch yang ditolak — streak pemutus sirkuit mesin itu kembali ke 0. Kegagalan satuan tetap tidak dihitung sebagai kegagalan pemutus.</li>
       <li><b>Balasan custom kosong bisa didiagnosis &amp; reasoning_effort untuk Gemini (v3.4.21):</b> bila provider custom membalas tanpa isi teks (balasan kosong dari model Gemini), Log kini mencatat bentuk balasannya — kunci balasan, alasan selesai, dan awal penalaran — supaya penyebabnya terlihat. Model Gemini kini juga dikirimi reasoning_effort 'low' (seperti gpt-oss sejak v3.4.16) supaya berpikir sebentar saja; bila isi balasan kosong tapi penalarannya berisi array terjemahan yang valid, penalaran itu dipakai sebagai jawaban.</li>
+      <li><b>Unduh bahan latihan TSV (v3.4.22):</b> di Daftar Teks, ceklis baris yang sudah diterjemahkan lalu klik <b>Unduh yang dipilih (TSV)</b> — pasangan Inggris-Indonesia diunduh sebagai file <code>data-latihan-YYYYMMDD.tsv</code> (satu pasangan per baris, dipisah TAB), siap dipakai sebagai data latihan Agen AI. Baris yang belum ada terjemahannya dilewati; baris yang sudah pernah diunduh dilewati otomatis dan ditandai <b style="color:#c00">!</b> merah di Daftar Teks (tanda tersimpan di proyek, dikenali dari teks Inggris yang persis sama).</li>
       <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
@@ -207,6 +209,7 @@ body.simple .adv{display:none!important}
       <label class="inline"><input type="checkbox" id="chkAll"> Pilih semua di halaman</label>
       <button id="btnCopyOrig" disabled>Salin teks asli ke terjemahan</button>
       <button id="btnRetranslate" disabled>Terjemahan custom</button>
+      <button id="btnExportTsv" disabled>Unduh yang dipilih (TSV)</button>
       <button id="btnClearSel" disabled>Hapus pilihan</button>
       <span class="mut" id="selCount"></span>
       <span class="mut" id="pageInfo"></span>
@@ -277,7 +280,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.21 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.22 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6457,7 +6460,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.21 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.22 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6796,6 +6799,7 @@ const S = {
   encodeStyle: { quote: false, apos: false, nbsp: false },
   running: false, cancelled: false,
   page: 0, perPage: 100, selected: new Set(),
+  downloaded: new Set(), // (v3.4.22) teks Inggris yang sudah diunduh sebagai bahan latihan (cocok persis)
   // (v3.4.4) Mesin yang dipakai (ceklis Langkah 2) + pencarian Daftar Teks.
   engineSel: Object.assign({}, ENGINE_SEL_DEFAULT),
   listQuery: '', listScope: 'all', listOnlyUntr: false, // (v3.4.5) filter "hanya yang belum diterjemahkan"
@@ -8462,6 +8466,8 @@ window.__GTHTML_V3413__ = { batchDelayMs, state: S };
 window.__GTHTML_V3416__ = { reasoningEffort, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3417__ (v3.4.17) */
 window.__GTHTML_V3417__ = { parseCustomResponse, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3422__ (v3.4.22) */
+window.__GTHTML_V3422__ = { exportSelectedTsv, buildTsvExport, downloadedMark, updateExportTsvButton, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8781,7 +8787,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.21\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.22\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -9029,6 +9035,68 @@ function updateRetranslateButton() {
   if (b) b.disabled = S.selected.size === 0;
   updateSelCount(); // (v3.4.12) jumlah pilihan ikut ceklis
 }
+/* (v3.4.22) Tanda "!" merah di baris yang teks Inggris-nya sudah pernah
+   diunduh sebagai bahan latihan (cocok PERSIS pada teks Inggris, seperti
+   TM — kalimat baru yang katanya mirip tapi tidak persis sama tidak
+   bertanda). */
+function downloadedMark(seg) {
+  if (!S.downloaded || !S.downloaded.has(seg.text)) return '';
+  return ' <span class="dl-mark" title="Sudah di-download untuk bahan latihan">!</span>';
+}
+/* (v3.4.22) Tombol unduh TSV hanya aktif bila ada yang diceklis. */
+function updateExportTsvButton() {
+  const b = $('btnExportTsv');
+  if (b) b.disabled = S.selected.size === 0;
+}
+/* (v3.4.22) Satu sel TSV: tab/newline/CR di dalam teks diganti satu
+   spasi — parser latih.py membaca per baris dan memecah pada TAB,
+   jadi baris yang mengandung newline akan merusak format. */
+function tsvCell(s) { return String(s == null ? '' : s).replace(/[\t\r\n]+/g, ' '); }
+/* (v3.4.22) Susun pasangan latihan dari baris yang diceklis — murni
+   (tidak mengunduh, tidak menandai): baris bertanda "!" dilewati,
+   baris tanpa terjemahan bagus dilewati. Dipakai exportSelectedTsv
+   dan pengujian. */
+function buildTsvExport() {
+  const lines = [];
+  const exportedSegs = [];
+  let skippedDownloaded = 0, skippedUntr = 0;
+  for (const seg of S.segments) {
+    if (!S.selected.has(seg.id)) continue;
+    if (S.downloaded && S.downloaded.has(seg.text)) { skippedDownloaded++; continue; }
+    const t = S.translations.get(seg.id);
+    if (!t || !t.text || t.failed) { skippedUntr++; continue; }
+    lines.push(tsvCell(seg.text) + '\t' + tsvCell(t.text));
+    exportedSegs.push(seg);
+  }
+  return { lines, exportedSegs, exported: lines.length, skippedDownloaded, skippedUntr };
+}
+/* (v3.4.22) Unduh pasangan latihan (TSV) dari baris yang diceklis di
+   Daftar Teks (ide Ilham): satu pasangan per baris, format EN<TAB>ID —
+   sama dengan format data-latihan.tsv yang dimakan latih.py Agen AI,
+   jadi langsung bisa dipakai tanpa ubah-ubah. Baris bertanda "!" selalu
+   dilewati (tidak ada jalur unduh ulang di v3.4.22 — tujuannya justru
+   mencegah duplikat tak sengaja); baris tanpa terjemahan dilewati.
+   Setelah berhasil, teks Inggris yang diekspor masuk ke S.downloaded
+   (ikut tersimpan di proyek) dan barisnya menampilkan "!" merah.
+   Ceklis TIDAK dibersihkan (tidak seperti salin/terjemah ulang) —
+   pengguna mungkin mau memakai pilihan yang sama untuk aksi lain. */
+function exportSelectedTsv() {
+  const zero = { exported: 0, skippedDownloaded: 0, skippedUntr: 0, filename: '' };
+  if (!S.fileName) { log('Belum ada file.', 'w'); return zero; }
+  if (S.selected.size === 0) { log('Tidak ada teks yang diceklis untuk diunduh.', 'w'); return zero; }
+  const built = buildTsvExport();
+  const d = new Date();
+  const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  const filename = 'data-latihan-' + ymd + '.tsv';
+  log('Unduh TSV: ' + built.exported + ' pasangan diekspor, ' + built.skippedDownloaded + ' dilewati (sudah di-download), ' + built.skippedUntr + ' dilewati (belum ada terjemahan).');
+  if (!built.exported) return Object.assign(zero, { skippedDownloaded: built.skippedDownloaded, skippedUntr: built.skippedUntr });
+  download(filename, built.lines.join('\n') + '\n', 'text/tab-separated-values;charset=utf-8');
+  if (!S.downloaded) S.downloaded = new Set();
+  for (const seg of built.exportedSegs) S.downloaded.add(seg.text);
+  saveProject();
+  renderList();
+  return { exported: built.exported, skippedDownloaded: built.skippedDownloaded, skippedUntr: built.skippedUntr, filename };
+}
 /* (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan (ide
    Ilham): hanya segmen yang diceklis DAN sudah punya terjemahan bagus
    yang diterjemahkan ulang, memakai rantai mesin yang dicentang di
@@ -9153,7 +9221,7 @@ function renderList() {
       : onlyUntr ? '<p class="mut">Semua teks sudah diterjemahkan.</p>'
       : (S.listScope || '').indexOf('via:') === 0 ? '<p class="mut">Tidak ada teks dari ' + esc((S.listScope || '').slice(4)) + '.</p>'
       : '<p class="mut">Belum ada teks. Upload file dulu.</p>';
-    body.scrollTop = keepScroll; updateCopyButton(); updateRetranslateButton(); return;
+    body.scrollTop = keepScroll; updateCopyButton(); updateRetranslateButton(); updateExportTsvButton(); return;
   }
   const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
   const html = [];
@@ -9167,7 +9235,7 @@ function renderList() {
       + '<span>' + idx + '</span>'
       + '<div><div class="orig">' + esc(seg.text) + '</div><div class="src">' + esc(src) + '</div></div>'
       + '<textarea data-id="' + seg.id + '" placeholder="Terjemahan Indonesia…" ' + (seg.skipped ? 'disabled' : '') + '>' + esc(val) + '</textarea>'
-      + '<div>' + statusPill(seg) + '<br><button class="tr-one small" data-id="' + seg.id + '"' + (seg.skipped ? ' disabled' : '') + '>Terjemahkan</button></div>'
+      + '<div>' + statusPill(seg) + downloadedMark(seg) + '<br><button class="tr-one small" data-id="' + seg.id + '"' + (seg.skipped ? ' disabled' : '') + '>Terjemahkan</button></div>'
       + '</div>');
   });
   body.innerHTML = html.join('');
@@ -9187,6 +9255,7 @@ function renderList() {
       if (cb.checked) S.selected.add(cb.dataset.id); else S.selected.delete(cb.dataset.id);
       updateCopyButton(); // (v3.4.8) ceklis per baris tidak me-render ulang
       updateRetranslateButton(); // (v3.4.10) tombol Terjemahan custom ikut ceklis
+      updateExportTsvButton(); // (v3.4.22) tombol unduh TSV ikut ceklis
     });
   });
   body.querySelectorAll('.tr-one').forEach((b) => {
@@ -9212,6 +9281,7 @@ function renderList() {
   $('chkAll').checked = slice.length > 0 && slice.every((s) => S.selected.has(s.id));
   updateCopyButton(); // (v3.4.8) tombol salin aktif hanya bila ada yang diceklis
   updateRetranslateButton(); // (v3.4.10) tombol Terjemahan custom aktif hanya bila ada yang diceklis
+  updateExportTsvButton(); // (v3.4.22) tombol unduh TSV aktif hanya bila ada yang diceklis
 }
 /* Status ceklis utama "Pilih semua" (v3.1): checked bila semua passage
    dilewati, indeterminate bila sebagian, nonaktif bila belum ada file. */
@@ -9343,6 +9413,7 @@ function collectProjectData() {
     linkLabels: S.linkLabels, linkNoBodyTargets: S.linkNoBodyTargets || [], // (v3.4.6) ceklis label tautan ikut tersimpan
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
     engineSel: S.engineSel, // (v3.4.4) mesin yang dipakai ikut tersimpan
+    downloaded: [...(S.downloaded || [])], // (v3.4.22) teks Inggris yang sudah diunduh sebagai bahan latihan
   };
 }
 /* Fallback lama (localStorage) — dipakai bila IndexedDB tidak ada/gagal. */
@@ -9405,6 +9476,9 @@ function restoreProject(d) {
   S.segments = d.segments || []; S.passages = d.passages || [];
   S.translations = new Map(d.translations || []);
   S.glossary = d.glossary || []; S.skipPassages = new Set(d.skipPassages || []);
+  // (v3.4.22) Teks yang sudah diunduh sebagai bahan latihan — proyek lama
+  // tanpa field ini tetap jalan dengan Set kosong.
+  S.downloaded = new Set(d.downloaded || []);
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
   // (v3.4.6) Label tautan satu argumen — proyek lama tanpa field ini tetap memakai default lintas proyek.
   if (d.linkLabels !== undefined) S.linkLabels = !!d.linkLabels;
@@ -9755,6 +9829,7 @@ function init() {
   $('btnCopyOrig').addEventListener('click', () => { copySelectedOriginals(); });
   // (v3.4.10) Terjemah ulang yang diceklis dan sudah diterjemahkan.
   $('btnRetranslate').addEventListener('click', () => { retranslateSelected(); });
+  $('btnExportTsv').addEventListener('click', () => { exportSelectedTsv(); });
   // (v3.4.12) Hapus semua pilihan di semua halaman sekaligus.
   $('btnClearSel').addEventListener('click', () => { clearSelection(); });
   // v3.1: ceklis utama skip-passage — centang semua / hapus semua.
