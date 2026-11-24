@@ -25,7 +25,7 @@ const V343 = w.__GTHTML_V343__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.3 tersedia', !!V343 && typeof V343.protectPlaceholders === 'function' && typeof V343.getMissingVars === 'function' && typeof V343.parseLinkToken === 'function' && typeof V343.validateOne === 'function');
-check('A0 label versi v3.4.13', html.includes('Game Translate HTML v3.4.13') && !html.includes('Game Translate HTML v3.4.12'));
+check('A0 label versi v3.4.16', html.includes('Game Translate HTML v3.4.16') && !html.includes('Game Translate HTML v3.4.13'));
 check('A0 Cara pakai menyebut v3.4.3', html.includes('Variabel &amp; tautan lebih aman (v3.4.3)'));
 w.eval('S.glossary = [];');
 

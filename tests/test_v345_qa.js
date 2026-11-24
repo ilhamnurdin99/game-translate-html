@@ -30,7 +30,7 @@ const waitFor = async (fn, ms) => {
 };
 
 check('A0 hook v3.4.5 tersedia', !!V345 && typeof V345.renderReport === 'function' && typeof V345.applyTM === 'function' && typeof V345.runTranslate === 'function' && typeof V345.scheduleReportRefresh === 'function' && typeof V345.renderList === 'function');
-check('A0 label versi v3.4.13', html.includes('Game Translate HTML v3.4.13') && !html.includes('Game Translate HTML v3.4.12'));
+check('A0 label versi v3.4.16', html.includes('Game Translate HTML v3.4.16') && !html.includes('Game Translate HTML v3.4.13'));
 check('A0 Cara pakai menyebut v3.4.5', html.includes('Ringkasan QA selalu segar &amp; filter belum diterjemahkan (v3.4.5)'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
