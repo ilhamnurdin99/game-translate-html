@@ -131,6 +131,7 @@ body.simple .adv{display:none!important}
       <li><b>Filter mesin di Daftar Teks (v3.4.11):</b> dropdown di samping kotak pencarian Daftar Teks kini berisi mesin (Custom, Google, Google Dict, Edge, MyMemory, Chrome) dan sumber lain (TM, salin) — pilih satu untuk menampilkan hanya baris yang diterjemahkan mesin/sumber itu, walau kotak pencarian kosong. Bila kata pencarian juga diketik, keduanya digabung.</li>
       <li><b>Jeda batch custom lebih panjang (v3.4.13):</b> bila provider custom dicentang, jeda antar batch menjadi 2,5 detik (dari 1,2 detik) supaya tidak menabrak batas ~30 permintaan/menit Groq gratis. Bila server membalas 429 dengan header Retry-After, aplikasi menunggu selama yang diminta server (maksimal 60 detik).</li>
       <li><b>reasoning_effort low untuk gpt-oss (v3.4.16):</b> bila model custom mengandung 'gpt-oss', aplikasi mengirim reasoning_effort 'low' supaya token penalaran (yang ikut dihitung dalam jatah token per menit Groq) dipangkas; model lain tidak dikirimi field ini.</li>
+      <li><b>Parser custom tahan penalaran (v3.4.17):</b> model thinking (Qwen3, gpt-oss) kadang menaruh penalaran ber-kurung-siku sebelum array jawaban, sehingga jawaban tidak terbaca ("format balasan tidak dikenal"). Parser kini membuang blok <code>&lt;think&gt;...&lt;/think&gt;</code> dulu, lalu mencari array JSON valid yang terakhir (jawaban selalu di akhir balasan). Bila tetap gagal parse, potongan awal balasan mentah dicatat di Log supaya penyebabnya terlihat.</li>
       <li><b>Jumlah pilihan terlihat &amp; ceklis dibersihkan setelah terjemah ulang (v3.4.12):</b> ceklis baris berlaku untuk SEMUA halaman dan filter, bukan cuma halaman yang terlihat — jadi jumlah "N teks dipilih" kini tampil di samping tombol <b>Terjemahan custom</b>, supaya pilihan yang tersembunyi di halaman lain tidak mengejutkan. Setelah terjemah ulang selesai, ceklis dibersihkan (seperti setelah salin di v3.4.9), jadi klik kedua tidak mengulang teks yang sama. Tombol <b>Hapus pilihan</b> membersihkan semua ceklis di semua halaman sekaligus.</li>
       <li>Klik <b>Timpa &amp; Unduh file -ID</b> — salinan asli (.orig) ikut diunduh.</li>
     </ol>
@@ -272,7 +273,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.16 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.17 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6452,7 +6453,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.16 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.17 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -7631,15 +7632,32 @@ async function mymemoryOne(text, src, tgt) {
 function parseCustomResponse(content, n) {
   if (typeof content !== 'string') return null;
   let s = content.trim();
+  // (v3.4.17) Model thinking menaruh penalaran SEBELUM array jawaban:
+  // buang dulu blok <think>...</think> lengkap (regex global, hanya
+  // pasangan lengkap; <think> tanpa penutup dibiarkan — parse akan gagal
+  // seperti sebelumnya, tanpa crash). Think dibuang dulu supaya fence di
+  // dalamnya tidak menyesatkan ekstraksi fence.
+  s = s.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
   const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fence) s = fence[1].trim();
-  const a = s.indexOf('['), b = s.lastIndexOf(']');
-  if (a < 0 || b <= a) return null;
-  let arr;
-  try { arr = JSON.parse(s.slice(a, b + 1)); } catch (e) { return null; }
-  if (!Array.isArray(arr) || arr.length !== n) return null;
-  for (const x of arr) if (typeof x !== 'string' || !x) return null;
-  return arr;
+  const b = s.lastIndexOf(']');
+  if (b < 0) return null;
+  // (v3.4.17) Jawaban selalu di AKHIR balasan; penalaran (dengan kurung
+  // siku) mendahuluinya — 'indexOf' pertama dulu gagal bila penalaran
+  // mengandung '['. Coba semua posisi '[' dari TERAKHIR ke pertama,
+  // kembalikan yang pertama lolos validasi (array, panjang = n, semua
+  // elemen string tak kosong).
+  const starts = [];
+  for (let i = s.indexOf('['); i >= 0 && i < b; i = s.indexOf('[', i + 1)) starts.push(i);
+  for (let k = starts.length - 1; k >= 0; k--) {
+    let arr;
+    try { arr = JSON.parse(s.slice(starts[k], b + 1)); } catch (e) { continue; }
+    if (!Array.isArray(arr) || arr.length !== n) continue;
+    let ok = true;
+    for (const x of arr) if (typeof x !== 'string' || !x) { ok = false; break; }
+    if (ok) return arr;
+  }
+  return null;
 }
 /* (v3.4.16) GPT-OSS di Groq adalah model reasoning — token penalarannya
    ikut dihitung dalam jatah token per menit, jadi run 100 teks kena 429
@@ -7672,7 +7690,14 @@ async function customBatch(texts, src, tgt) {
   const data = await res.json();
   const content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
   const out = parseCustomResponse(content, texts.length);
-  if (!out) throw new Error('Custom: format balasan tidak dikenal');
+  if (!out) {
+    // (v3.4.17) Catat awal balasan mentah supaya kegagalan parse berikutnya
+    // punya bukti, bukan kotak hitam. Isi balasan adalah teks model (bukan
+    // kredensial) — aman dicatat; dibatasi 300 karakter.
+    if (typeof content === 'string') log('Custom: balasan tidak dikenal — awal balasan: ' + content.slice(0, 300), 'w');
+    else log('Custom: balasan tidak dikenal — isi balasan bukan string (' + typeof content + ')', 'w');
+    throw new Error('Custom: format balasan tidak dikenal');
+  }
   return out;
 }
 /* ---------------- mesin terjemah: pemutus sirkuit (v3.1) ----------------
@@ -8359,6 +8384,8 @@ window.__GTHTML_V3412__ = { updateSelCount, clearSelection, state: S };
 window.__GTHTML_V3413__ = { batchDelayMs, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3416__ (v3.4.16) */
 window.__GTHTML_V3416__ = { gptOssEffort, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3417__ (v3.4.17) */
+window.__GTHTML_V3417__ = { parseCustomResponse, state: S };
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8678,7 +8705,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.16\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.17\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);

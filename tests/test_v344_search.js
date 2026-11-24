@@ -26,7 +26,7 @@ const V344 = w.__GTHTML_V344__;
 const $ = (id) => w.document.getElementById(id);
 
 check('A0 hook v3.4.4 tersedia', !!V344 && typeof V344.listFilterMatches === 'function' && typeof V344.filteredSegs === 'function' && typeof V344.renderList === 'function');
-check('A0 label versi v3.4.16', html.includes('Game Translate HTML v3.4.16') && !html.includes('Game Translate HTML v3.4.13'));
+check('A0 label versi v3.4.17', html.includes('Game Translate HTML v3.4.17') && !html.includes('Game Translate HTML v3.4.13'));
 
 const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'
   + '<tw-storydata name="T" startnode="1" creator="Twine" creator-version="2.3.0" ifid="X" zoom="1" format="SugarCube" format-version="2.37.3" options="" hidden>\n'
