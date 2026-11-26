@@ -49,7 +49,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.21 tersedia', !!V3416 && typeof V3416.reasoningEffort === 'function', 'hook: ' + typeof V3416);
-  check('A0 label versi v3.4.22', html.includes('Game Translate HTML v3.4.22') && !html.includes('Game Translate HTML v3.4.21'));
+  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
   check('A0 Cara pakai menyebut v3.4.21', html.includes('(v3.4.21)'));
 
   /* ---------- mock fetch: tangkap body custom ---------- */

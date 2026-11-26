@@ -46,7 +46,7 @@ async function main() {
   const V344 = w.__GTHTML_V344__;
 
   /* ---------- A0: label versi ---------- */
-  check('A0 label versi v3.4.22', html.includes('Game Translate HTML v3.4.22') && !html.includes('Game Translate HTML v3.4.21'));
+  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
   check('A0 Cara pakai menyebut v3.4.18', html.includes('(v3.4.18)'));
 
   /* ---------- mock fetch ---------- */

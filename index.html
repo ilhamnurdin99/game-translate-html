@@ -47,6 +47,7 @@ table{border-collapse:collapse;width:100%}
 td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 th{font-size:13px;color:var(--mut)}
 .trow{display:grid;grid-template-columns:26px 34px 1fr 1fr 92px;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);align-items:start}
+@media (max-width:720px){.trow{grid-template-columns:1fr}.trow textarea{min-height:64px}}
 .trow.head{font-size:13px;color:var(--mut);font-weight:700}
 .trow textarea{min-height:52px}
 .trow .orig{white-space:pre-wrap;word-break:break-word;font-size:14px}
@@ -280,7 +281,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.22 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.26 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Perbaikan review Gemini (v3.4.26): tanda sudah-di-download di-reset saat ganti file; tombol dikunci selama run + request bisa dibatalkan (timeout); macro sadar-tanda-kutip dan setter array dikenali; repair variabel di posisi aman; impor .po round-trip benar. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6460,7 +6461,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.22 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.26 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6979,8 +6980,20 @@ function mkSeg(ctx, text, rawStart, rawEnd, extra) {
    awal token). label null bila tidak ada label. */
 /* (v3.4.3) Pola tautan [[...]] — dengan bagian setter opsional
    [[...][setter]]. Dipakai pemindai SugarCube (di bawah), Harlowe
-   (linkRe) dan hitungan verifikasi — ubah ketiganya bersamaan. */
-const LINK_TOKEN_RE = /\[\[[^\]\n]*(?:\]\[[^\]\n]*)?\]\]/;
+   (linkRe) dan hitungan verifikasi — ubah ketiganya bersamaan.
+   (v3.4.26) Setter mengizinkan [...] bersarang sedalam satu tingkat
+   ([[Lanjut][$arr[0] = 1]], [[Lanjut][$arr[$i] = 1]]) dan string
+   ber-kutip yang mengandung ] ([[Lanjut][$x to "a]b"]]) — pola lama
+   berhenti di ] pertama sehingga tautan setter array tidak dikenali
+   sama sekali (klaim 9 review Gemini). */
+/* (v3.4.26) Pencocok macro sadar-tanda-kutip (klaim 8): jangan berhenti
+   di >> yang berada di dalam "..." / '...' — pola lama <<[\s\S]*?>>
+   memotong <<set $x = "a >> b">> dan label ">> Lanjut". > tunggal
+   diizinkan (<<if $a > $b>>). Dipakai pemindai, findBlockEnd, dan
+   verifyOutput — selalu lewat .source supaya tidak ada dua pola yang
+   bisa usang. */
+const LINK_TOKEN_RE = /\[\[[^\]\n]*(?:\]\[(?:[^\]\n]|\[[^\]\n]*\]|"[^"\n]*"|'[^'\n]*')*)?\]\]/;
+const MACRO_TOKEN_RE = /<<(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|[^>"']|>(?!>))*>>/;
 function parseLinkToken(inner) {
   // (v3.4.3) Pisahkan setter [[...][setter]] — setter adalah kode
   // (mis. [$Minutes += $TravelTime]), bukan teks tampil.
@@ -7060,7 +7073,7 @@ function hasLinkBody(text, from, name) {
    (tanpa garis miring) +1, tutup (dengan garis miring) -1. Kembalikan
    {closeStart, endPos} atau null bila tidak ada penutup. */
 function findBlockEnd(decoded, from, name) {
-  const tokRe = /<<[\s\S]*?>>/g;
+  const tokRe = new RegExp(MACRO_TOKEN_RE.source, 'g'); // (v3.4.26) sadar-tanda-kutip
   tokRe.lastIndex = from;
   let depth = 1, m;
   while ((m = tokRe.exec(decoded))) {
@@ -7105,7 +7118,14 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
   // (v3.2) Komentar JS /* ... */ dan komentar SugarCube /% ... %/
   // dilindungi seperti komentar HTML — isinya (termasuk macro di
   // dalamnya) bukan teks tampil.
-  const re = /(\[\[[^\]\n]*(?:\]\[[^\]\n]*)?\]\]|<<[\s\S]*?>>|<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/%[\s\S]*?%\/|<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>|\{\{\{[\s\S]*?\}\}\})/g;
+  // (v3.4.26) Pola tautan + macro diambil dari LINK_TOKEN_RE /
+  // MACRO_TOKEN_RE (.source) — satu sumber, tidak ada salinan pola yang
+  // bisa usang. Macro sadar-tanda-kutip (klaim 8); setter tautan kenal
+  // [...] bersarang + string ber-kutip berisi ] (klaim 9).
+  const re = new RegExp('(' + LINK_TOKEN_RE.source + '|' + MACRO_TOKEN_RE.source
+    + '|<!--[\\s\\S]*?-->|/\\*[\\s\\S]*?\\*/|/%[\\s\\S]*?%/'
+    + '|</?[a-zA-Z](?:"[^"]*"|\'[^\']*\'|[^>"\'])*>'
+    + '|\\{\\{\\{[\\s\\S]*?\\}\\}\\})', 'g');
   let last = 0, m;
   while ((m = re.exec(decoded))) {
     if (m.index > last) emitPlainRun(parts, decoded.slice(last, m.index), last, map, baseRaw, ctx);
@@ -7145,7 +7165,13 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
           // Irisan peta +1: sertakan penjaga (sentinel) di ujung badan —
           // tanpa itu, segmen yang berakhir tepat di ujung badan mendapat
           // rawEnd undefined dan Timpa menggandakan file.
+          // (v3.4.26) Simpan + pulihkan ctx.atSpan di sekitar rekursi
+          // (klaim 11): @@ tanpa penutup di dalam badan widget tidak boleh
+          // membocorkan status span ke passage luar. linkNoBodyTargets
+          // memang sengaja dibagi sebagai akumulator — jangan dipulihkan.
+          const savedAtSpan = ctx.atSpan;
           parts.push(...segmentSugarCube(decoded.slice(te, span.closeStart), map.slice(te, span.closeStart + 1), baseRaw, ctx, (widgetDepth || 0) + 1));
+          ctx.atSpan = savedAtSpan;
         }
         const endPos = span ? span.endPos : decoded.length;
         last = endPos; re.lastIndex = endPos;
@@ -7183,7 +7209,10 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
           const sa = stripAtSpanArg(a);
           // (v3.4.7) Label tautan satu argumen (singleLink) boleh kapital
           // semua; label lain tetap pakai aturan biasa.
-          if (scanAccepts(sa.text, a === singleLinkArg ? { allowAllCaps: true } : undefined)) parts.push(mkSeg(ctx, sa.text, map[ts + sa.start] + baseRaw, map[ts + sa.end] + baseRaw, a === singleLinkArg ? { macro: name, singleLink: true, quote: a.quote } : { macro: name }));
+          // (v3.4.26) Tandai segmen argumen macro (klaim 1b) supaya Timpa
+          // memakai escaper gabungan (kutip gaya-JS + entitas &<>) —
+          // bukan encodePassageText yang mematahkan string macro.
+          if (scanAccepts(sa.text, a === singleLinkArg ? { allowAllCaps: true } : undefined)) parts.push(mkSeg(ctx, sa.text, map[ts + sa.start] + baseRaw, map[ts + sa.end] + baseRaw, a === singleLinkArg ? { macro: name, macroArg: true, singleLink: true, quote: a.quote } : { macro: name, macroArg: true }));
         }
         if ((rule === 'first-if-two' || rule === 'first') && ctx.translateNames && args.length >= 2) {
           const t = args[1];
@@ -7484,7 +7513,11 @@ function extractJsStrings(code, fileOffset) {
         }
       }
     } else if (node.type === 'TemplateLiteral') {
-      for (const quasi of node.quasis) {
+      // (v3.4.26) Tagged template (css`...`, html`...`) hampir selalu
+      // kode (bukan teks tampil) — lewati; template tanpa tag tetap
+      // dipindai (klaim 12).
+      if (parent && parent.type === 'TaggedTemplateExpression') { /* lewati */ }
+      else for (const quasi of node.quasis) {
         const cooked = quasi.value.cooked;
         if (cooked === null || cooked === undefined) continue;
         if (!scanAccepts(cooked)) continue;
@@ -7535,16 +7568,27 @@ function scanScripts(text) {
   }
   return { segments, warn };
 }
-/* Escape terjemahan kembali ke bentuk string JS / template literal. */
+/* Escape terjemahan kembali ke bentuk string JS / template literal.
+   (v3.4.26) Tambah escape penutup-script (klaim 12): terjemahan yang
+   mengandung penutup itu tidak boleh menutup blok script lebih awal. */
 function escapeJsString(text, quote) {
   let out = text.replace(/\\/g, '\\\\').replace(/\r/g, '\\r').replace(/\n/g, '\\n').replace(/\t/g, '\\t');
   if (quote === "'") out = out.replace(/'/g, "\\'");
   else out = out.replace(/"/g, '\\"');
   out = out.replace(/[\u0000-\u001F]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  out = out.replace(/<\/script/gi, '<\\/script>');
   return out;
 }
 function escapeTemplateText(text) {
-  return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+  return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${').replace(/<\/script/gi, '<\\/script>');
+}
+/* (v3.4.26) Escaper gabungan untuk argumen macro (klaim 1): escape gaya-JS
+   untuk kutip (seperti escapeJsString — escape yang BENAR di dalam string
+   macro SugarCube) + escape entitas untuk &<> (supaya < diikuti huruf
+   tidak dibaca sebagai tag HTML di dalam <tw-passagedata>). JANGAN dipakai
+   untuk segmen teks biasa — \" harfiah akan tampil di game. */
+function escapeJsStringEntities(text, quote) {
+  return escapeJsString(text, quote).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /* ---------------- mesin terjemah (dipakai ulang dari Gabungan FASE 50) ---------------- */
@@ -7580,43 +7624,110 @@ function fetchOk(res, label, withStatus) {
   } catch (err) { /* abaikan */ }
   throw e;
 }
+/* (v3.4.26) Satu helper fetch ber-timeout (klaim 13): semua pemanggil
+   fetch lewat sini supaya request yang menggantung tidak membuat tombol
+   Berhenti terasa mati — run tidak lanjut dan tidak berhenti sampai
+   request itu selesai sendiri. Timeout: 60 detik untuk provider custom,
+   30 detik untuk mesin gratis. Abort dari Berhenti menghasilkan error
+   'Dibatalkan pengguna' dengan penanda .aborted — isRetryable menolaknya
+   supaya tryWithRetry tidak mengulang request yang sengaja dibatalkan. */
+const FETCH_TIMEOUT_CUSTOM_MS = 60000;
+const FETCH_TIMEOUT_FREE_MS = 30000;
+const activeFetches = new Set();
+function fetchWithTimeout(url, opts, ms) {
+  const ctrl = new AbortController();
+  activeFetches.add(ctrl);
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, ms);
+  const cleanup = () => { clearTimeout(timer); activeFetches.delete(ctrl); };
+  return fetch(url, Object.assign({}, opts, { signal: ctrl.signal })).then(
+    (res) => { cleanup(); return res; },
+    (err) => {
+      cleanup();
+      if (err && err.name === 'AbortError') {
+        const e = new Error(timedOut ? ('Timeout ' + ms + ' ms') : 'Dibatalkan pengguna');
+        e.name = 'AbortError';
+        if (!timedOut) e.aborted = true;
+        throw e;
+      }
+      throw err;
+    }
+  );
+}
+function abortActiveFetches() {
+  for (const c of [...activeFetches]) { try { c.abort(); } catch (e) { /* abaikan */ } }
+}
+/* (v3.4.26) Pecah batch GET Google/Dict bila URL diperkirakan > ~7.000
+   karakter (klaim 14 — risiko HTTP 414). Biaya per teks dihitung seperti
+   encoding application/x-www-form-urlencoded: spasi = 1 karakter (+),
+   karakter di luar [A-Za-z0-9*-._] = 3 (%XX). */
+const GOOGLE_GET_URL_LIMIT = 7000;
+function urlParamCost(t) {
+  let n = 0;
+  for (const c of t) n += (/[A-Za-z0-9*\-._]/.test(c) || c === ' ') ? 1 : 3;
+  return n + 3; // + '&q='
+}
+function splitGetBatch(texts, fixedLen, costFn) {
+  const chunks = [];
+  let cur = [], len = fixedLen;
+  for (const t of texts) {
+    const add = costFn(t);
+    if (cur.length && len + add > GOOGLE_GET_URL_LIMIT) { chunks.push(cur); cur = []; len = fixedLen; }
+    cur.push(t); len += add;
+  }
+  if (cur.length) chunks.push(cur);
+  return chunks;
+}
 async function googleBatch(texts, src, tgt) {
-  const params = new URLSearchParams();
-  params.append('client', 'gtx'); params.append('sl', src); params.append('tl', tgt); params.append('dt', 't');
-  for (const t of texts) params.append('q', t);
-  const res = await fetch('https://translate.googleapis.com/translate_a/single?' + params.toString());
-  fetchOk(res, 'Google', true);
-  return parseGoogleResponse(await res.json(), texts.length);
+  const fixed = new URLSearchParams();
+  fixed.append('client', 'gtx'); fixed.append('sl', src); fixed.append('tl', tgt); fixed.append('dt', 't');
+  const baseLen = 'https://translate.googleapis.com/translate_a/single?'.length + fixed.toString().length + 1;
+  const out = [];
+  // (v3.4.26) Pecah batch bila URL diperkirakan > ~7.000 karakter (klaim 14).
+  for (const chunk of splitGetBatch(texts, baseLen, urlParamCost)) {
+    const params = new URLSearchParams(fixed);
+    for (const t of chunk) params.append('q', t);
+    const res = await fetchWithTimeout('https://translate.googleapis.com/translate_a/single?' + params.toString(), undefined, FETCH_TIMEOUT_FREE_MS);
+    fetchOk(res, 'Google', true);
+    out.push(...parseGoogleResponse(await res.json(), chunk.length));
+  }
+  return out;
 }
 const MARKER = (i) => 'ZXQSEP' + String(i).padStart(5, '0') + 'QXZ';
 async function googleBatchMarkers(texts, src, tgt) {
-  const parts = [];
-  for (let i = 0; i < texts.length; i++) { parts.push(MARKER(i), texts[i]); }
-  parts.push(MARKER(texts.length));
-  const params = new URLSearchParams();
-  params.append('client', 'gtx'); params.append('sl', src); params.append('tl', tgt); params.append('dt', 't');
-  params.append('q', parts.join('\n'));
-  const res = await fetch('https://translate.googleapis.com/translate_a/single?' + params.toString());
-  fetchOk(res, 'Google', true);
-  const data = await res.json();
-  const arr = data && data[0];
-  if (!Array.isArray(arr)) throw new Error('GoogleMarkers: format balasan tidak dikenal');
-  let joined = '';
-  for (const chunk of arr) {
-    if (!Array.isArray(chunk)) continue;
-    for (const seg of chunk) if (Array.isArray(seg) && seg[0]) joined += seg[0];
-  }
+  const fixed = new URLSearchParams();
+  fixed.append('client', 'gtx'); fixed.append('sl', src); fixed.append('tl', tgt); fixed.append('dt', 't');
+  const baseLen = 'https://translate.googleapis.com/translate_a/single?'.length + fixed.toString().length + 1;
   const out = [];
-  for (let i = 0; i < texts.length; i++) {
-    const a = joined.indexOf(MARKER(i)), b = joined.indexOf(MARKER(i + 1));
-    if (a < 0 || b < 0 || b <= a) throw new Error('GoogleMarkers: marker hilang');
-    out.push(joined.slice(a + MARKER(i).length, b).trim());
+  // (v3.4.26) Pecah seperti googleBatch (klaim 14): per teks = marker
+  // (14 karakter) + newline + teks; marker akhir sekali per chunk.
+  for (const chunk of splitGetBatch(texts, baseLen + 14, (t) => urlParamCost(t) + 14 + 3)) {
+    const parts = [];
+    for (let i = 0; i < chunk.length; i++) { parts.push(MARKER(i), chunk[i]); }
+    parts.push(MARKER(chunk.length));
+    const params = new URLSearchParams(fixed);
+    params.append('q', parts.join('\n'));
+    const res = await fetchWithTimeout('https://translate.googleapis.com/translate_a/single?' + params.toString(), undefined, FETCH_TIMEOUT_FREE_MS);
+    fetchOk(res, 'Google', true);
+    const data = await res.json();
+    const arr = data && data[0];
+    if (!Array.isArray(arr)) throw new Error('GoogleMarkers: format balasan tidak dikenal');
+    let joined = '';
+    for (const c of arr) {
+      if (!Array.isArray(c)) continue;
+      for (const seg of c) if (Array.isArray(seg) && seg[0]) joined += seg[0];
+    }
+    for (let i = 0; i < chunk.length; i++) {
+      const a = joined.indexOf(MARKER(i)), b = joined.indexOf(MARKER(i + 1));
+      if (a < 0 || b < 0 || b <= a) throw new Error('GoogleMarkers: marker hilang');
+      out.push(joined.slice(a + MARKER(i).length, b).trim());
+    }
   }
   return out;
 }
 async function edgeBatch(texts, src, tgt) {
   const url = 'https://edge.microsoft.com/translate/translatetext?from=' + encodeURIComponent(src) + '&to=' + encodeURIComponent(tgt) + '&api-version=3.0';
-  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(texts) });
+  const res = await fetchWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(texts) }, FETCH_TIMEOUT_FREE_MS);
   fetchOk(res, 'Edge');
   const data = await res.json();
   if (!Array.isArray(data) || data.length !== texts.length) throw new Error('Edge: format balasan tidak dikenal');
@@ -7630,7 +7741,7 @@ async function edgeBatch(texts, src, tgt) {
 }
 async function mymemoryOne(text, src, tgt) {
   const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=' + src + '|' + tgt;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url, undefined, FETCH_TIMEOUT_FREE_MS);
   fetchOk(res, 'MyMemory');
   const data = await res.json();
   const t = data && data.responseData && data.responseData.translatedText;
@@ -7646,15 +7757,26 @@ function parseCustomResponse(content, n) {
   // seperti sebelumnya, tanpa crash). Think dibuang dulu supaya fence di
   // dalamnya tidak menyesatkan ekstraksi fence.
   s = s.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fence) s = fence[1].trim();
+  // (v3.4.26) Coba SEMUA fence (klaim 15): model bisa menaruh contoh di
+  // fence pertama dan jawaban di fence berikutnya. Terakhir baru pindai
+  // seluruh balasan.
+  const fences = [...s.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)].map((f) => f[1].trim());
+  const candidates = fences.length ? fences : [s];
+  for (const cand of candidates) {
+    const r = extractJsonArray(cand, n);
+    if (r) return r;
+  }
+  if (fences.length) return extractJsonArray(s, n);
+  return null;
+}
+/* (v3.4.17) Jawaban selalu di AKHIR balasan; penalaran (dengan kurung
+   siku) mendahuluinya — 'indexOf' pertama dulu gagal bila penalaran
+   mengandung '['. Coba semua posisi '[' dari TERAKHIR ke pertama,
+   kembalikan yang pertama lolos validasi (array, panjang = n, semua
+   elemen string tak kosong). */
+function extractJsonArray(s, n) {
   const b = s.lastIndexOf(']');
   if (b < 0) return null;
-  // (v3.4.17) Jawaban selalu di AKHIR balasan; penalaran (dengan kurung
-  // siku) mendahuluinya — 'indexOf' pertama dulu gagal bila penalaran
-  // mengandung '['. Coba semua posisi '[' dari TERAKHIR ke pertama,
-  // kembalikan yang pertama lolos validasi (array, panjang = n, semua
-  // elemen string tak kosong).
   const starts = [];
   for (let i = s.indexOf('['); i >= 0 && i < b; i = s.indexOf('[', i + 1)) starts.push(i);
   for (let k = starts.length - 1; k >= 0; k--) {
@@ -7696,11 +7818,11 @@ async function customBatch(texts, src, tgt) {
   };
   const effort = reasoningEffort(customCfg.model);
   if (effort) payload.reasoning_effort = effort;
-  const res = await fetch(customCfg.baseUrl.replace(/\/+$/, '') + '/chat/completions', {
+  const res = await fetchWithTimeout(customCfg.baseUrl.replace(/\/+$/, '') + '/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + customCfg.apiKey },
     body: JSON.stringify(payload),
-  });
+  }, FETCH_TIMEOUT_CUSTOM_MS);
   fetchOk(res, 'Custom');
   const data = await res.json();
   const msg = data && data.choices && data.choices[0] && data.choices[0].message;
@@ -7739,6 +7861,9 @@ async function customBatch(texts, src, tgt) {
    mesin yang sudah mati (kasus nyata v3: 17.716 teks, Google saja,
    17.193 gagal karena tiap batch mulai lagi dari Google). */
 function isRetryable(e) {
+  // (v3.4.26) Abort dari tombol Berhenti bukan gangguan jaringan —
+  // jangan di-retry (klaim 13).
+  if (e && e.aborted) return false;
   const code = (e && typeof e.status === 'number') ? e.status : null;
   if (code !== null) return code === 429 || code >= 500;
   const m = (e && e.message) || '';
@@ -7873,13 +7998,20 @@ function parseDictResponse(data, n) {
   return data;
 }
 async function googleDictBatch(texts, src, tgt) {
-  const params = new URLSearchParams();
-  params.append('client', 'dict-chrome-ex'); params.append('sl', src); params.append('tl', tgt);
-  for (const t of texts) params.append('q', t);
-  const res = await fetch('https://clients5.google.com/translate_a/t?' + params.toString());
-  fetchOk(res, 'GoogleDict', true);
-  const out = parseDictResponse(await res.json(), texts.length);
-  if (!out) throw new Error('GoogleDict: format balasan tidak dikenal');
+  const fixed = new URLSearchParams();
+  fixed.append('client', 'dict-chrome-ex'); fixed.append('sl', src); fixed.append('tl', tgt);
+  const baseLen = 'https://clients5.google.com/translate_a/t?'.length + fixed.toString().length + 1;
+  const out = [];
+  // (v3.4.26) Pecah seperti googleBatch (klaim 14).
+  for (const chunk of splitGetBatch(texts, baseLen, urlParamCost)) {
+    const params = new URLSearchParams(fixed);
+    for (const t of chunk) params.append('q', t);
+    const res = await fetchWithTimeout('https://clients5.google.com/translate_a/t?' + params.toString(), undefined, FETCH_TIMEOUT_FREE_MS);
+    fetchOk(res, 'GoogleDict', true);
+    const one = parseDictResponse(await res.json(), chunk.length);
+    if (!one) throw new Error('GoogleDict: format balasan tidak dikenal');
+    out.push(...one);
+  }
   return out;
 }
 /* Rantai fallback per batch (v3.1): custom → Google (+marker bila semua
@@ -8468,6 +8600,17 @@ window.__GTHTML_V3416__ = { reasoningEffort, state: S };
 window.__GTHTML_V3417__ = { parseCustomResponse, state: S };
 /* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3422__ (v3.4.22) */
 window.__GTHTML_V3422__ = { exportSelectedTsv, buildTsvExport, downloadedMark, updateExportTsvButton, state: S };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3426__ (v3.4.26) —
+   gabungan perbaikan review Gemini atas v3.4.22 (klaim 1,2,3,4,5,6,7,8,
+   9,10,11,12,13,14,15,18, 19-sebagian). */
+window.__GTHTML_V3426__ = {
+  fetchWithTimeout, abortActiveFetches, setRunLock, loadFile, doScan,
+  splitGetBatch, urlParamCost, googleBatch, googleBatchMarkers, googleDictBatch,
+  escapeJsStringEntities, safeVarInsert, singleLinkReplacement,
+  LINK_TOKEN_RE, MACRO_TOKEN_RE, parseCustomResponse, extractJsonArray,
+  parsePo, buildPo, repairTranslations, verifyOutput, buildOutput, scanFile,
+  state: S,
+};
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8514,7 +8657,10 @@ function passageNameTranslation(name) {
 function singleLinkReplacement(seg, labelText, targetText, targetIsOriginal) {
   if (seg.macro === 'link') {
     const q = seg.quote || '"';
-    return escapeJsString(labelText, q) + q + ' ' + q + escapeJsString(targetText, q);
+    // (v3.4.26) escapeJsString adalah escaping yang BENAR di sini (klaim
+    // 1a) — tambah escape entitas &<> supaya < diikuti huruf tidak dibaca
+    // sebagai tag HTML di dalam <tw-passagedata>.
+    return escapeJsStringEntities(labelText, q) + q + ' ' + q + escapeJsStringEntities(targetText, q);
   }
   // (v3.4.7) Pemisah kanonis Harlowe adalah '->' (manual resmi 3.3.8);
   // '|' hanya pemisah SugarCube — menulis '|' di Harlowe membuat tautan
@@ -8554,6 +8700,11 @@ function buildOutput() {
     if (seg.kind === 'js') rep = escapeJsString(tr.text, seg.quote || '"');
     else if (seg.kind === 'js-template') rep = escapeTemplateText(tr.text);
     else if (seg.kind === 'passage-name') rep = encodeAttrValue(tr.text);
+    // (v3.4.26) Segmen argumen macro (klaim 1b): kutip di terjemahan
+    // harus di-escape gaya-JS (encodePassageText mematahkan string macro
+    // di kedua keadaan encodeStyle) + entitas &<>. Bukan untuk segmen
+    // teks biasa — di sana \" harfiah akan tampil di game.
+    else if (seg.macroArg) rep = escapeJsStringEntities(tr.text, seg.quote || '"');
     else rep = encodePassageText(tr.text, S.encodeStyle);
     reps.push({ start: seg.rawStart, end: seg.rawEnd, replacement: rep });
   }
@@ -8570,8 +8721,8 @@ function buildOutput() {
       const nt = passageNameTranslation(seg.ref);
       if (!nt || nt === seg.ref) continue;
       let rep;
-      if (seg.macro) rep = escapeJsString(nt, '"');
-      else rep = nt; // di dalam [[...]] — nama passage ditulis mentah
+      if (seg.macro) rep = escapeJsStringEntities(nt, '"'); // (v3.4.26) sama seperti cabang <<link>> di atas — target di dalam string macro
+      else rep = encodePassageText(nt, S.encodeStyle); // (v3.4.26) klaim 1c: nama passage ber-& di dalam [[...]] ikut di-encode, seperti name="..."
       reps.push({ start: seg.rawStart, end: seg.rawEnd, replacement: rep });
     }
   }
@@ -8642,18 +8793,28 @@ function verifyOutput(outText) {
   // (2) Setiap target tautan statis ada sebagai passage di file hasil.
   // Target dinamis dilewati: mengandung $ (variabel), _ (variabel
   // sementara), atau ( ) (ekspresi).
+  // (v3.4.26) Cek ini + cek (3) jalan pada teks hasil-decode-entitas
+  // (klaim 7): di Twine 2 macro tersimpan sebagai &lt;&lt;...&gt;&gt;,
+  // sehingga pola literal <<...>> tidak menemukannya dan cek jadi vakum.
+  // Nama passage juga diambil dari teks ter-decode supaya target
+  // ter-decode ('Cafe & Bar') cocok dengan name="Cafe &amp; Bar".
+  const decOrig = decodeEntities(S.originalText);
+  const decOut = decodeEntities(outText);
   {
-    const outNames = new Set(namesOf(outText));
+    const outNames = new Set(namesOf(decOut));
     const targets = [];
     // Tautan [[...]] di teks passage saja — yang di dalam argumen macro
     // (mis. <<addToLoc "[[Home]]">>) bukan tautan navigasi dan memang
     // sengaja tidak diganti nama saat mode nama passage aktif (v3.4.6 D1).
-    const textNoMacro = outText.replace(/<<[\s\S]*?>>/g, ' ');
+    // Strip macro dari teks ter-decode (pola sadar-tanda-kutip) supaya
+    // bentuk ter-encode ikut terbuang.
+    const textNoMacro = decOut.replace(new RegExp(MACRO_TOKEN_RE.source, 'g'), ' ');
     for (const m of textNoMacro.matchAll(new RegExp(LINK_TOKEN_RE.source, 'g'))) {
       const p = parseLinkToken(m[0].slice(2, -2));
       if (p.target && p.target.trim()) targets.push(p.target.trim());
     }
-    for (const m of outText.matchAll(/<<\s*(?:link|button)\b[\s\S]*?>>/g)) {
+    const linkMacroRe = new RegExp('<<\\s*(?:link|button)\\b' + MACRO_TOKEN_RE.source.slice(2), 'g');
+    for (const m of decOut.matchAll(linkMacroRe)) {
       const args = quotedArgs(m[0]);
       if (args.length >= 2) targets.push(args[1].text);
     }
@@ -8663,10 +8824,12 @@ function verifyOutput(outText) {
       ok('Target tautan statis ada sebagai passage (' + statics.length + ')', missing.length === 0, missing.length ? ('tidak ada: ' + missing.slice(0, 5).join(', ')) : '');
     }
   }
-  // (3) Keseimbangan buka/tutup << ... >>.
+  // (3) Keseimbangan buka/tutup << ... >> — dihitung pada teks
+  // hasil-decode (v3.4.26, klaim 7) supaya &lt;&lt;/&gt;&gt; Twine 2 ikut
+  // terperiksa; sebelumnya keduanya 0 di kedua sisi dan cek selalu lolos.
   {
-    const origLt = countRe(/<</g, S.originalText), outLt = countRe(/<</g, outText);
-    const origGt = countRe(/>>/g, S.originalText), outGt = countRe(/>>/g, outText);
+    const origLt = countRe(/<</g, decOrig), outLt = countRe(/<</g, decOut);
+    const origGt = countRe(/>>/g, decOrig), outGt = countRe(/>>/g, decOut);
     if (origLt + origGt) ok('Tanda << dan >> seimbang (' + origLt + '/' + origGt + ')', origLt === outLt && origGt === outGt, 'hasil: ' + outLt + '/' + outGt);
   }
   // (4) Jumlah tag <script> buka/tutup.
@@ -8746,6 +8909,42 @@ async function qaAllChunked() {
 /* (v3.4.2) Async + per potongan 1000 segmen dengan jeda — hasil identik
    dengan versi sync lama, tapi tab tetap responsif di file besar.
    Hanya dipanggil dari doBuild(). */
+/* (v3.4.26) Sisipkan variabel di posisi yang AMAN di teks terjemahan
+   (klaim 2) — BUKAN indeks mentah teks Inggris (susunan kata Indonesia
+   ≠ Inggris, jadi indeks itu hampir pasti salah). Aturan:
+   - Variabel di akhir kalimat Inggris -> akhir kalimat Indonesia,
+     sebelum tanda baca akhir (dengan spasi bila perlu).
+   - Selain itu -> batas kata terdekat sesudah indeks Inggris (maju
+     sampai ujung kata), dengan spasi di sekitar bila bahasa Inggrisnya
+     memakai spasi di sisi itu.
+   - TOLAK (kembalikan null) bila posisi jatuh di dalam tag <...> —
+     perbaikan dibatalkan seperti sebelumnya (reverted).
+   Mengembalikan teks baru, atau null bila tidak ada posisi aman. */
+function isRepairWordChar(c) { return !!c && /[\p{L}\p{N}_$]/u.test(c); }
+function safeVarInsert(fixed, v, engIdx, engText) {
+  const engTrimmed = engText.replace(/[\s.!?…]+$/, '');
+  const atEnd = engIdx + v.length >= engTrimmed.length;
+  let pos;
+  if (atEnd) {
+    pos = fixed.length;
+    while (pos > 0 && /[.!?…]/.test(fixed[pos - 1])) pos--;
+    while (pos > 0 && /\s/.test(fixed[pos - 1])) pos--;
+  } else {
+    pos = Math.min(engIdx, fixed.length);
+    // Maju ke batas kata terdekat (ujung kata tempat indeks jatuh).
+    while (pos < fixed.length && pos > 0 && isRepairWordChar(fixed[pos - 1]) && isRepairWordChar(fixed[pos])) pos++;
+  }
+  // Tolak bila di dalam tag <...> (ada '<' tanpa penutup '>' sebelumnya).
+  const lt = fixed.lastIndexOf('<', pos - 1);
+  const gt = fixed.lastIndexOf('>', pos - 1);
+  if (lt > gt) return null;
+  const engBeforeSpace = engIdx > 0 && /\s/.test(engText[engIdx - 1]);
+  const engAfterSpace = engIdx + v.length < engText.length && /\s/.test(engText[engIdx + v.length]);
+  let ins = v;
+  if (pos > 0 && isRepairWordChar(fixed[pos - 1]) && engBeforeSpace) ins = ' ' + ins;
+  if (pos < fixed.length && isRepairWordChar(fixed[pos]) && engAfterSpace) ins = ins + ' ';
+  return fixed.slice(0, pos) + ins + fixed.slice(pos);
+}
 async function repairTranslations() {
   const repaired = [], reverted = [];
   const segs = S.segments;
@@ -8761,11 +8960,12 @@ async function repairTranslations() {
       let fixed = tr.text;
       for (const v of missing) {
         const idx = seg.text.indexOf(v);
-        const at = Math.min(idx, fixed.length);
-        fixed = fixed.slice(0, at) + v + fixed.slice(at);
+        const next = safeVarInsert(fixed, v, idx, seg.text);
+        if (next === null) { fixed = null; break; }
+        fixed = next;
       }
-      const stillMissing = getMissingVars(seg.text, fixed);
-      if (!stillMissing.length && fixed !== tr.text) {
+      const stillMissing = fixed === null ? getMissingVars(seg.text, tr.text) : getMissingVars(seg.text, fixed);
+      if (fixed !== null && !stillMissing.length && fixed !== tr.text) {
         S.translations.set(seg.id, { text: fixed, via: tr.via + '+repair' });
         repaired.push(seg);
       } else {
@@ -8787,7 +8987,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.22\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.26\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);
@@ -8824,7 +9024,24 @@ function parsePo(text) {
       const re = /"((?:[^"\\]|\\.)*)"/g;
       let m;
       while ((m = re.exec(s))) out += m[1];
-      return out.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      // (v3.4.26) Parser satu-per-satu seperti unescapeTwineText
+      // (klaim 10): urutan replace lama (\\n dulu, \\\\ terakhir) merusak
+      // \\n harfiah menjadi backslash + newline. Di sini \\ diproses
+      // dulu, baru karakter sesudahnya — \\n -> backslash + n.
+      let res = '';
+      for (let i = 0; i < out.length; i++) {
+        const c = out[i];
+        if (c === '\\' && i + 1 < out.length) {
+          const n = out[i + 1];
+          if (n === 'n') { res += '\n'; i++; }
+          else if (n === 't') { res += '\t'; i++; }
+          else if (n === 'r') { res += '\r'; i++; }
+          else if (n === '"') { res += '"'; i++; }
+          else if (n === '\\') { res += '\\'; i++; }
+          else res += c;
+        } else res += c;
+      }
+      return res;
     };
     const id = unq(idM[1]), str = unq(strM[1]);
     if (id && str) map.set(id, str);
@@ -9117,9 +9334,7 @@ async function retranslateSelected() {
   });
   if (!queue.length) { log('Tidak ada teks yang diceklis dan sudah diterjemahkan untuk diterjemahkan ulang.', 'w'); return { replaced: 0, kept: 0 }; }
   S.running = true; S.cancelled = false;
-  $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
-  $('btnRetryFailed').disabled = true; $('btnStop').disabled = false;
-  const btnR = $('btnRetranslate'); if (btnR) btnR.disabled = true;
+  setRunLock(true); // (v3.4.26) klaim 6: kunci semua kontrol selama run
   log('Mulai menerjemahkan ulang ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + ')');
   let replaced = 0, kept = 0;
   const keptSegs = [];
@@ -9190,8 +9405,7 @@ async function retranslateSelected() {
     // sama. Bila dibatalkan (Berhenti), pilihan dipertahankan agar sisa
     // antrean masih bisa diulang.
     if (!S.cancelled) S.selected.clear();
-    $('btnTranslateAll').disabled = false; $('btnTranslateSel').disabled = false;
-    $('btnRetryFailed').disabled = false; $('btnStop').disabled = true;
+    setRunLock(false); // (v3.4.26) klaim 6: buka semua kontrol
     $('transStatus').textContent = '';
     updateRetranslateButton();
     refreshAfterMutation();
@@ -9205,6 +9419,9 @@ function renderList() {
   const pages = Math.max(1, Math.ceil(segs.length / S.perPage));
   if (S.page >= pages) S.page = pages - 1;
   if (S.page < 0) S.page = 0;
+  // (v3.4.26) Pager digelapkan di ujung (klaim 18).
+  $('btnPrevPage').disabled = S.page === 0;
+  $('btnNextPage').disabled = S.page >= pages - 1;
   const q = (S.listQuery || '').trim();
   const onlyUntr = !!S.listOnlyUntr;
   const total = translatableSegs().length;
@@ -9235,7 +9452,7 @@ function renderList() {
       + '<span>' + idx + '</span>'
       + '<div><div class="orig">' + esc(seg.text) + '</div><div class="src">' + esc(src) + '</div></div>'
       + '<textarea data-id="' + seg.id + '" placeholder="Terjemahan Indonesia…" ' + (seg.skipped ? 'disabled' : '') + '>' + esc(val) + '</textarea>'
-      + '<div>' + statusPill(seg) + downloadedMark(seg) + '<br><button class="tr-one small" data-id="' + seg.id + '"' + (seg.skipped ? ' disabled' : '') + '>Terjemahkan</button></div>'
+      + '<div>' + statusPill(seg) + downloadedMark(seg) + '<br><button class="tr-one small" data-id="' + seg.id + '"' + (seg.skipped || S.running ? ' disabled' : '') + '>Terjemahkan</button></div>'
       + '</div>');
   });
   body.innerHTML = html.join('');
@@ -9262,6 +9479,10 @@ function renderList() {
     b.addEventListener('click', async () => {
       const seg = S.segments.find((s) => s.id === b.dataset.id);
       if (!seg) return;
+      // (v3.4.26) Tolak klik saat run berjalan (klaim 5): dua rantai mesin
+      // berbagi pemutus sirkuit yang sama — resetCircuitBreaker() di sini
+      // akan menghapus streak 429 yang sedang dihitung run utama.
+      if (S.running) { log('Terjemahan semua sedang berjalan — tunggu selesai dulu.', 'w'); return; }
       // (v3.4.4) Semua mesin tidak dicentang — jangan diam-diam gagal.
       if (allEnginesOff()) { log('Semua mesin tidak dicentang — centang minimal satu mesin di "Mesin yang dipakai" (Langkah 2).', 'w'); return; }
       b.disabled = true;
@@ -9414,6 +9635,7 @@ function collectProjectData() {
     engine: S.engine, encodeStyle: S.encodeStyle, ts: Date.now(),
     engineSel: S.engineSel, // (v3.4.4) mesin yang dipakai ikut tersimpan
     downloaded: [...(S.downloaded || [])], // (v3.4.22) teks Inggris yang sudah diunduh sebagai bahan latihan
+    origDownloaded: S.origDownloaded, // (v3.4.26) klaim 19-sebagian: .orig.html tidak diunduh ulang tiap sesi
   };
 }
 /* Fallback lama (localStorage) — dipakai bila IndexedDB tidak ada/gagal. */
@@ -9479,6 +9701,8 @@ function restoreProject(d) {
   // (v3.4.22) Teks yang sudah diunduh sebagai bahan latihan — proyek lama
   // tanpa field ini tetap jalan dengan Set kosong.
   S.downloaded = new Set(d.downloaded || []);
+  // (v3.4.26) Klaim 19-sebagian: proyek lama tanpa field ini tetap false.
+  S.origDownloaded = !!d.origDownloaded;
   S.includeScript = !!d.includeScript; S.translateNames = !!d.translateNames;
   // (v3.4.6) Label tautan satu argumen — proyek lama tanpa field ini tetap memakai default lintas proyek.
   if (d.linkLabels !== undefined) S.linkLabels = !!d.linkLabels;
@@ -9559,6 +9783,7 @@ async function loadFile(file) {
   S.originalText = text;
   S.fileHash = djb2(text);
   S.translations = new Map(); S.tm = new Map(); S.skipPassages = new Set();
+  S.downloaded = new Set(); // (v3.4.26) klaim 3: tanda '!' + daftar unduhan game lama tidak ikut ke game baru
   S.outputText = ''; S.page = 0; S.selected.clear();
   S.listQuery = ''; const ls = $('listSearch'); if (ls) ls.value = ''; // (v3.4.4) file baru = pencarian baru
   S.listOnlyUntr = false; const lo = $('chkOnlyUntr'); if (lo) lo.checked = false; // (v3.4.5) file baru = filter baru
@@ -9580,6 +9805,30 @@ function outFileName() {
 function origFileName() {
   return S.fileName.replace(/\.html?$/i, '') + '.orig.html';
 }
+/* (v3.4.26) Kunci / buka semua kontrol yang berbahaya selama run
+   terjemahan (klaim 6): Pindai ulang + Pulihkan (doScan / hapus
+   terjemahan menghancurkan antrean run), Timpa + Pratinjau (snapshot
+   setengah jalan), Terjemahan custom (aksinya sudah no-op lewat cek
+   S.running — tombolnya ikut digelapkan supaya konsisten), dan checkbox
+   opsi (optScript/optNames/optLinkLabels, ceklis mesin, skipAll —
+   mengubah pemindai / rantai mesin di tengah run). Dipakai runTranslate
+   + retranslateSelected (finally). */
+function setRunLock(locked) {
+  $('btnTranslateAll').disabled = locked;
+  $('btnTranslateSel').disabled = locked;
+  $('btnRetryFailed').disabled = locked;
+  $('btnStop').disabled = !locked;
+  const bR = $('btnRetranslate'); if (bR) bR.disabled = locked;
+  $('btnRescan').disabled = locked;
+  $('btnRestore').disabled = locked;
+  $('btnBuild').disabled = locked || buildRunning;
+  $('btnPreview').disabled = locked || buildRunning;
+  $('optScript').disabled = locked;
+  $('optNames').disabled = locked;
+  const ll = $('optLinkLabels'); if (ll) ll.disabled = locked;
+  document.querySelectorAll('.engChk').forEach((cb) => { cb.disabled = locked; });
+  const sa = $('skipAll'); if (sa) sa.disabled = locked || S.passages.length === 0;
+}
 async function runTranslate(which) {
   if (!S.fileName) { log('Upload file dulu.', 'w'); return; }
   if (S.running) return;
@@ -9590,17 +9839,22 @@ async function runTranslate(which) {
   if (!queue.length) { log(tmN ? 'Semua teks sudah diterjemahkan (TM: ' + tmN + ').' : 'Tidak ada teks yang perlu diterjemahkan.'); refreshUI(); return; }
   if (tmN) log('TM memakai ulang ' + tmN + ' teks; ' + queue.length + ' teks dikirim ke mesin.');
   S.running = true; S.cancelled = false;
-  $('btnTranslateAll').disabled = true; $('btnTranslateSel').disabled = true;
-  $('btnRetryFailed').disabled = true; $('btnStop').disabled = false;
-  log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + '; label tautan satu argumen: ' + (S.linkLabels ? 'AKTIF' : 'NONAKTIF') + ')');
-  const done = await translateSegments(queue);
-  const failed = queue.filter((s) => { const t = S.translations.get(s.id); return t && t.failed; }).length;
-  log('Selesai: ' + done + ' teks diproses, ' + failed + ' gagal. ' + (failed ? 'Pakai "Ulangi yang gagal" atau perbaiki manual di Daftar Teks.' : ''));
-  S.running = false;
-  $('btnTranslateAll').disabled = false; $('btnTranslateSel').disabled = false;
-  $('btnRetryFailed').disabled = false; $('btnStop').disabled = true;
-  $('transStatus').textContent = '';
-  refreshAfterMutation();
+  setRunLock(true);
+  // (v3.4.26) try...finally (klaim 4): lemparan tak terduga di dalam
+  // translateSegments tidak boleh membuat S.running tetap true dan
+  // tombol terkunci sampai reload — pola yang sama dengan
+  // retranslateSelected.
+  try {
+    log('Mulai menerjemahkan ' + queue.length + ' teks… (mesin: ' + enabledEngineLabels().join(' → ') + '; label tautan satu argumen: ' + (S.linkLabels ? 'AKTIF' : 'NONAKTIF') + ')');
+    const done = await translateSegments(queue);
+    const failed = queue.filter((s) => { const t = S.translations.get(s.id); return t && t.failed; }).length;
+    log('Selesai: ' + done + ' teks diproses, ' + failed + ' gagal. ' + (failed ? 'Pakai "Ulangi yang gagal" atau perbaiki manual di Daftar Teks.' : ''));
+  } finally {
+    S.running = false;
+    setRunLock(false);
+    $('transStatus').textContent = '';
+    refreshAfterMutation();
+  }
 }
 /* (v3.4.2) Build bertahap tanpa macet: doBuild kini async — tiap fase
    memberi jeda (await sleep(0)) supaya browser bisa repaint dan tab
@@ -9620,6 +9874,7 @@ async function doBuild(downloadFiles) {
   if (!S.fileName) { blockBuild('Upload file dulu.'); return null; }
   if (S.needsReupload || !S.originalText) { blockBuild('Teks asli tidak tersimpan di proyek ini — upload ulang file yang sama dulu, baru Timpa.', 'e'); return null; }
   if (buildRunning) { blockBuild('Build sedang berjalan — tunggu selesai dulu.'); return null; }
+  if (S.running) { blockBuild('Terjemahan sedang berjalan — tunggu selesai dulu.'); return null; } // (v3.4.26) klaim 6: Timpa snapshot setengah jalan
   buildRunning = true;
   setBuildButtonsDisabled(true);
   try {
@@ -9770,19 +10025,29 @@ function init() {
   });
   $('btnRescan').addEventListener('click', () => {
     if (!S.originalText) { log('Belum ada file.', 'w'); return; }
+    // (v3.4.26) Jangan pindai ulang di tengah run (klaim 6): doScan
+    // mengganti S.segments + S.translations selagi antrean run memegang
+    // objek segmen lama.
+    if (S.running) { log('Terjemahan sedang berjalan — tunggu selesai dulu.', 'w'); return; }
     doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); saveProject();
   });
   $('optScript').addEventListener('change', () => {
+    // (v3.4.26) Jangan ubah opsi pemindai di tengah run (klaim 6).
+    if (S.running) { $('optScript').checked = S.includeScript; log('Terjemahan sedang berjalan — tunggu selesai dulu.', 'w'); return; }
     S.includeScript = $('optScript').checked;
     if (S.originalText) { doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); saveProject(); }
   });
   $('optNames').addEventListener('change', () => {
+    // (v3.4.26) Jangan ubah opsi pemindai di tengah run (klaim 6).
+    if (S.running) { $('optNames').checked = S.translateNames; log('Terjemahan sedang berjalan — tunggu selesai dulu.', 'w'); return; }
     S.translateNames = $('optNames').checked;
     if (S.translateNames) log('Mode nama passage AKTIF — nama passage akan ikut diterjemahkan dan name= diubah saat Timpa (konfirmasi diminta).', 'w');
     if (S.originalText) { doScan(); showFileInfo(); renderSkipList(); updateStats(); renderList(); saveProject(); }
   });
   // (v3.4.6) Label tautan satu argumen [[...]] / <<link "X">> tanpa badan.
   $('optLinkLabels').addEventListener('change', () => {
+    // (v3.4.26) Jangan ubah opsi pemindai di tengah run (klaim 6).
+    if (S.running) { $('optLinkLabels').checked = S.linkLabels; log('Terjemahan sedang berjalan — tunggu selesai dulu.', 'w'); return; }
     S.linkLabels = $('optLinkLabels').checked;
     saveLinkLabels();
     if (S.linkLabels) log('Label tautan satu argumen AKTIF — label [[X]] dan <<link "X">> tanpa badan ikut diterjemahkan; Timpa menulis balik [[Terjemahan|X]] (target dipertahankan).', 'w');
@@ -9818,7 +10083,7 @@ function init() {
   $('btnTranslateAll').addEventListener('click', () => runTranslate('all'));
   $('btnTranslateSel').addEventListener('click', () => runTranslate('selected'));
   $('btnRetryFailed').addEventListener('click', () => runTranslate('failed'));
-  $('btnStop').addEventListener('click', () => { S.cancelled = true; $('transStatus').textContent = 'Menghentikan…'; });
+  $('btnStop').addEventListener('click', () => { S.cancelled = true; abortActiveFetches(); /* (v3.4.26) klaim 13: batalkan request yang sedang menggantung */ $('transStatus').textContent = 'Menghentikan…'; });
   $('chkAll').addEventListener('change', () => {
     const segs = filteredSegs(); // (v3.4.4) pilih yang terlihat saat mencari
     const slice = segs.slice(S.page * S.perPage, (S.page + 1) * S.perPage);
@@ -9862,8 +10127,11 @@ function init() {
   });
   $('btnRestore').addEventListener('click', () => {
     if (!S.fileName) return;
+    // (v3.4.26) Jangan pulihkan di tengah run (klaim 6).
+    if (S.running) { log('Terjemahan sedang berjalan — tunggu selesai dulu.', 'w'); return; }
     if (!window.confirm('Pulihkan ke file asli? Semua terjemahan di sesi ini akan dihapus.')) return;
     S.translations = new Map(); S.outputText = ''; S.origDownloaded = false;
+    S.downloaded = new Set(); // (v3.4.26) klaim 3: tanda '!' ikut dihapus saat pulihkan
     doScan(); showFileInfo(); renderSkipList(); refreshAfterMutation();
     log('Dipulihkan ke file asli.', 'g');
   });
@@ -9889,7 +10157,11 @@ function init() {
   // lalu proyek tersimpan (restoreProject) menimpanya bila ada.
   loadEngineSel();
   applyEngineSelToUI();
-  document.querySelectorAll('.engChk').forEach((cb) => cb.addEventListener('change', () => { readEngineSelFromUI(); saveEngineSel(); }));
+  document.querySelectorAll('.engChk').forEach((cb) => cb.addEventListener('change', () => {
+    // (v3.4.26) Jangan ubah rantai mesin di tengah run (klaim 6).
+    if (S.running) { applyEngineSelToUI(); return; }
+    readEngineSelFromUI(); saveEngineSel();
+  }));
   // (v3.4.6) Label tautan satu argumen: default lintas proyek dari localStorage,
   // lalu proyek tersimpan (restoreProject) menimpanya bila ada.
   S.linkLabels = readLinkLabelsDefault();
