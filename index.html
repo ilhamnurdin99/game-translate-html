@@ -281,7 +281,7 @@ body.simple .adv{display:none!important}
     <div id="logBox">Siap. Upload file game HTML untuk mulai.</div>
   </section>
 
-  <p class="mut small">Game Translate HTML v3.4.26 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Perbaikan review Gemini (v3.4.26): tanda sudah-di-download di-reset saat ganti file; tombol dikunci selama run + request bisa dibatalkan (timeout); macro sadar-tanda-kutip dan setter array dikenali; repair variabel di posisi aman; impor .po round-trip benar. Parser JavaScript: acorn (offline, di dalam file ini).</p>
+  <p class="mut small">Game Translate HTML v3.4.27 — khusus game HTML. Mesin terjemah: provider custom → Google → Google Dict → Microsoft Edge → Translator Chrome → MyMemory (gratis), dengan pemutus sirkuit per mesin. Mesin bisa dipilih sendiri lewat ceklis di Langkah 2 (v3.4.4). Pemindai membuang segmen kosong, teks debug, dan komentar kode. Tinjau Teks Variabel (v3) dihapus. Simpanan proyek di IndexedDB — reload tidak perlu upload ulang. Pemulihan placeholder tidak peduli huruf besar/kecil (v3.4); kurung yang rusak (mis. {{GL1}}}) ikut dipulihkan (v3.4.4). Daftar Teks bisa dicari (v3.4.4) dan difilter hanya yang belum diterjemahkan (v3.4.5). Ringkasan QA diperbarui setiap ada perubahan terjemahan (v3.4.5). Label tautan satu argumen [[...]] bisa diterjemahkan lewat ceklis di Langkah 2 (v3.4.6, default mati). Pratinjau aman di iframe sandbox dan selalu dibangun ulang (v3.4.7); isi &lt;&lt;widget&gt;&gt; ikut dipindai (v3.4.7); label tautan kapital semua ikut jadi segmen (v3.4.7); verifikasi memeriksa nama passage, target tautan, dan keseimbangan &lt;&lt; &gt;&gt; (v3.4.7); Harlowe menulis balik [[label-&gt;target]] (v3.4.7). Salin teks asli yang diceklis ke terjemahan (v3.4.8); baris "salin" tidak ditandai "sama persis" oleh QA (v3.4.8). Ceklis dibersihkan setelah salin (v3.4.9). Terjemah ulang yang diceklis (v3.4.10). Filter mesin di Daftar Teks (v3.4.11). Jumlah pilihan terlihat di samping tombol Terjemahan custom; ceklis dibersihkan setelah terjemah ulang (v3.4.12). Perbaikan review Gemini (v3.4.26): tanda sudah-di-download di-reset saat ganti file; tombol dikunci selama run + request bisa dibatalkan (timeout); macro sadar-tanda-kutip dan setter array dikenali; repair variabel di posisi aman; impor .po round-trip benar. Perbaikan scanner anti-bocor (v3.4.27): isi &lt;style&gt;/&lt;script&gt;/&lt;&lt;silently&gt;&gt; tidak lagi masuk Daftar Teks; prefix CSS @@ dikupas; CSS/JSON/ekspresi Twine ditolak; pengecualian scan &lt;script&gt; diperluas. Parser JavaScript: acorn (offline, di dalam file ini).</p>
 </main>
 <script>(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -6461,7 +6461,7 @@ body.simple .adv{display:none!important}
 <script>
 'use strict';
 /* =====================================================================
-   Game Translate HTML v3.4.26 — khusus game HTML (Twine / SugarCube /
+   Game Translate HTML v3.4.27 — khusus game HTML (Twine / SugarCube /
    Harlowe / HTML biasa). Satu file, satu alur: upload → scan →
    terjemahkan → Timpa & unduh file -ID.
    - (v3.4.3) Variabel & tautan lebih aman: _var, $Var.properti dan
@@ -6680,8 +6680,89 @@ function looksLikeText(s) {
   }
   return true;
 }
+/* (v3.4.27) Detektor anti-bocor — dipakai aturan keras scanAccepts
+   (SEBELUM baris OR) dan pemecah per baris emitPlainRunCore.
+   looksLikeCssBlock: potongan yang isinya hanya deklarasi CSS
+   "properti: nilai;" (satu blok aturan { ... } atau >= 2 deklarasi,
+   atau 1 deklarasi dengan unit CSS/#hex/rgb). Dialog ber-":" dan ";"
+   lolos karena sisanya bukan kosong ("He said: go now; she stayed.")
+   atau hanya 1 deklarasi tanpa unit ("Note: bring the sword;").
+   looksLikeJson: potongan yang lolos JSON.parse menjadi objek/array —
+   placeholder Twine {var}/{{{GT0}}} bukan JSON valid, jadi lolos.
+   looksLikeTwineExpr: potongan diawali $var/_var diikuti operator/
+   kata logika (lte/gte/is/isnot/to/=, dst.) — "$name is here" lolos
+   karena "is" diikuti kata biasa, bukan string/angka/$var. */
+/* (v3.4.27) Nama properti CSS yang umum — satu deklarasi "prop: nilai;"
+   saja sudah cukup menandai CSS bila prop-nya dikenal (mis. "color: red;"),
+   sementara "Note: bring the sword;" lolos karena "note" bukan properti. */
+const CSS_PROPS = new Set(('color background background-color font-size font-weight font-family font-style '
+  + 'margin margin-top margin-right margin-bottom margin-left padding padding-top padding-right padding-bottom padding-left '
+  + 'border border-color border-width border-style border-radius width height max-width min-width max-height min-height '
+  + 'display position top left right bottom text-align line-height opacity visibility z-index overflow cursor '
+  + 'flex flex-direction justify-content align-items gap transform transition animation box-shadow text-shadow '
+  + 'letter-spacing word-spacing white-space vertical-align float clear content list-style outline outline-color '
+  + 'text-decoration text-transform').split(' '));
+function looksLikeCssBlock(t) {
+  const s = (t || '').trim();
+  const block = /^\s*[^{}]*\{\s*([\s\S]*?)\s*\}\s*$/.exec(s);
+  const inner = block ? block[1] : s;
+  const decls = inner.match(/[a-zA-Z-]+\s*:\s*[^;{}]+;/g) || [];
+  if (!decls.length) return false;
+  const rest = inner.replace(/[a-zA-Z-]+\s*:\s*[^;{}]+;/g, '').trim();
+  if (rest !== '' && !/^[,;]+$/.test(rest)) return false;
+  if (block) return true;
+  if (decls.length >= 2) return true;
+  const pm = /^([a-zA-Z-]+)\s*:/.exec(decls[0]);
+  if (pm && CSS_PROPS.has(pm[1].toLowerCase())) return true;
+  const hasUnit = /#(?:[0-9a-f]{3,8})\b|\d+(?:px|em|rem|%|pt|vh|vw|vmin|vmax)|rgba?\s*\(/i.test(inner);
+  return hasUnit;
+}
+function looksLikeJson(t) {
+  const s = (t || '').trim();
+  if (!/^[\{\[]/.test(s)) return false;
+  try {
+    const v = JSON.parse(s);
+    return v !== null && typeof v === 'object';
+  } catch (e) { return false; }
+}
+function looksLikeTwineExpr(t) {
+  const s = (t || '').trim();
+  const vm = /^(\$[A-Za-z_][\w$]*(\.[A-Za-z_$][\w$]*)*(\[[^\]]*\])*|_[A-Za-z][\w$]*)/.exec(s);
+  if (!vm) return false;
+  const rest = s.slice(vm[0].length);
+  if (/^\s*(lte|gte|lt|gt|eq|neq)\b/i.test(rest)) return true;
+  if (/^\s*(is|isnot)\b\s+(['"\d$])/i.test(rest)) return true;
+  if (/^\s*to\b\s+(\$|['"]|\d)/i.test(rest)) return true;
+  if (/^\s*(===|!==|==|!=|>=|<=|=|>|<)/.test(rest)) return true;
+  return false;
+}
+/* (v3.4.27) Satu baris jelas kode (untuk pemecah per baris di
+   emitPlainRunCore): komentar //, macro <<... yang tak tertutup,
+   kata kunci JS huruf kecil, baris penutup }, CSS/JSON/ekspresi Twine,
+   panggilan fungsi satu token (showMenu()) atau yang diakhiri ); —
+   baris narasi lanjutan huruf kecil tidak kena (pola if/for memakai
+   huruf kecil + kurung buka; "If (" kapital lolos). */
+function isCodeLine(line) {
+  const t = (line || '').trim();
+  if (!t) return false;
+  if (t.startsWith('//') || t.startsWith('<<')) return true;
+  if (/^(var|let|const|function|return|class|import|export)\b/.test(t)) return true;
+  if (/^(if|for|while|switch|catch)\s*\(/.test(t)) return true;
+  if (/^\}/.test(t) || /^[\{\}]+$/.test(t)) return true;
+  if (/=/.test(t) && /;/.test(t)) return true;
+  if (looksLikeCssBlock(t) || looksLikeJson(t) || looksLikeTwineExpr(t)) return true;
+  if (!/\s/.test(t) && /[\w$]+\s*\(/.test(t)) return true;
+  if (/[\w$]+\s*\([^)]*\)\s*;\s*$/.test(t)) return true;
+  return false;
+}
 function scanAccepts(s, opts) {
   if (!s) return false;
+  const t0 = s.trim();
+  // (v3.4.27) Aturan keras anti-bocor — JANGAN biarkan twLabelLike
+  // menyelamatkannya: CSS murni, JSON, dan ekspresi Twine bukan teks
+  // tampil. Letaknya SEBELUM baris OR di bawah (akar kebocoran 1.4e:
+  // twLabelLike membatalkan penolakan looksTranslatable).
+  if (looksLikeCssBlock(t0) || looksLikeJson(t0) || looksLikeTwineExpr(t0)) return false;
   // (v3.4.7) Sinyal kode keras: bila SETIAP baris bukan-kosong memuat
   // '=' dan ';' bersamaan, itu kode — jangan biarkan twLabelLike/
   // twProseArg menyelamatkannya (baris kode di badan widget maupun teks
@@ -6907,10 +6988,17 @@ function emitPlainRun(parts, runText, runDecStart, map, baseRaw, ctx, depth) {
       const close = runText.indexOf('@@', next + 2);
       if (close < 0) { ctx.atSpan = true; return; } // pembuka tanpa penutup — span berlanjut
       const inner = runText.slice(next + 2, close);
-      const cls = /^\.([A-Za-z0-9_-]+);/.exec(inner);
-      if (!cls || (cls[1] !== 'debug-text' && cls[1] !== 'error')) {
-        const body = cls ? inner.slice(cls[0].length) : inner;
-        const bodyStart = next + 2 + (cls ? cls[0].length : 0);
+      // (v3.4.27) Kupas prefix atribut di awal isi @@ — bukan hanya
+      // satu .kelas; melainkan RANGKAIAN .kelas / #id / properti CSS
+      // (mis. @@color:red;font-weight:bold;Teks@@). Span .debug-text /
+      // .error tetap dilewati utuh (perilaku lama): cek kelas PERTAMA.
+      const firstCls = /^\.([A-Za-z0-9_-]+);/.exec(inner);
+      if (firstCls && (firstCls[1] === 'debug-text' || firstCls[1] === 'error')) {
+        // dilewati utuh — bukan teks tampil
+      } else {
+        const pre = /^(?:(?:\.[A-Za-z0-9_-]+|#[A-Za-z0-9_-]+|[a-z-]+\s*:\s*[^;]+);)+/.exec(inner);
+        const body = pre ? inner.slice(pre[0].length) : inner;
+        const bodyStart = next + 2 + (pre ? pre[0].length : 0);
         // (v3.4.7) Batas kedalaman (F20): span @@ bersarang lebih dalam
         // dari batas diperlakukan sebagai teks biasa (tanpa rekursi lagi).
         if (depth >= SCAN_MAX_DEPTH) emitPlainRunCore(parts, body, runDecStart + bodyStart, map, baseRaw, ctx);
@@ -6941,15 +7029,46 @@ function emitPlainRunCore(parts, runText, runDecStart, map, baseRaw, ctx) {
     // (v3.2) Segmen yang isinya hanya whitespace/escape — bukan teks,
     // tidak pernah bisa diterjemahkan (Seedship: 3.191 dari 4.441).
     if (/^(?:[\s\u00A0]|\\[nrt])*$/.test(core)) return;
-    if (!scanAccepts(core)) return;
-    // Potong segmen yang terlalu panjang di batas kalimat.
-    const chunks = splitLong(core);
-    let off = 0;
-    for (const ch of chunks) {
-      const ci = core.indexOf(ch, off); off = ci + ch.length;
-      const ds = pStart + a + ci, de = ds + ch.length;
-      parts.push(mkSeg(ctx, ch, map[ds] + baseRaw, map[de] + baseRaw));
+    // (v3.4.27) Di dalam <<silently>> teks polos tidak tampil — buang.
+    // Badan macro DOM (<<replace>>/<<append>>/<<prepend>>) dipindai
+    // lewat rekursi segmentSugarCube dengan silent dimatikan, jadi
+    // tidak kena di sini.
+    if ((ctx.silent || 0) > 0) return;
+    // (v3.4.27) Pecah per baris: baris yang jelas kode (isCodeLine)
+    // dibuang; baris narasi yang berurutan tetap SATU segmen — jangan
+    // jadikan tiap baris segmen terpisah. Offset tiap run dihitung dari
+    // posisinya di dalam core supaya Timpa tetap tepat.
+    const lines = core.split('\n');
+    let off = 0, runStart = -1, runLines = [];
+    const flushRun = () => {
+      if (!runLines.length) return;
+      const runText = runLines.join('\n');
+      runLines = [];
+      const rLead = /^(?:[\s\u00A0]|\\[nrt])+/.exec(runText);
+      const rTrail = /(?:[\s\u00A0]|\\[nrt])+$/.exec(runText);
+      let ra = 0, rb = runText.length;
+      if (rLead) ra = rLead[0].length;
+      if (rTrail) rb = runText.length - rTrail[0].length;
+      if (rb <= ra) return;
+      const runCore = runText.slice(ra, rb);
+      if (/^(?:[\s\u00A0]|\\[nrt])*$/.test(runCore)) return;
+      if (!scanAccepts(runCore)) return;
+      // Potong segmen yang terlalu panjang di batas kalimat.
+      const chunks = splitLong(runCore);
+      let coff = 0;
+      for (const ch of chunks) {
+        const ci = runCore.indexOf(ch, coff); coff = ci + ch.length;
+        const ds = pStart + a + runStart + ra + ci, de = ds + ch.length;
+        parts.push(mkSeg(ctx, ch, map[ds] + baseRaw, map[de] + baseRaw));
+      }
+    };
+    for (const ln of lines) {
+      const lineStart = off; off += ln.length + 1;
+      if (isCodeLine(ln)) { flushRun(); continue; }
+      if (runLines.length === 0) runStart = lineStart;
+      runLines.push(ln);
     }
+    flushRun();
   };
   while ((m = re.exec(runText))) { pushPiece(runText.slice(last, m.index), runDecStart + last); last = m.index + m[0].length; }
   pushPiece(runText.slice(last), runDecStart + last);
@@ -7094,7 +7213,9 @@ function findBlockEnd(decoded, from, name) {
    apa adanya (start/end sama). */
 function stripAtSpanArg(a) {
   let { text, start, end } = a;
-  const pre = /^@@(?:\.[A-Za-z0-9_-]+;)?/.exec(text);
+  // (v3.4.27) Kupas prefix atribut yang sama seperti emitPlainRun:
+  // rangkaian .kelas / #id / properti CSS di awal isi @@.
+  const pre = /^@@(?:(?:\.[A-Za-z0-9_-]+|#[A-Za-z0-9_-]+|[a-z-]+\s*:\s*[^;]+);)*/.exec(text);
   let stripped = false;
   if (pre) { start += pre[0].length; text = text.slice(pre[0].length); stripped = true; }
   if (text.endsWith('@@')) { end -= 2; text = text.slice(0, -2); stripped = true; }
@@ -7134,6 +7255,9 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
       // (v3.2) Link di dalam span @@ (mis. @@.debug-text;[[...]]@@) —
       // labelnya bukan teks tampil.
       if (ctx.atSpan) { last = te; continue; }
+      // (v3.4.27) Link di dalam <<silently>> tidak tampil — label dan
+      // targetnya bukan segmen.
+      if ((ctx.silent || 0) > 0) { last = te; continue; }
       const inner = tok.slice(2, -2);
       const p = parseLinkToken(inner);
       // (v3.4.6) Bila ceklis hidup, label yang sama dengan target tetap jadi
@@ -7177,6 +7301,29 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
         last = endPos; re.lastIndex = endPos;
         continue;
       }
+      // (v3.4.27) <<silently>>: output badannya tidak tampil di game,
+      // jadi teks polos di dalamnya bukan segmen. Rekursi seperti
+      // <<widget>> dengan ctx.silent dinaikkan — emitPlainRunCore
+      // membuang teks polos selama silent > 0, sementara argumen macro
+      // tetap diekstrak (kecuali yang memang tidak tampil: <<print>>,
+      // <<link>>, <<if>> — semuanya dilewati di cabang macro di bawah
+      // bila silent). PENGECUALIAN: badan macro DOM <<replace>>/
+      // <<append>>/<<prepend>> MENAMPILKAN teksnya (menulis langsung
+      // ke elemen target, bukan ke buffer output) — ditangani di bawah
+      // dengan rekursi silent=0. Tanpa penutup: lewati sampai akhir
+      // passage seperti widget.
+      if (name === 'silently') {
+        const span = findBlockEnd(decoded, te, name);
+        if (span && (widgetDepth || 0) < 10) {
+          const savedAtSpan = ctx.atSpan, savedSilent = ctx.silent || 0;
+          ctx.silent = savedSilent + 1;
+          parts.push(...segmentSugarCube(decoded.slice(te, span.closeStart), map.slice(te, span.closeStart + 1), baseRaw, ctx, (widgetDepth || 0) + 1));
+          ctx.atSpan = savedAtSpan; ctx.silent = savedSilent;
+        }
+        const endPos = span ? span.endPos : decoded.length;
+        last = endPos; re.lastIndex = endPos;
+        continue;
+      }
       if (BLOCK_CODE_MACROS.has(name)) {
         const closeRe = new RegExp('<<\\s*(/?)\\s*' + name + '\\s*>>', 'g');
         closeRe.lastIndex = te;
@@ -7191,6 +7338,26 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
       // (v3.2) Di dalam span @@ (mis. @@.debug-text;...@@ yang merentang
       // macro) — isi span bukan teks tampil, jangan ekstrak argumennya.
       if (ctx.atSpan) { last = te; continue; }
+      // (v3.4.27) Di dalam <<silently>> argumen macro tidak tampil —
+      // kecuali badan macro DOM (replace/append/prepend) yang menulis
+      // langsung ke elemen target: rekursi ke badannya dengan silent=0
+      // supaya teksnya tetap dipindai seperti sebelum v3.4.27.
+      if ((ctx.silent || 0) > 0) {
+        if (name === 'replace' || name === 'append' || name === 'prepend') {
+          const span = findBlockEnd(decoded, te, name);
+          if (span && (widgetDepth || 0) < 10) {
+            const savedSilent = ctx.silent, savedAtSpan = ctx.atSpan;
+            ctx.silent = 0;
+            parts.push(...segmentSugarCube(decoded.slice(te, span.closeStart), map.slice(te, span.closeStart + 1), baseRaw, ctx, (widgetDepth || 0) + 1));
+            ctx.silent = savedSilent; ctx.atSpan = savedAtSpan;
+          }
+          const endPos = span ? span.endPos : decoded.length;
+          last = endPos; re.lastIndex = endPos;
+        } else {
+          last = te;
+        }
+        continue;
+      }
       const rule = SC_QUOTE_MACROS[name];
       if (rule) {
         const args = quotedArgs(tok);
@@ -7229,8 +7396,18 @@ function segmentSugarCube(decoded, map, baseRaw, ctx, widgetDepth) {
       }
       // macro lain: dilindungi utuh
     }
-    // <tag> dan {{{...}}}: dilindungi utuh
-    last = te;
+    // <tag> dan {{{...}}}: dilindungi utuh — kecuali <script>/<style>:
+    // (v3.4.27) isinya kode, perpanjang token sampai tag penutupnya
+    // (seperti harloweWalk) supaya tidak bocor sebagai teks biasa.
+    // <svg> dikecualikan: isi <text> adalah teks tampil.
+    const tm = /^<(script|style)\b/i.exec(tok);
+    if (tm) {
+      const cm = new RegExp('</' + tm[1] + '\\s*>', 'i').exec(decoded.slice(te));
+      const endPos = cm ? te + cm.index + cm[0].length : decoded.length;
+      last = endPos; re.lastIndex = endPos;
+    } else {
+      last = te;
+    }
   }
   if (last < decoded.length) emitPlainRun(parts, decoded.slice(last), last, map, baseRaw, ctx);
   return parts;
@@ -7346,6 +7523,18 @@ function harlowePlainGap(text, decStart, map, baseRaw, ctx, parts, depth) {
   let i = 0, plainStart = 0;
   const flushPlain = (a, b) => { if (b > a) emitPlainRun(parts, text.slice(a, b), decStart + a, map, baseRaw, ctx); };
   while (i < text.length) {
+    if (text[i] === '<') {
+      const ma = /^<[A-Za-z0-9_-]+\|/.exec(text.slice(i));
+      if (ma) {
+        // (v3.4.27) Penutup hook bernama <nama| bukan teks — buang.
+        // Tanpanya, celah sesudahnya ("<status| Teks sesudah.") ditolak
+        // aturan tag-tak-tutup di looksTranslatable dan teks narasi
+        // ikut hilang (kurang terjemah diam-diam).
+        flushPlain(plainStart, i);
+        i += ma[0].length; plainStart = i;
+        continue;
+      }
+    }
     if (text[i] === '[') {
       // (v3.4.7) Penghitung kurung lokal bernama bdepth — JANGAN depth,
       // supaya tidak membayangi parameter kedalaman rekursi (F20).
@@ -7358,7 +7547,11 @@ function harlowePlainGap(text, decStart, map, baseRaw, ctx, parts, depth) {
         else if (c === ']') { bdepth--; if (bdepth === 0) { close = j; break; } }
         j++;
       }
-      flushPlain(plainStart, i);
+      // (v3.4.27) Penanda hook bernama |nama> sebelum [ bukan teks —
+      // buang dari celah polos (sebelumnya menempel ke teks sebelumnya,
+      // mis. "Teks sebelum. |status>").
+      const mb = /\|[A-Za-z0-9_-]+>$/.exec(text.slice(plainStart, i));
+      flushPlain(plainStart, mb ? i - mb[0].length : i);
       // (v3.4.7) Batas kedalaman (F20): hook bersarang lebih dalam dari
       // batas diperlakukan sebagai teks biasa — isinya diemisikan tanpa
       // diselami lagi, supaya tumpukan tidak penuh.
@@ -7412,7 +7605,13 @@ function scanFile(text, opts) {
       // teks tampil. Jangan pernah masuk Daftar Teks.
       // (v3.2) Twine 1 memakai nama pendek "JavaScript"/"Stylesheet"
       // untuk passage kode yang sama (Seedship: "Stylesheet" berisi CSS).
-      const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name);
+      // (v3.4.27) Juga: tag "script"/"stylesheet" pada <tw-passagedata>
+      // (konvensi Twine — tags disimpan tapi tak pernah dipakai sebelum
+      // ini) dan passage khusus StorySettings (format key: value).
+      const tagList = (attrs.tags || '').split(/\s+/).filter(Boolean);
+      const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name)
+        || /^storysettings$/i.test(name)
+        || tagList.some((tg) => /^(script|stylesheet)$/i.test(tg));
       jobs.push({ name, kind: 'twine2', nameRawStart, nameRawEnd, tags: attrs.tags || '', contentRaw, contentRawStart, isCodePassage });
     }
   } else {
@@ -7428,7 +7627,9 @@ function scanFile(text, opts) {
         const contentRaw = m[3];
         const contentRawStart = m.index + m[0].length - contentRaw.length - 6; // -'</div>'.length
         // (v2) Passage kode — lihat catatan di cabang Twine 2 di atas.
-        const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name);
+        // (v3.4.27) StorySettings juga passage kode (format key: value).
+        const isCodePassage = /^(story )?(javascript|stylesheet)$/i.test(name)
+          || /^storysettings$/i.test(name);
         jobs.push({ name, kind: 'twine1', nameRawStart, nameRawEnd, tags: '', contentRaw, contentRawStart, isCodePassage });
       }
     }
@@ -7533,6 +7734,17 @@ function extractJsStrings(code, fileOffset) {
   walk(ast, null);
   return { strings: out, error: null };
 }
+/* (v3.4.27) Nama objek pemanggil sebuah method (console.log,
+   window.localStorage.getItem, el.classList.add) — nama properti
+   terakhir dari rantai objek di kiri method. */
+function methodObjectName(callee) {
+  if (!callee || callee.type !== 'MemberExpression') return null;
+  const o = callee.object;
+  if (!o) return null;
+  if (o.type === 'Identifier') return o.name;
+  if (o.type === 'MemberExpression' && o.property && o.property.type === 'Identifier') return o.property.name;
+  return null;
+}
 /* Posisi kode yang BUKAN teks tampil: kunci properti, nama modul, direktif. */
 function isCodePosition(node, parent) {
   if (!parent) return false;
@@ -7547,6 +7759,37 @@ function isCodePosition(node, parent) {
   if (parent.type === 'CallExpression' && parent.callee && parent.callee.type === 'MemberExpression' && !parent.callee.computed
     && parent.callee.property && parent.callee.property.type === 'Identifier'
     && ['getElementById', 'querySelector', 'querySelectorAll', 'getElementsByClassName', 'getElementsByTagName', 'getElementsByName'].includes(parent.callee.property.name)) return true;
+  // (v3.4.27) Argumen fungsi teknis DOM/browser bukan teks tampil.
+  if (parent.type === 'CallExpression' && parent.callee) {
+    const callee = parent.callee;
+    const arg0 = parent.arguments && parent.arguments[0] === node;
+    const propName = callee.type === 'MemberExpression' && !callee.computed
+      && callee.property && callee.property.type === 'Identifier' ? callee.property.name : null;
+    const objName = methodObjectName(callee);
+    // console.<apa pun>(...) — semua argumen.
+    if (objName === 'console') return true;
+    // add/removeEventListener (arg 1 = nama event), juga bentuk global.
+    if ((propName === 'addEventListener' || propName === 'removeEventListener'
+      || (callee.type === 'Identifier' && (callee.name === 'addEventListener' || callee.name === 'removeEventListener'))) && arg0) return true;
+    // createElement (arg 1 = nama tag).
+    if (propName === 'createElement' && arg0) return true;
+    // setAttribute (arg 1 = nama atribut; nilainya tetap dipindai).
+    if (propName === 'setAttribute' && arg0) return true;
+    // classList.add/remove/toggle — semua argumen = nama kelas.
+    if (objName === 'classList' && ['add', 'remove', 'toggle'].includes(propName)) return true;
+    // localStorage/sessionStorage get/set/remove (arg 1 = kunci).
+    if ((objName === 'localStorage' || objName === 'sessionStorage')
+      && ['getItem', 'setItem', 'removeItem'].includes(propName) && arg0) return true;
+  }
+  // new RegExp(...) — semua argumen (pola, bukan teks).
+  if (parent.type === 'NewExpression' && parent.callee && parent.callee.type === 'Identifier' && parent.callee.name === 'RegExp') return true;
+  // (v3.4.27) Nilai properti konfigurasi/teknis — hanya bila nilainya
+  // tanpa spasi (teks tampil hampir selalu ber-spasi): { id: "x" } ya,
+  // { title: "Selamat datang" } dan { id: "my panel" } tidak.
+  if (parent.type === 'Property' && parent.value === node && !parent.computed
+    && parent.key && parent.key.type === 'Identifier'
+    && ['id', 'className', 'type', 'src', 'href', 'url', 'key', 'event', 'selector', 'storageKey'].includes(parent.key.name)
+    && typeof node.value === 'string' && !/\s/.test(node.value)) return true;
   return false;
 }
 function scanScripts(text) {
@@ -8611,6 +8854,14 @@ window.__GTHTML_V3426__ = {
   parsePo, buildPo, repairTranslations, verifyOutput, buildOutput, scanFile,
   state: S,
 };
+/* Ekspos untuk pengujian (jsdom): window.__GTHTML_V3427__ (v3.4.27) —
+   perbaikan scanner anti-bocor (saran AI Studio, butir 2, 3, 4, 5). */
+window.__GTHTML_V3427__ = {
+  scanFile, scanAccepts, looksTranslatable, looksLikeCssBlock, looksLikeJson,
+  looksLikeTwineExpr, isCodeLine, isCodePosition, methodObjectName,
+  extractJsStrings, emitPlainRun, harloweWalk, segmentSugarCube,
+  buildOutput, verifyOutput, doScan, state: S,
+};
 /* State + aksi seksi Perbaiki Kode (v2). */
 let fixState = { origText: '', badText: '', badName: '', result: null };
 async function runFixCheck() {
@@ -8987,7 +9238,7 @@ function untranslatedList() {
 /* ---------------- ekspor .po / TMX (ide 22) ---------------- */
 function poEscape(s) { return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t'); }
 function buildPo() {
-  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.26\\n"', ''];
+  const lines = ['msgid ""', 'msgstr ""', '"Content-Type: text/plain; charset=UTF-8\\n"', '"X-Generator: Game Translate HTML v3.4.27\\n"', ''];
   for (const seg of S.segments) {
     if (!seg.translatable || seg.skipped) continue;
     const t = S.translations.get(seg.id);

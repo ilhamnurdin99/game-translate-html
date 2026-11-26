@@ -32,7 +32,7 @@ G._setState({ glossary: GLOSSARY });
 const ev = (code) => w.eval(code);
 
 check('A0 hook v3.4 tersedia', !!w.__GTHTML_V34__ && typeof w.__GTHTML_V34__.cleanPlaceholderTranslations === 'function' && typeof w.__GTHTML_V34__.hasLeftoverPlaceholder === 'function');
-check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
 check('A0 Cara pakai menyebut pemulihan placeholder v3.4', html.includes('Pemulihan placeholder (v3.4)'));
 check('A0 GTHTML tersedia', !!G && typeof G.prepareForTranslate === 'function' && typeof G.restoreTranslated === 'function' && typeof G.buildOutput === 'function' && typeof G.verifyOutput === 'function');
 

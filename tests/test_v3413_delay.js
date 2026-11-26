@@ -42,7 +42,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.13 tersedia', !!V3413 && typeof V3413.batchDelayMs === 'function', 'hook: ' + typeof V3413);
-  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+  check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
   check('A0 Cara pakai menyebut v3.4.13', html.includes('(v3.4.13)'));
   if (!V3413 || typeof V3413.batchDelayMs !== 'function') { console.log('\nV3413_DELAY: batchDelayMs belum diekspos di hook v3.4.13 — RED'); process.exit(1); }
 

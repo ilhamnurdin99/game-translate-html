@@ -47,7 +47,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.26 tersedia', !!V3426 && typeof V3426.fetchWithTimeout === 'function' && typeof V3426.setRunLock === 'function', 'hook: ' + typeof V3426);
-  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+  check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
   if (!V3426 || typeof V3426.fetchWithTimeout !== 'function') { console.log('\nV3426_RUN_LOCK: hook v3.4.26 belum ada — RED'); process.exit(1); }
 
   const FIX = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>T</title></head><body>\n'

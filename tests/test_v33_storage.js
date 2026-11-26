@@ -103,12 +103,12 @@ function setSeedshipState(w, fileName) {
   check('A0 hook v3.3 tersedia', !!V33 && typeof V33.saveProject === 'function' && typeof V33.loadSavedProject === 'function'
     && typeof V33.idbSave === 'function' && typeof V33.idbLoad === 'function' && typeof V33.migrateFromLocalStorage === 'function');
   check('A0 idbAvailable() true dengan IndexedDB palsu', V33.idbAvailable() === true);
-  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+  check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
   check('A0 Cara pakai menyebut IndexedDB v3.3', html.includes('IndexedDB (v3.3)'));
 
   // (a) Round-trip proyek besar (Seedship ~1 MB)
   const scanA = setSeedshipState(wA, 'Seedship.html');
-  check('A1 pindai Seedship 1.313 segmen (v3.4.7)', scanA.segments.length === 1313, 'dapat: ' + scanA.segments.length);
+  check('A1 pindai Seedship 1.311 segmen (v3.4.27)', scanA.segments.length === 1311, 'dapat: ' + scanA.segments.length);
   V33.saveProject();
   await tick(200);
   check('A1 needsReupload false setelah simpan IndexedDB', wA.GTHTML._state.needsReupload === false);
@@ -116,7 +116,7 @@ function setSeedshipState(w, fileName) {
   const loadedA = await V33.loadSavedProject();
   check('A1 load kembali proyek', !!loadedA && loadedA.fileName === 'Seedship.html', loadedA && loadedA.fileName);
   check('A1 originalText kembali utuh (~1 MB)', !!loadedA && loadedA.originalText === seed, loadedA ? ('panjang: ' + (loadedA.originalText || '').length) : 'null');
-  check('A1 segmen kembali 1.313', !!loadedA && loadedA.segments.length === 1313, loadedA && loadedA.segments.length);
+  check('A1 segmen kembali 1.311', !!loadedA && loadedA.segments.length === 1311, loadedA && loadedA.segments.length);
   check('A1 terjemahan + skipPassages kembali', !!loadedA && loadedA.translations.length === 1 && loadedA.skipPassages.includes('Damage system'), loadedA && JSON.stringify(loadedA.skipPassages));
 
   // (b) Migrasi langsung dari localStorage
@@ -200,7 +200,7 @@ function setSeedshipState(w, fileName) {
   check('C fallback: slim tanpa originalText', !!slimSaved && slimSaved.originalText === '');
   check('C fallback: needsReupload = true', wB.GTHTML._state.needsReupload === true);
   check('C fallback: log peringatan localStorage penuh', (wB.document.getElementById('logBox').textContent || '').includes('localStorage penuh'));
-  check('C fallback: segmen tetap tersimpan di slim (1.313)', !!slimSaved && slimSaved.segments.length === 1313, slimSaved && slimSaved.segments.length);
+  check('C fallback: segmen tetap tersimpan di slim (1.311)', !!slimSaved && slimSaved.segments.length === 1311, slimSaved && slimSaved.segments.length);
   wB.Storage.prototype.setItem = origProtoSet;
 
   // (B2) Tanpa IndexedDB, file kecil tersimpan penuh di localStorage dan bisa dimuat

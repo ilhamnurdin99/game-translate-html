@@ -116,10 +116,11 @@ async function main() {
   S = setupState(FIX_CODELINE);
   check('G1 baris kode (= + ;) di badan widget bukan segmen', S.segments.filter((s) => s.passage === 'W').length === 0, JSON.stringify(S.segments.filter((s) => s.passage === 'W').map((s) => s.text)));
   check('G1 baris kode murni di teks biasa juga bukan segmen', !texts(S).some((t) => /^var q = 1/.test(t)), JSON.stringify(texts(S)));
-  // Perilaku lama v3.4.6 yang dipertahankan: paragraf campuran (kalimat +
-  // satu baris kode, tanpa baris kosong) tetap SATU segmen — baris kode
-  // di tengah paragraf teks biasa belum dipisah (di luar lingkup v3.4.7).
-  check('G1 paragraf campuran teks biasa tetap satu segmen (perilaku v3.4.6)', texts(S).some((t) => t.includes('Some intro text here.') && t.includes('More text after.')), JSON.stringify(texts(S)));
+  // (v3.4.27) Perilaku lama v3.4.6 DIUBAH: paragraf campuran kini dipecah
+  // per baris (butir 4 saran scanner) — baris kode dibuang, tiap baris
+  // narasi jadi segmen sendiri (dulu satu segmen utuh berisi baris kode
+  // di tengahnya).
+  check('G1 paragraf campuran: baris kode dibuang, narasi jadi dua segmen (v3.4.27)', texts(S).includes('Some intro text here.') && texts(S).includes('More text after.') && !texts(S).some((t) => t.includes('var q = 1')), JSON.stringify(texts(S)));
 
   /* ---------- (h) fragmen markup/variabel dari <<print>> gabungan (kasus Seedship) ---------- */
   const FIX_FRAG = twine2('<tw-passagedata pid="1" name="W" tags="" position="100,100" size="100,100"><<widget "w1">>\n'

@@ -27,7 +27,7 @@ const G = w.GTHTML;
 const V344 = w.__GTHTML_V344__;
 
 check('A0 hook v3.4.4 tersedia', !!V344 && typeof V344.unprotectGlossary === 'function' && typeof V344.unprotectPlaceholders === 'function' && typeof V344.hasLeftoverPlaceholder === 'function' && typeof V344.validateOne === 'function' && typeof V344.cleanPlaceholderTranslations === 'function' && typeof V344.verifyOutput === 'function');
-check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
 
 const glossSlots = [{ en: 'Continue', id: 'Lanjutkan' }, { en: 'Settings', id: 'Pengaturan' }];
 const varSlots = ['$Money', '_randomRoll'];

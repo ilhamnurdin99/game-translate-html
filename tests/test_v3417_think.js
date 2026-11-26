@@ -44,7 +44,7 @@ async function main() {
 
   /* ---------- A0: hook + label versi ---------- */
   check('A0 hook v3.4.17 tersedia', !!V3417 && typeof V3417.parseCustomResponse === 'function', 'hook: ' + typeof V3417);
-  check('A0 label versi v3.4.26', html.includes('Game Translate HTML v3.4.26') && !html.includes('Game Translate HTML v3.4.22'));
+  check('A0 label versi v3.4.27', html.includes('Game Translate HTML v3.4.27') && !html.includes('Game Translate HTML v3.4.26'));
   check('A0 Cara pakai menyebut v3.4.17', html.includes('(v3.4.17)'));
   if (!V3417 || typeof V3417.parseCustomResponse !== 'function') { console.log('\nV3417_THINK: parseCustomResponse belum diekspos di hook v3.4.17 — RED'); process.exit(1); }
 
